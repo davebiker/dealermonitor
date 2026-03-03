@@ -158,7 +158,9 @@ function generateDealerData(country) {
       alerts,
       recentReviews,
       monthlyData: generateMonthlyData(parseFloat(rating)),
+      profileQuality: null,
     });
+    dealers[dealers.length-1].profileQuality = generateProfileQuality(dealers[dealers.length-1]);
   }
   return dealers;
 }
@@ -208,6 +210,67 @@ function generateMonthlyData(rating) {
     negative: Math.floor(3 + Math.random() * 15),
   }));
 }
+
+function generateProfileQuality(dealer) {
+  // Basic info (60% weight)
+  const hasPhone = Math.random() > 0.1;
+  const hasEmail = Math.random() > 0.2;
+  const hasWebsite = Math.random() > 0.05;
+  const hasHours = Math.random() > 0.15;
+  const hasAddress = true;
+  const photoCount = Math.floor(Math.random() * 12);
+  const hasDescription = Math.random() > 0.2;
+  const descLength = hasDescription ? 80 + Math.floor(Math.random() * 400) : 0;
+  const hasServices = Math.random() > 0.15;
+  const hasTeam = Math.random() > 0.4;
+  const hasCertifications = Math.random() > 0.5;
+
+  const basicChecks = [hasPhone, hasEmail, hasWebsite, hasHours, hasAddress, photoCount >= 5, hasDescription, hasServices, hasTeam, hasCertifications];
+  const basicScore = Math.round(basicChecks.filter(Boolean).length / basicChecks.length * 100);
+
+  // Online presence (20% weight)
+  const googleClaimed = Math.random() > 0.15;
+  const responseRate = googleClaimed ? Math.floor(Math.random() * 100) : Math.floor(Math.random() * 30);
+  const avgResponseHours = Math.floor(4 + Math.random() * 168);
+  const hasSocialMedia = Math.random() > 0.35;
+  const hasPromotions = Math.random() > 0.5;
+
+  const onlineChecks = [googleClaimed, responseRate >= 70, avgResponseHours <= 48, hasSocialMedia, hasPromotions];
+  const onlineScore = Math.round(onlineChecks.filter(Boolean).length / onlineChecks.length * 100);
+
+  // Activity (20% weight)
+  const lastUpdateDays = Math.floor(Math.random() * 365);
+  const updateFrequency = Math.random() > 0.4 ? Math.floor(1 + Math.random() * 4) : 0;
+  const stockVehicles = Math.floor(Math.random() * 25);
+  const hasConfiguratorLink = Math.random() > 0.3;
+
+  const activityChecks = [lastUpdateDays <= 90, updateFrequency >= 1, stockVehicles >= 5, hasConfiguratorLink];
+  const activityScore = Math.round(activityChecks.filter(Boolean).length / activityChecks.length * 100);
+
+  const totalScore = Math.round(basicScore * 0.6 + onlineScore * 0.2 + activityScore * 0.2);
+
+  // Generate alerts
+  const alerts = [];
+  if (lastUpdateDays > 90) alerts.push({ severity: "high", text: `Profile not updated for ${lastUpdateDays} days` });
+  if (photoCount < 2) alerts.push({ severity: "critical", text: "Very few photos (less than 2)" });
+  if (responseRate < 30 && googleClaimed) alerts.push({ severity: "high", text: `Low review response rate: ${responseRate}%` });
+  if (avgResponseHours > 168) alerts.push({ severity: "medium", text: "Average response time exceeds 7 days" });
+  if (!hasPhone) alerts.push({ severity: "critical", text: "Phone number missing" });
+  if (!hasHours) alerts.push({ severity: "high", text: "Opening hours not specified" });
+  if (!googleClaimed) alerts.push({ severity: "critical", text: "Google Business profile not claimed" });
+  if (totalScore < 50) alerts.push({ severity: "critical", text: "Profile quality critically low" });
+
+  return {
+    totalScore,
+    categories: {
+      basic: { score: basicScore, phone: hasPhone, email: hasEmail, website: hasWebsite, hours: hasHours, address: hasAddress, photos: photoCount, description: hasDescription, descLength, services: hasServices, team: hasTeam, certifications: hasCertifications },
+      online: { score: onlineScore, googleClaimed, responseRate, avgResponseHours, socialMedia: hasSocialMedia, promotions: hasPromotions },
+      activity: { score: activityScore, lastUpdateDays, updateFrequency, stockVehicles, configuratorLink: hasConfiguratorLink },
+    },
+    alerts,
+  };
+}
+
 
 const CITY_DATA = {
   CZ: [
@@ -467,6 +530,7 @@ function SkodaDealerDashboard() {
     { id: "reviews", label: "💬 Live Reviews", sub: "Real-time feed" },
     { id: "sentiment", label: "🧠 Sentiment", sub: "AI Analysis" },
     { id: "benchmark", label: "📈 Benchmark", sub: "Compare" },
+    { id: "profile", label: "🏗 Profile Quality", sub: "Completeness" },
   ];
 
   return (
@@ -587,6 +651,7 @@ function SkodaDealerDashboard() {
         {activeTab === "reviews" && <LiveReviewsPanel dealers={allDealers} />}
         {activeTab === "sentiment" && <SentimentPanel dealers={allDealers} />}
         {activeTab === "benchmark" && <BenchmarkPanel dealers={allDealers} selected={selectedDealer} onSelect={setSelectedDealer} />}
+        {activeTab === "profile" && <ProfileQualityPanel dealers={allDealers} onSelectDealer={setSelectedDealer} setActiveTab={(t) => { setActiveTab(t); }} />}
       </div>
     </div>
     </ThemeContext.Provider>
@@ -1804,6 +1869,384 @@ function SentimentPanel({ dealers }) {
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE QUALITY PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
+  const T = useTheme();
+  const [sortBy, setSortBy] = React.useState("score");
+  const [sortDir, setSortDir] = React.useState("asc");
+  const [countryFilter, setCountryFilter] = React.useState("all");
+  const [alertFilter, setAlertFilter] = React.useState("all");
+  const [selectedDealer, setSelectedDealer] = React.useState(null);
+
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+    </div>
+  );
+
+  const getScoreColor = (score) => {
+    if (score >= 80) return T.SKODA_ACCENT;
+    if (score >= 60) return T.ALERT_YELLOW;
+    if (score >= 40) return T.ALERT_ORANGE;
+    return T.ALERT_RED;
+  };
+
+  const getGrade = (score) => {
+    if (score >= 90) return "A+";
+    if (score >= 80) return "A";
+    if (score >= 70) return "B";
+    if (score >= 60) return "C";
+    if (score >= 50) return "D";
+    return "F";
+  };
+
+  // Country aggregation
+  const countries = [...new Map(dealers.map(d => [d.country, { code: d.country, name: d.countryName, flag: d.flag }])).values()].sort((a,b) => a.name.localeCompare(b.name));
+
+  const countryStats = countries.map(c => {
+    const ds = dealers.filter(d => d.country === c.code);
+    const avgScore = Math.round(ds.reduce((s,d) => s + d.profileQuality.totalScore, 0) / ds.length);
+    const belowMin = ds.filter(d => d.profileQuality.totalScore < 60).length;
+    const alertCount = ds.reduce((s,d) => s + d.profileQuality.alerts.length, 0);
+    return { ...c, avgScore, dealerCount: ds.length, belowMin, alertCount };
+  }).sort((a,b) => a.avgScore - b.avgScore);
+
+  // Filtered dealers
+  let filtered = [...dealers];
+  if (countryFilter !== "all") filtered = filtered.filter(d => d.country === countryFilter);
+  if (alertFilter === "critical") filtered = filtered.filter(d => d.profileQuality.totalScore < 50);
+  else if (alertFilter === "warning") filtered = filtered.filter(d => d.profileQuality.totalScore < 70);
+  else if (alertFilter === "good") filtered = filtered.filter(d => d.profileQuality.totalScore >= 80);
+
+  const sortKey = sortBy;
+  filtered.sort((a,b) => {
+    let va, vb;
+    if (sortKey === "score") { va = a.profileQuality.totalScore; vb = b.profileQuality.totalScore; }
+    else if (sortKey === "name") { va = a.name; vb = b.name; }
+    else if (sortKey === "country") { va = a.countryName; vb = b.countryName; }
+    else if (sortKey === "freshness") { va = a.profileQuality.categories.activity.lastUpdateDays; vb = b.profileQuality.categories.activity.lastUpdateDays; }
+    else if (sortKey === "responseRate") { va = a.profileQuality.categories.online.responseRate; vb = b.profileQuality.categories.online.responseRate; }
+    else { va = a.profileQuality.totalScore; vb = b.profileQuality.totalScore; }
+    if (typeof va === "string") return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortDir === "asc" ? va - vb : vb - va;
+  });
+
+  // Network stats
+  const avgScore = Math.round(dealers.reduce((s,d) => s + d.profileQuality.totalScore, 0) / dealers.length);
+  const criticalCount = dealers.filter(d => d.profileQuality.totalScore < 50).length;
+  const warningCount = dealers.filter(d => d.profileQuality.totalScore >= 50 && d.profileQuality.totalScore < 70).length;
+  const goodCount = dealers.filter(d => d.profileQuality.totalScore >= 80).length;
+  const totalAlerts = dealers.reduce((s,d) => s + d.profileQuality.alerts.length, 0);
+
+  // Distribution for pie chart
+  const distData = [
+    { name: "Excellent (80+)", value: goodCount, color: T.SKODA_ACCENT },
+    { name: "Good (70-79)", value: dealers.filter(d => d.profileQuality.totalScore >= 70 && d.profileQuality.totalScore < 80).length, color: "#4ADE80" },
+    { name: "Average (60-69)", value: dealers.filter(d => d.profileQuality.totalScore >= 60 && d.profileQuality.totalScore < 70).length, color: T.ALERT_YELLOW },
+    { name: "Poor (50-59)", value: dealers.filter(d => d.profileQuality.totalScore >= 50 && d.profileQuality.totalScore < 60).length, color: T.ALERT_ORANGE },
+    { name: "Critical (<50)", value: criticalCount, color: T.ALERT_RED },
+  ].filter(d => d.value > 0);
+
+  // Category avg bar data
+  const catAvg = ["basic","online","activity"].map(cat => {
+    const scores = dealers.map(d => d.profileQuality.categories[cat].score);
+    return { category: cat === "basic" ? "Basic Info" : cat === "online" ? "Online Presence" : "Activity", avg: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) };
+  });
+
+  const ScoreBar = ({ score, width }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ width: width || 80, height: 6, borderRadius: 3, background: T.BORDER, overflow: "hidden" }}>
+        <div style={{ width: `${score}%`, height: "100%", borderRadius: 3, background: getScoreColor(score), transition: "width 0.5s" }} />
+      </div>
+      <span style={{ fontSize: 11, fontWeight: 600, color: getScoreColor(score), minWidth: 28 }}>{score}%</span>
+    </div>
+  );
+
+  const SortHeader = ({ label, field }) => (
+    <th onClick={() => { if (sortBy === field) setSortDir(d => d === "asc" ? "desc" : "asc"); else { setSortBy(field); setSortDir("asc"); } }}
+      style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, cursor: "pointer", borderBottom: `1px solid ${T.BORDER}`, whiteSpace: "nowrap", userSelect: "none" }}>
+      {label} {sortBy === field ? (sortDir === "asc" ? "↑" : "↓") : ""}
+    </th>
+  );
+
+  // Detail view for selected dealer
+  const renderDetail = () => {
+    const d = selectedDealer;
+    const pq = d.profileQuality;
+    const cats = pq.categories;
+
+    const CategorySection = ({ title, icon, data, items }) => (
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{icon} {title}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 22, fontWeight: 700, color: getScoreColor(data.score) }}>{data.score}%</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {items.map((item, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < items.length - 1 ? `1px solid ${T.BORDER}22` : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 14 }}>{item.ok ? "✅" : "❌"}</span>
+                <span style={{ fontSize: 12, color: item.ok ? T.TEXT : T.ALERT_RED }}>{item.label}</span>
+              </div>
+              <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{item.detail}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <button onClick={() => setSelectedDealer(null)} style={{ alignSelf: "flex-start", padding: "6px 14px", borderRadius: 6, border: `1px solid ${T.BORDER}`, background: T.SURFACE_2, color: T.TEXT, cursor: "pointer", fontSize: 12 }}>
+          ← Back to list
+        </button>
+
+        {/* Header */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 20, border: `1px solid ${T.BORDER}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 700 }}>{d.name}</div>
+            <div style={{ fontSize: 13, color: T.TEXT_DIM, marginTop: 4 }}>{d.flag} {d.city}, {d.countryName}</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 40, fontWeight: 700, color: getScoreColor(pq.totalScore) }}>{pq.totalScore}</div>
+              <div style={{ fontSize: 11, color: T.TEXT_DIM }}>Profile Score</div>
+            </div>
+            <div style={{ width: 50, height: 50, borderRadius: "50%", border: `3px solid ${getScoreColor(pq.totalScore)}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 18, fontWeight: 700, color: getScoreColor(pq.totalScore) }}>{getGrade(pq.totalScore)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Alerts */}
+        {pq.alerts.length > 0 && (
+          <div style={{ background: T.ALERT_RED + "11", borderRadius: 10, padding: 14, border: `1px solid ${T.ALERT_RED}33` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 8 }}>⚠ Active Alerts ({pq.alerts.length})</div>
+            {pq.alerts.map((a, i) => (
+              <div key={i} style={{ fontSize: 12, color: T.TEXT, padding: "4px 0", display: "flex", gap: 8, alignItems: "center" }}>
+                <span style={{ color: a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW }}>●</span>
+                {a.text}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Category breakdowns */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+          <CategorySection title="Basic Info" icon="📋" data={cats.basic} items={[
+            { ok: cats.basic.phone, label: "Phone number", detail: cats.basic.phone ? "Provided" : "Missing" },
+            { ok: cats.basic.email, label: "Email address", detail: cats.basic.email ? "Verified" : "Missing" },
+            { ok: cats.basic.website, label: "Website", detail: cats.basic.website ? "Active" : "Missing" },
+            { ok: cats.basic.hours, label: "Opening hours", detail: cats.basic.hours ? "Complete" : "Incomplete" },
+            { ok: cats.basic.address, label: "Full address + GPS", detail: cats.basic.address ? "Complete" : "Incomplete" },
+            { ok: cats.basic.photos >= 5, label: "Photos (min 5)", detail: `${cats.basic.photos} photos` },
+            { ok: cats.basic.description, label: "Description", detail: cats.basic.description ? `${cats.basic.descLength} chars` : "Missing" },
+            { ok: cats.basic.services, label: "Services listed", detail: cats.basic.services ? "Complete" : "Incomplete" },
+            { ok: cats.basic.team, label: "Team contacts", detail: cats.basic.team ? "Listed" : "Missing" },
+            { ok: cats.basic.certifications, label: "Certifications", detail: cats.basic.certifications ? "Present" : "None" },
+          ]} />
+
+          <CategorySection title="Online Presence" icon="🌐" data={cats.online} items={[
+            { ok: cats.online.googleClaimed, label: "Google Business", detail: cats.online.googleClaimed ? "Claimed" : "Unclaimed" },
+            { ok: cats.online.responseRate >= 70, label: "Review response rate", detail: `${cats.online.responseRate}%` },
+            { ok: cats.online.avgResponseHours <= 48, label: "Avg response time", detail: `${cats.online.avgResponseHours}h` },
+            { ok: cats.online.socialMedia, label: "Social media", detail: cats.online.socialMedia ? "Active" : "Inactive" },
+            { ok: cats.online.promotions, label: "Promotions published", detail: cats.online.promotions ? "Active" : "None" },
+          ]} />
+
+          <CategorySection title="Activity & Freshness" icon="🔄" data={cats.activity} items={[
+            { ok: cats.activity.lastUpdateDays <= 90, label: "Last profile update", detail: `${cats.activity.lastUpdateDays} days ago` },
+            { ok: cats.activity.updateFrequency >= 1, label: "Monthly updates", detail: `${cats.activity.updateFrequency}x/month` },
+            { ok: cats.activity.stockVehicles >= 5, label: "Stock vehicles online", detail: `${cats.activity.stockVehicles} vehicles` },
+            { ok: cats.activity.configuratorLink, label: "Configurator link", detail: cats.activity.configuratorLink ? "Active" : "Missing" },
+          ]} />
+        </div>
+
+        {/* Comparison with country avg */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>vs Country Average ({d.flag} {d.countryName})</div>
+          <div style={{ height: 250 }}>
+            <ResponsiveContainer>
+              <BarChart data={(() => {
+                const countryDealers = dealers.filter(dd => dd.country === d.country);
+                return ["basic","online","activity"].map(cat => {
+                  const catName = cat === "basic" ? "Basic Info" : cat === "online" ? "Online" : "Activity";
+                  const countryAvg = Math.round(countryDealers.reduce((s,dd) => s + dd.profileQuality.categories[cat].score, 0) / countryDealers.length);
+                  return { category: catName, dealer: d.profileQuality.categories[cat].score, country: countryAvg };
+                });
+              })()}>
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
+                <XAxis dataKey="category" tick={{ fill: T.TEXT_DIM, fontSize: 11 }} />
+                <YAxis domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Bar dataKey="dealer" fill={T.SKODA_ACCENT} name="This dealer" radius={[4,4,0,0]} />
+                <Bar dataKey="country" fill="#888" name="Country avg" radius={[4,4,0,0]} />
+                <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (selectedDealer) return renderDetail();
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* KPI Row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+        <Stat label="Network Avg Score" value={`${avgScore}%`} />
+        <Stat label="Grade" value={getGrade(avgScore)} />
+        <Stat label="Critical (<50%)" value={criticalCount} alert={criticalCount > 0} />
+        <Stat label="Warning (<70%)" value={warningCount} />
+        <Stat label="Total Alerts" value={totalAlerts} alert={totalAlerts > 10} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        {/* Score Distribution Pie */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Score Distribution</div>
+          <div style={{ height: 220 }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={distData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={40} paddingAngle={2}>
+                  {distData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Legend wrapperStyle={{ fontSize: 10, color: T.TEXT_DIM }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Category Averages */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Category Averages</div>
+          <div style={{ height: 220 }}>
+            <ResponsiveContainer>
+              <BarChart data={catAvg} layout="vertical">
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
+                <XAxis type="number" domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
+                <YAxis type="category" dataKey="category" tick={{ fill: T.TEXT, fontSize: 11 }} width={100} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Bar dataKey="avg" fill={T.SKODA_ACCENT} radius={[0,4,4,0]} name="Avg Score" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Country Heatmap */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Country Ranking</div>
+          <div style={{ maxHeight: 240, overflowY: "auto" }}>
+            {countryStats.map((c, i) => (
+              <div key={c.code} onClick={() => setCountryFilter(c.code)} style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 6, cursor: "pointer",
+                background: countryFilter === c.code ? T.SURFACE_3 : "transparent",
+                borderBottom: `1px solid ${T.BORDER}22`,
+              }}>
+                <span style={{ fontSize: 16 }}>{c.flag}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600 }}>{c.name}</div>
+                  <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{c.dealerCount} dealers · {c.belowMin} below min</div>
+                </div>
+                <ScoreBar score={c.avgScore} width={60} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)} style={{ padding: "6px 10px", borderRadius: 6, border: `1px solid ${T.BORDER}`, background: T.SURFACE, color: T.TEXT, fontSize: 13 }}>
+          <option value="all">All countries</option>
+          {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+        </select>
+        <div style={{ display: "flex", gap: 4 }}>
+          {[{id:"all",label:"All"},{id:"critical",label:"Critical"},{id:"warning",label:"Warning"},{id:"good",label:"Good"}].map(f => (
+            <button key={f.id} onClick={() => setAlertFilter(f.id)} style={{
+              padding: "5px 12px", borderRadius: 6, border: `1px solid ${alertFilter === f.id ? T.SKODA_ACCENT : T.BORDER}`,
+              background: alertFilter === f.id ? T.SKODA_ACCENT + "22" : "transparent",
+              color: alertFilter === f.id ? T.SKODA_ACCENT : T.TEXT_DIM, cursor: "pointer", fontSize: 12, fontWeight: 600,
+            }}>{f.label}</button>
+          ))}
+        </div>
+        <span style={{ fontSize: 12, color: T.TEXT_DIM, marginLeft: "auto" }}>{filtered.length} dealers</span>
+      </div>
+
+      {/* Dealer Table */}
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, border: `1px solid ${T.BORDER}`, overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: T.SURFACE_3 }}>
+                <SortHeader label="Dealer" field="name" />
+                <SortHeader label="Country" field="country" />
+                <SortHeader label="Profile Score" field="score" />
+                <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Basic</th>
+                <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Online</th>
+                <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Activity</th>
+                <SortHeader label="Freshness" field="freshness" />
+                <SortHeader label="Response %" field="responseRate" />
+                <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Alerts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.slice(0, 50).map(d => {
+                const pq = d.profileQuality;
+                return (
+                  <tr key={d.id} className="dealer-row" onClick={() => setSelectedDealer(d)} style={{ cursor: "pointer", borderBottom: `1px solid ${T.BORDER}22` }}>
+                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 600 }}>{d.name}</td>
+                    <td style={{ padding: "10px 12px", fontSize: 12 }}>{d.flag} {d.countryName}</td>
+                    <td style={{ padding: "10px 12px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: getScoreColor(pq.totalScore), minWidth: 32 }}>{pq.totalScore}</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: getScoreColor(pq.totalScore), background: getScoreColor(pq.totalScore) + "22", padding: "2px 6px", borderRadius: 4 }}>{getGrade(pq.totalScore)}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "10px 12px" }}><ScoreBar score={pq.categories.basic.score} width={50} /></td>
+                    <td style={{ padding: "10px 12px" }}><ScoreBar score={pq.categories.online.score} width={50} /></td>
+                    <td style={{ padding: "10px 12px" }}><ScoreBar score={pq.categories.activity.score} width={50} /></td>
+                    <td style={{ padding: "10px 12px", fontSize: 11, color: pq.categories.activity.lastUpdateDays > 90 ? T.ALERT_RED : T.TEXT_DIM }}>
+                      {pq.categories.activity.lastUpdateDays}d ago
+                    </td>
+                    <td style={{ padding: "10px 12px", fontSize: 11, color: pq.categories.online.responseRate < 50 ? T.ALERT_RED : T.TEXT_DIM }}>
+                      {pq.categories.online.responseRate}%
+                    </td>
+                    <td style={{ padding: "10px 12px" }}>
+                      {pq.alerts.length > 0 ? (
+                        <span style={{ fontSize: 11, fontWeight: 600, color: T.ALERT_RED, background: T.ALERT_RED + "22", padding: "2px 8px", borderRadius: 4 }}>
+                          {pq.alerts.length}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: 11, color: T.TEXT_DIM }}>—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {filtered.length > 50 && (
+          <div style={{ padding: 12, textAlign: "center", fontSize: 12, color: T.TEXT_DIM }}>
+            Showing 50 of {filtered.length} dealers. Use filters to narrow results.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 // ═══════════════════════════════════════════════════════════════
 // BENCHMARK PANEL
