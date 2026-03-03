@@ -60,6 +60,483 @@ const THEMES = {
 
 const ThemeContext = React.createContext(THEMES.dark);
 
+const TRANSLATIONS = {
+  en: {
+    "app.title": "ŠKODA Dealer Reviews", "app.subtitle": "Europe-wide monitoring dashboard · PoC",
+    "tab.summary": "🏠 Summary", "tab.summary.sub": "Executive view",
+    "tab.admin": "⚙ Admin", "tab.admin.sub": "Import & Config",
+    "tab.alerts": "🔔 Alerts", "tab.alerts.sub": "active",
+    "tab.overview": "📊 Dealers", "tab.overview.sub": "dealers",
+    "tab.reviews": "💬 Live Reviews", "tab.reviews.sub": "Real-time feed",
+    "tab.sentiment": "🧠 Sentiment", "tab.sentiment.sub": "AI Analysis",
+    "tab.benchmark": "📈 Benchmark", "tab.benchmark.sub": "Compare",
+    "tab.profile": "🏗 Profile Quality", "tab.profile.sub": "Completeness",
+    "stat.countries": "Countries", "stat.dealers": "Dealers", "stat.avgRating": "Avg Rating", "stat.alerts": "Alerts",
+    "stat.rating": "Rating", "stat.reviews": "Reviews", "stat.negative": "Negative", "stat.trend6mo": "Trend (6mo)",
+    "stat.totalReviews": "Total Reviews", "stat.negativeAvg": "Negative Avg", "stat.activeAlerts": "Active Alerts", "stat.multibrand": "Multibrand",
+    "label.networkAvg": "Network avg", "label.countryAvg": "Country avg", "label.profile": "Profile",
+    "label.country": "Country", "label.dealer": "Dealer", "label.results": "results",
+    "label.allCountries": "All countries", "label.selectDealer": "Select dealer:", "label.selectCountry": "Select country:",
+    "label.search": "Search dealer, city, country...", "label.allDealers": "All dealers",
+    "label.withAlerts": "With alerts", "label.highCritical": "High + Critical", "label.criticalOnly": "Critical only",
+    "label.table": "☰ Table", "label.cards": "⊞ Cards",
+    "label.all": "All", "label.critical": "Critical", "label.high": "High", "label.medium": "Medium",
+    "label.warning": "Warning", "label.good": "Good", "label.clean": "Clean",
+    "label.region": "Region:", "label.photos": "photos", "label.dealers": "dealers", "label.reviews": "reviews",
+    "label.dAgo": "d ago", "label.today": "Today", "label.target": "target:",
+    "btn.call": "📞 Call", "btn.email": "✉ Email", "btn.website": "🌐 Website", "btn.googleMaps": "📍 Google Maps",
+    "btn.respond": "Respond", "btn.escalate": "Escalate", "btn.resume": "▶ Resume", "btn.pause": "⏸ Pause",
+    "btn.selectAll": "{t("btn.selectAll")}", "btn.clearSelection": "{t("btn.clearSelection")}",
+    "btn.backToList": "← Back to list", "btn.openBenchmark": "Open in Benchmark →",
+    "btn.viewAll": "View all →", "btn.import": "▶ Import",
+    "section.criticalIssues": "🚨 Critical Issues", "section.networkHealth": "Network Health",
+    "section.top5": "🏆 Top 5 Dealers", "section.bottom5": "⚠ Bottom 5 Dealers",
+    "section.risingStars": "📈 Rising Stars", "section.declining": "📉 Declining",
+    "section.photoGallery": "📷 Photo Gallery", "section.ratingTimeline": "📈 Rating Timeline (6 months)",
+    "section.dealerVsNetwork": "🎯 Dealer vs Network Average", "section.aiPlan": "🤖 AI Improvement Plan",
+    "section.reviewHighlights": "⭐ Review Highlights", "section.recentReviews": "💬 Recent Reviews",
+    "section.top5in": "🏆 Top 5 in", "section.bottom5in": "⚠ Bottom 5 in",
+    "section.importedData": "{t("section.importedData")}", "section.dataSource": "{t("section.dataSource")}",
+    "section.sentimentByCategory": "Sentiment by Category (all countries)", "section.overallSentiment": "Overall Sentiment",
+    "section.aiKeywords": "🔑 AI-Extracted Keywords", "section.aiInsight": "🤖 AI Insight Summary",
+    "section.avgRatingByCountry": "Average Rating by Country", "section.ratingDistribution": "Rating Distribution",
+    "section.monthlyVolume": "Monthly Review Volume", "section.ratingTrend": "Avg Rating & Negative % Trend",
+    "section.countrySummary": "Country Summary", "section.scoreDistribution": "Score Distribution",
+    "section.categoryAverages": "Category Averages", "section.countryRanking": "Country Ranking",
+    "section.liveRatingDist": "Live Rating Distribution", "section.liveSentiment": "Live Sentiment",
+    "section.liveReviewFeed": "Live Review Feed", "section.feedPaused": "Feed Paused",
+    "section.liveCountryRatings": "Live Country Ratings", "section.ratingTrendChart": "Rating Trend",
+    "section.reviewVolumeTrend": "{t("section.reviewVolumeTrend")}", "section.sentimentComparison": "Sentiment Comparison",
+    "section.quickNavigation": "Quick Navigation",
+    "chart.avgRating": "Avg Rating", "chart.reviews": "Reviews", "chart.negative": "Negative",
+    "chart.negativePercent": "Negative %", "chart.positivePercent": "Positive %", "chart.neutralPercent": "Neutral %",
+    "chart.thisDealer": "This dealer", "chart.networkAvg": "Network avg", "chart.countryAvg": "Country avg",
+    "chart.satisfactionRate": "Satisfaction rate", "chart.weightedAvg": "Weighted average",
+    "chart.total": "total", "chart.analyzed": "analyzed",
+    "pq.networkAvgScore": "Network Avg Score", "pq.grade": "Grade",
+    "pq.criticalBelow50": t("pq.criticalBelow50"), "pq.warningBelow70": t("pq.warningBelow70"),
+    "pq.totalAlerts": "Total Alerts", "pq.profileScore": "Profile Score",
+    "pq.basicInfo": "📋 Basic Info", "pq.onlinePresence": "🌐 Online Presence",
+    "pq.activityFreshness": "🔄 Activity & Freshness",
+    "pq.phone": "Phone number", "pq.email": "Email address", "pq.website": "Website",
+    "pq.hours": "Opening hours", "pq.address": "Full address + GPS", "pq.photosMin5": "Photos (min 5)",
+    "pq.description": "Description", "pq.services": "Services listed", "pq.teamContacts": "Team contacts",
+    "pq.certifications": "Certifications", "pq.googleBusiness": "Google Business",
+    "pq.responseRate": "Review response rate", "pq.avgResponseTime": "Avg response time",
+    "pq.socialMedia": "Social media", "pq.promotions": "Promotions published",
+    "pq.lastUpdate": "Last profile update", "pq.monthlyUpdates": "Monthly updates",
+    "pq.stockVehicles": "Stock vehicles online", "pq.configuratorLink": "Configurator link",
+    "pq.provided": "Provided", "pq.missing": "Missing", "pq.verified": "Verified",
+    "pq.active": "Active", "pq.inactive": "Inactive", "pq.complete": "Complete", "pq.incomplete": "Incomplete",
+    "pq.claimed": "Claimed", "pq.unclaimed": "Unclaimed", "pq.listed": "Listed",
+    "pq.present": "Present", "pq.none": "None", "pq.belowMin": "below min",
+    "pq.vsCountryAvg": "vs Country Average", "pq.basic": "Basic", "pq.online": "Online",
+    "pq.activity": "Activity", "pq.freshness": "Freshness", "pq.responsePercent": "Response %",
+    "pq.excellent": t("pq.excellent"), "pq.good": t("pq.good"), "pq.average": t("pq.average"),
+    "pq.poor": t("pq.poor"), "pq.criticalLow": t("pq.criticalLow"), "pq.activeAlerts": "⚠ Active Alerts",
+    "bench.detail": "Dealer Detail", "bench.countryVs": "Country vs Country", "bench.dealerVs": "Dealer vs Dealer",
+    "bench.selectCountryA": "{t("bench.selectCountryA")}", "bench.selectCountryB": "{t("bench.selectCountryB")}",
+    "bench.selectDealerA": "{t("bench.selectDealerA")}", "bench.selectDealerB": "{t("bench.selectDealerB")}",
+    "bench.vs": "VS", "bench.3months": "3 months", "bench.6months": "6 months",
+    "bench.recommendations": "recommendations", "bench.bestReview": "Best Review",
+    "bench.needsAttention": "Needs Attention", "bench.mostTypical": "Most Typical",
+    "bench.addMorePhotos": "Add more photos",
+    "live.reviewsToday": "Reviews Today", "live.liveAvgRating": "Live Avg Rating",
+    "live.activeCountries": "Active Countries", "live.feedStatus": "Feed Status",
+    "live.paused": "⏸ Paused", "live.live": "🔴 Live",
+    "live.positive": "Positive", "live.neutral": "Neutral", "live.negative": "Negative",
+    "live.inFeed": "in feed", "live.waiting": "Waiting for reviews...",
+    "alerts.critical": "Critical", "alerts.high": "High", "alerts.totalAlerts": "Total alerts",
+    "alerts.cleanDealers": "Clean dealers", "alerts.percentNetwork": "% of network",
+    "alerts.recentNegative": "🔴 Recent Negative Reviews (last 7 days)",
+    "alerts.dealersAttention": "⚠ Dealers Requiring Attention",
+    "alerts.noData": "No data imported yet", "alerts.goToAdmin": "Go to Admin tab to select and import countries",
+    "alerts.noCritical": "✓ No critical issues",
+    "nav.dealerOverview": "Dealer Overview", "nav.dealerOverviewDesc": "dealers, table & card view",
+    "nav.liveReviews": "Live Reviews", "nav.liveReviewsDesc": "Real-time feed & sentiment",
+    "nav.benchmark": "Benchmark", "nav.benchmarkDesc": "Compare countries & dealers",
+    "nav.profileQuality": "Profile Quality", "nav.profileQualityDesc": "Avg score:",
+    "admin.importing": "Importing", "admin.countries": "countries", "admin.country": "country",
+    "admin.allImported": "{t("admin.allImported")}", "admin.selectToImport": "{t("admin.selectToImport")}",
+    "admin.estCalls": "Est.", "admin.apiCalls": "API calls", "admin.cost": "cost",
+    "admin.googlePlaces": "{t("admin.googlePlaces")}", "admin.googlePlacesDesc": "{t("admin.googlePlacesDesc")}",
+    "admin.googlePlacesNote": "{t("admin.googlePlacesNote")}",
+    "misc.noCritical": "✓ No critical issues", "misc.noActiveAlerts": "No active alerts ✓",
+    "misc.showingMax": "Showing 60 of", "misc.useSearch": "dealers · Use search or country filter to narrow down",
+    "misc.details": "Details", "misc.brands": "Brands:", "misc.address": "Address:", "misc.placeId": "Place ID:",
+    "misc.latestReviews": "Latest Reviews",
+    "overview.dealersAcross": "dealers across", "overview.countries": "countries",
+    "review.original": "Original", "review.translated": "Translation",
+    "region.all": "All", "region.central": "Central Europe", "region.western": "Western Europe",
+    "region.southern": "Southern Europe", "region.northern": "Northern Europe",
+    "region.baltics": "Baltics", "region.balkans": "Balkans", "region.british": "British Isles",
+    "photo.showroom": "Showroom", "photo.serviceArea": "Service Area", "photo.reception": "Reception",
+    "photo.exterior": "Exterior", "photo.waitingLounge": "Waiting Lounge", "photo.partsDept": "Parts Dept",
+    "sentiment.service": "Service", "sentiment.sales": "Sales", "sentiment.parts": "Parts",
+    "sentiment.communication": "Communication", "sentiment.value": "Value",
+    "summary.networkRating": "Network Rating", "summary.nps": "NPS Score", "summary.responseRate": "Response Rate",
+    "summary.negativePercent": "Negative %", "summary.countryPerformance": "Country Performance Heatmap",
+    "summary.moM": "MoM",
+  },
+  cs: {
+    "app.title": "ŠKODA Recenze Dealerů", "app.subtitle": "Celoevropský monitorovací dashboard · PoC",
+    "tab.summary": "🏠 Přehled", "tab.summary.sub": "Exekutivní pohled",
+    "tab.admin": "⚙ Admin", "tab.admin.sub": "Import & Konfigurace",
+    "tab.alerts": "🔔 Upozornění", "tab.alerts.sub": "aktivních",
+    "tab.overview": "📊 Dealeři", "tab.overview.sub": "dealerů",
+    "tab.reviews": "💬 Živé recenze", "tab.reviews.sub": "Real-time feed",
+    "tab.sentiment": "🧠 Sentiment", "tab.sentiment.sub": "AI Analýza",
+    "tab.benchmark": "📈 Benchmark", "tab.benchmark.sub": "Porovnání",
+    "tab.profile": "🏗 Kvalita profilu", "tab.profile.sub": "Kompletnost",
+    "stat.countries": "Země", "stat.dealers": "Dealeři", "stat.avgRating": "Prům. hodnocení", "stat.alerts": "Upozornění",
+    "stat.rating": "Hodnocení", "stat.reviews": "Recenze", "stat.negative": "Negativní", "stat.trend6mo": "Trend (6 měs.)",
+    "stat.totalReviews": "Celkem recenzí", "stat.negativeAvg": "Prům. negativní", "stat.activeAlerts": "Aktivní upoz.", "stat.multibrand": "Multibrand",
+    "label.networkAvg": "Průměr sítě", "label.countryAvg": "Průměr země", "label.profile": "Profil",
+    "label.country": "Země", "label.dealer": "Dealer", "label.results": "výsledků",
+    "label.allCountries": "Všechny země", "label.selectDealer": "Vyberte dealera:", "label.selectCountry": "Vyberte zemi:",
+    "label.search": "Hledat dealera, město, zemi...", "label.allDealers": "Všichni dealeři",
+    "label.withAlerts": "S upozorněními", "label.highCritical": "Vysoké + Kritické", "label.criticalOnly": "Pouze kritické",
+    "label.table": "☰ Tabulka", "label.cards": "⊞ Karty",
+    "label.all": "Vše", "label.critical": "Kritické", "label.high": "Vysoké", "label.medium": "Střední",
+    "label.warning": "Varování", "label.good": "Dobré", "label.clean": "OK",
+    "label.region": "Region:", "label.photos": "fotek", "label.dealers": "dealerů", "label.reviews": "recenzí",
+    "label.dAgo": "d zpět", "label.today": "Dnes", "label.target": "cíl:",
+    "btn.call": "📞 Volat", "btn.email": "✉ E-mail", "btn.website": "🌐 Web", "btn.googleMaps": "📍 Google Maps",
+    "btn.respond": "Odpovědět", "btn.escalate": "Eskalovat", "btn.resume": "▶ Pokračovat", "btn.pause": "⏸ Pozastavit",
+    "btn.selectAll": "+ Vybrat vše", "btn.clearSelection": "Zrušit výběr",
+    "btn.backToList": "← Zpět na seznam", "btn.openBenchmark": "Otevřít Benchmark →",
+    "btn.viewAll": "Zobrazit vše →", "btn.import": "▶ Importovat",
+    "section.criticalIssues": "🚨 Kritické problémy", "section.networkHealth": "Zdraví sítě",
+    "section.top5": "🏆 Top 5 dealerů", "section.bottom5": "⚠ Nejhorších 5 dealerů",
+    "section.risingStars": "📈 Rostoucí hvězdy", "section.declining": "📉 Klesající",
+    "section.photoGallery": "📷 Fotogalerie", "section.ratingTimeline": "📈 Časová osa hodnocení (6 měsíců)",
+    "section.dealerVsNetwork": "🎯 Dealer vs průměr sítě", "section.aiPlan": "🤖 AI Plán zlepšení",
+    "section.reviewHighlights": "⭐ Výběr recenzí", "section.recentReviews": "💬 Poslední recenze",
+    "section.top5in": "🏆 Top 5 v", "section.bottom5in": "⚠ Nejhorších 5 v",
+    "section.importedData": "✓ Importovaná data", "section.dataSource": "📡 Konfigurace zdroje dat",
+    "section.sentimentByCategory": "Sentiment dle kategorií (všechny země)", "section.overallSentiment": "Celkový sentiment",
+    "section.aiKeywords": "🔑 AI klíčová slova", "section.aiInsight": "🤖 AI Shrnutí",
+    "section.avgRatingByCountry": "Průměrné hodnocení dle zemí", "section.ratingDistribution": "Distribuce hodnocení",
+    "section.monthlyVolume": "Měsíční objem recenzí", "section.ratingTrend": "Trend hodnocení a negativních %",
+    "section.countrySummary": "Přehled zemí", "section.scoreDistribution": "Distribuce skóre",
+    "section.categoryAverages": "Průměry kategorií", "section.countryRanking": "Žebříček zemí",
+    "section.liveRatingDist": "Živá distribuce hodnocení", "section.liveSentiment": "Živý sentiment",
+    "section.liveReviewFeed": "Živý feed recenzí", "section.feedPaused": "Feed pozastaven",
+    "section.liveCountryRatings": "Živé hodnocení zemí", "section.ratingTrendChart": "Trend hodnocení",
+    "section.reviewVolumeTrend": "Trend objemu recenzí", "section.sentimentComparison": "Porovnání sentimentu",
+    "section.quickNavigation": "Rychlá navigace",
+    "chart.avgRating": "Prům. hodnocení", "chart.reviews": "Recenze", "chart.negative": "Negativní",
+    "chart.negativePercent": "Negativní %", "chart.positivePercent": "Pozitivní %", "chart.neutralPercent": "Neutrální %",
+    "chart.thisDealer": "Tento dealer", "chart.networkAvg": "Průměr sítě", "chart.countryAvg": "Průměr země",
+    "chart.satisfactionRate": "Míra spokojenosti", "chart.weightedAvg": "Vážený průměr",
+    "chart.total": "celkem", "chart.analyzed": "analyzováno",
+    "pq.networkAvgScore": "Průměrné skóre sítě", "pq.grade": "Stupeň",
+    "pq.criticalBelow50": "Kritické (<50%)", "pq.warningBelow70": "Varování (<70%)",
+    "pq.totalAlerts": "Celkem upozornění", "pq.profileScore": "Skóre profilu",
+    "pq.basicInfo": "📋 Základní údaje", "pq.onlinePresence": "🌐 Online přítomnost",
+    "pq.activityFreshness": "🔄 Aktivita & Aktuálnost",
+    "pq.phone": "Telefonní číslo", "pq.email": "E-mailová adresa", "pq.website": "Webová stránka",
+    "pq.hours": "Otevírací doba", "pq.address": "Plná adresa + GPS", "pq.photosMin5": "Fotky (min 5)",
+    "pq.description": "Popis", "pq.services": "Seznam služeb", "pq.teamContacts": "Kontakty na tým",
+    "pq.certifications": "Certifikace", "pq.googleBusiness": "Google Business",
+    "pq.responseRate": "Míra odpovědí na recenze", "pq.avgResponseTime": "Prům. čas odpovědi",
+    "pq.socialMedia": "Sociální sítě", "pq.promotions": "Publikované akce",
+    "pq.lastUpdate": "Poslední aktualizace", "pq.monthlyUpdates": "Měsíční aktualizace",
+    "pq.stockVehicles": "Vozidla skladem online", "pq.configuratorLink": "Odkaz na konfigurátor",
+    "pq.provided": "Vyplněno", "pq.missing": "Chybí", "pq.verified": "Ověřeno",
+    "pq.active": "Aktivní", "pq.inactive": "Neaktivní", "pq.complete": "Kompletní", "pq.incomplete": "Neúplné",
+    "pq.claimed": "Převzato", "pq.unclaimed": "Nepřevzato", "pq.listed": "Uvedeno",
+    "pq.present": "Přítomné", "pq.none": "Žádné", "pq.belowMin": "pod minimum",
+    "pq.vsCountryAvg": "vs průměr země", "pq.basic": "Základ", "pq.online": "Online",
+    "pq.activity": "Aktivita", "pq.freshness": "Aktuálnost", "pq.responsePercent": "Odpovědi %",
+    "pq.excellent": "Výborné (80+)", "pq.good": "Dobré (70-79)", "pq.average": "Průměrné (60-69)",
+    "pq.poor": "Slabé (50-59)", "pq.criticalLow": "Kritické (<50)", "pq.activeAlerts": "⚠ Aktivní upozornění",
+    "bench.detail": "Detail dealera", "bench.countryVs": "Země vs Země", "bench.dealerVs": "Dealer vs Dealer",
+    "bench.selectCountryA": "— Vyberte zemi A —", "bench.selectCountryB": "— Vyberte zemi B —",
+    "bench.selectDealerA": "— Vyberte dealera A —", "bench.selectDealerB": "— Vyberte dealera B —",
+    "bench.vs": "VS", "bench.3months": "3 měsíce", "bench.6months": "6 měsíců",
+    "bench.recommendations": "doporučení", "bench.bestReview": "Nejlepší recenze",
+    "bench.needsAttention": "Vyžaduje pozornost", "bench.mostTypical": "Nejtypičtější",
+    "bench.addMorePhotos": "Přidat další fotky",
+    "live.reviewsToday": "Recenze dnes", "live.liveAvgRating": "Živé prům. hodnocení",
+    "live.activeCountries": "Aktivní země", "live.feedStatus": "Stav feedu",
+    "live.paused": "⏸ Pozastaveno", "live.live": "🔴 Živě",
+    "live.positive": "Pozitivní", "live.neutral": "Neutrální", "live.negative": "Negativní",
+    "live.inFeed": "ve feedu", "live.waiting": "Čekám na recenze...",
+    "alerts.critical": "Kritické", "alerts.high": "Vysoké", "alerts.totalAlerts": "Celkem upozornění",
+    "alerts.cleanDealers": "Čistí dealeři", "alerts.percentNetwork": "% sítě",
+    "alerts.recentNegative": "🔴 Negativní recenze (posledních 7 dní)",
+    "alerts.dealersAttention": "⚠ Dealeři vyžadující pozornost",
+    "alerts.noData": "Žádná data nebyla importována", "alerts.goToAdmin": "Přejděte na záložku Admin pro import zemí",
+    "alerts.noCritical": "✓ Žádné kritické problémy",
+    "nav.dealerOverview": "Přehled dealerů", "nav.dealerOverviewDesc": "dealeři, tabulky & karty",
+    "nav.liveReviews": "Živé recenze", "nav.liveReviewsDesc": "Real-time feed & sentiment",
+    "nav.benchmark": "Benchmark", "nav.benchmarkDesc": "Porovnání zemí & dealerů",
+    "nav.profileQuality": "Kvalita profilu", "nav.profileQualityDesc": "Prům. skóre:",
+    "admin.importing": "Importuji", "admin.countries": "zemí", "admin.country": "zemi",
+    "admin.allImported": "Všechny vybrané země importovány ✓", "admin.selectToImport": "Vyberte země k importu",
+    "admin.estCalls": "Odhad", "admin.apiCalls": "API volání", "admin.cost": "náklady",
+    "admin.googlePlaces": "{t("admin.googlePlaces")}", "admin.googlePlacesDesc": "Metadata dealerů, hodnocení, GPS, 5 recenzí",
+    "admin.googlePlacesNote": "⚠ Max 5 recenzí na místo",
+    "misc.noCritical": "✓ Žádné kritické problémy", "misc.noActiveAlerts": "Žádná aktivní upozornění ✓",
+    "misc.showingMax": "Zobrazeno 60 z", "misc.useSearch": "dealerů · Použijte vyhledávání nebo filtr",
+    "misc.details": "Detaily", "misc.brands": "Značky:", "misc.address": "Adresa:", "misc.placeId": "ID místa:",
+    "misc.latestReviews": "Poslední recenze",
+    "overview.dealersAcross": "dealerů v", "overview.countries": "zemích",
+    "review.original": "Originál", "review.translated": "Překlad",
+    "region.all": "Vše", "region.central": "Střední Evropa", "region.western": "Západní Evropa",
+    "region.southern": "Jižní Evropa", "region.northern": "Severní Evropa",
+    "region.baltics": "Pobaltí", "region.balkans": "Balkán", "region.british": "Britské ostrovy",
+    "photo.showroom": "Showroom", "photo.serviceArea": "Servisní plocha", "photo.reception": "Recepce",
+    "photo.exterior": "Exteriér", "photo.waitingLounge": "Čekárna", "photo.partsDept": "Oddělení dílů",
+    "sentiment.service": "Servis", "sentiment.sales": "Prodej", "sentiment.parts": "Díly",
+    "sentiment.communication": "Komunikace", "sentiment.value": "Hodnota",
+    "summary.networkRating": "Hodnocení sítě", "summary.nps": "NPS Skóre", "summary.responseRate": "Míra odpovědí",
+    "summary.negativePercent": "Negativní %", "summary.countryPerformance": "Heatmapa výkonu zemí",
+    "summary.moM": "MoM",
+  },
+  de: {
+    "app.title": "ŠKODA Händlerbewertungen", "app.subtitle": "Europaweites Monitoring-Dashboard · PoC",
+    "tab.summary": "🏠 Übersicht", "tab.summary.sub": "Führungsansicht",
+    "tab.admin": "⚙ Admin", "tab.admin.sub": "Import & Konfiguration",
+    "tab.alerts": "🔔 Warnungen", "tab.alerts.sub": "aktive",
+    "tab.overview": "📊 Händler", "tab.overview.sub": "Händler",
+    "tab.reviews": "💬 Live-Bewertungen", "tab.reviews.sub": "Echtzeit-Feed",
+    "tab.sentiment": "🧠 Stimmung", "tab.sentiment.sub": "KI-Analyse",
+    "tab.benchmark": "📈 Benchmark", "tab.benchmark.sub": "Vergleichen",
+    "tab.profile": "🏗 Profilqualität", "tab.profile.sub": "Vollständigkeit",
+    "stat.countries": "Länder", "stat.dealers": "Händler", "stat.avgRating": "Ø Bewertung", "stat.alerts": "Warnungen",
+    "stat.rating": "Bewertung", "stat.reviews": "Rezensionen", "stat.negative": "Negativ", "stat.trend6mo": "Trend (6 Mo.)",
+    "stat.totalReviews": "Gesamt Rezensionen", "stat.negativeAvg": "Ø Negativ", "stat.activeAlerts": "Aktive Warnungen", "stat.multibrand": "Multimarke",
+    "label.networkAvg": "Netzwerk-Ø", "label.countryAvg": "Landes-Ø", "label.profile": "Profil",
+    "label.country": "Land", "label.dealer": "Händler", "label.results": "Ergebnisse",
+    "label.allCountries": "Alle Länder", "label.selectDealer": "Händler wählen:", "label.selectCountry": "Land wählen:",
+    "label.search": "Händler, Stadt, Land suchen...", "label.allDealers": "Alle Händler",
+    "label.withAlerts": "Mit Warnungen", "label.highCritical": "Hoch + Kritisch", "label.criticalOnly": "Nur kritische",
+    "label.table": "☰ Tabelle", "label.cards": "⊞ Karten",
+    "label.all": "Alle", "label.critical": "Kritisch", "label.high": "Hoch", "label.medium": "Mittel",
+    "label.warning": "Warnung", "label.good": "Gut", "label.clean": "Sauber",
+    "label.region": "Region:", "label.photos": "Fotos", "label.dealers": "Händler", "label.reviews": "Rezensionen",
+    "label.dAgo": "T her", "label.today": "Heute", "label.target": "Ziel:",
+    "btn.call": "📞 Anrufen", "btn.email": "✉ E-Mail", "btn.website": "🌐 Website", "btn.googleMaps": "📍 Google Maps",
+    "btn.respond": "Antworten", "btn.escalate": "Eskalieren", "btn.resume": "▶ Fortsetzen", "btn.pause": "⏸ Pausieren",
+    "btn.selectAll": "+ Alle wählen", "btn.clearSelection": "Auswahl löschen",
+    "btn.backToList": "← Zurück zur Liste", "btn.openBenchmark": "Im Benchmark öffnen →",
+    "btn.viewAll": "Alle anzeigen →", "btn.import": "▶ Importieren",
+    "section.criticalIssues": "🚨 Kritische Probleme", "section.networkHealth": "Netzwerk-Gesundheit",
+    "section.top5": "🏆 Top 5 Händler", "section.bottom5": "⚠ Schlechteste 5 Händler",
+    "section.risingStars": "📈 Aufsteiger", "section.declining": "📉 Absteiger",
+    "section.photoGallery": "📷 Fotogalerie", "section.ratingTimeline": "📈 Bewertungsverlauf (6 Monate)",
+    "section.dealerVsNetwork": "🎯 Händler vs Netzwerk-Ø", "section.aiPlan": "🤖 KI-Verbesserungsplan",
+    "section.reviewHighlights": "⭐ Bewertungs-Highlights", "section.recentReviews": "💬 Neueste Bewertungen",
+    "section.top5in": "🏆 Top 5 in", "section.bottom5in": "⚠ Letzte 5 in",
+    "section.importedData": "✓ Importierte Daten", "section.dataSource": "📡 Datenquellen-Konfiguration",
+    "section.sentimentByCategory": "Stimmung nach Kategorien (alle Länder)", "section.overallSentiment": "Gesamtstimmung",
+    "section.aiKeywords": "🔑 KI-Schlüsselwörter", "section.aiInsight": "🤖 KI-Zusammenfassung",
+    "section.avgRatingByCountry": "Ø Bewertung nach Land", "section.ratingDistribution": "Bewertungsverteilung",
+    "section.monthlyVolume": "Monatliches Rezensionsvolumen", "section.ratingTrend": "Bewertungstrend & Negativ-%",
+    "section.countrySummary": "Länderübersicht", "section.scoreDistribution": "Score-Verteilung",
+    "section.categoryAverages": "Kategorie-Durchschnitte", "section.countryRanking": "Länder-Ranking",
+    "section.liveRatingDist": "Live-Bewertungsverteilung", "section.liveSentiment": "Live-Stimmung",
+    "section.liveReviewFeed": "Live-Bewertungs-Feed", "section.feedPaused": "Feed pausiert",
+    "section.liveCountryRatings": "Live-Länderbewertungen", "section.ratingTrendChart": "Bewertungstrend",
+    "section.reviewVolumeTrend": "Rezensionsvolumen-Trend", "section.sentimentComparison": "Stimmungsvergleich",
+    "section.quickNavigation": "Schnellnavigation",
+    "chart.avgRating": "Ø Bewertung", "chart.reviews": "Rezensionen", "chart.negative": "Negativ",
+    "chart.negativePercent": "Negativ %", "chart.positivePercent": "Positiv %", "chart.neutralPercent": "Neutral %",
+    "chart.thisDealer": "Dieser Händler", "chart.networkAvg": "Netzwerk-Ø", "chart.countryAvg": "Landes-Ø",
+    "chart.satisfactionRate": "Zufriedenheitsrate", "chart.weightedAvg": "Gewichteter Durchschnitt",
+    "chart.total": "gesamt", "chart.analyzed": "analysiert",
+    "pq.networkAvgScore": "Netzwerk-Ø Score", "pq.grade": "Note",
+    "pq.criticalBelow50": "Kritisch (<50%)", "pq.warningBelow70": "Warnung (<70%)",
+    "pq.totalAlerts": "Gesamt Warnungen", "pq.profileScore": "Profil-Score",
+    "pq.basicInfo": "📋 Grunddaten", "pq.onlinePresence": "🌐 Online-Präsenz",
+    "pq.activityFreshness": "🔄 Aktivität & Aktualität",
+    "pq.phone": "Telefonnummer", "pq.email": "E-Mail-Adresse", "pq.website": "Website",
+    "pq.hours": "Öffnungszeiten", "pq.address": "Vollständige Adresse + GPS", "pq.photosMin5": "Fotos (min 5)",
+    "pq.description": "Beschreibung", "pq.services": "Dienstleistungen", "pq.teamContacts": "Teamkontakte",
+    "pq.certifications": "Zertifizierungen", "pq.googleBusiness": "Google Business",
+    "pq.responseRate": "Antwortrate", "pq.avgResponseTime": "Ø Antwortzeit",
+    "pq.socialMedia": "Soziale Medien", "pq.promotions": "Veröffentlichte Aktionen",
+    "pq.lastUpdate": "Letztes Profil-Update", "pq.monthlyUpdates": "Monatliche Updates",
+    "pq.stockVehicles": "Fahrzeuge im Online-Bestand", "pq.configuratorLink": "Konfigurator-Link",
+    "pq.provided": "Vorhanden", "pq.missing": "Fehlt", "pq.verified": "Verifiziert",
+    "pq.active": "Aktiv", "pq.inactive": "Inaktiv", "pq.complete": "Vollständig", "pq.incomplete": "Unvollständig",
+    "pq.claimed": "Beansprucht", "pq.unclaimed": "Nicht beansprucht", "pq.listed": "Aufgeführt",
+    "pq.present": "Vorhanden", "pq.none": "Keine", "pq.belowMin": "unter Minimum",
+    "pq.vsCountryAvg": "vs Landes-Ø", "pq.basic": "Basis", "pq.online": "Online",
+    "pq.activity": "Aktivität", "pq.freshness": "Aktualität", "pq.responsePercent": "Antwort %",
+    "pq.excellent": "Ausgezeichnet (80+)", "pq.good": "Gut (70-79)", "pq.average": "Durchschnitt (60-69)",
+    "pq.poor": "Schwach (50-59)", "pq.criticalLow": "Kritisch (<50)", "pq.activeAlerts": "⚠ Aktive Warnungen",
+    "bench.detail": "Händler-Detail", "bench.countryVs": "Land vs Land", "bench.dealerVs": "Händler vs Händler",
+    "bench.selectCountryA": "— Land A wählen —", "bench.selectCountryB": "— Land B wählen —",
+    "bench.selectDealerA": "— Händler A wählen —", "bench.selectDealerB": "— Händler B wählen —",
+    "bench.vs": "VS", "bench.3months": "3 Monate", "bench.6months": "6 Monate",
+    "bench.recommendations": "Empfehlungen", "bench.bestReview": "Beste Bewertung",
+    "bench.needsAttention": "Aufmerksamkeit nötig", "bench.mostTypical": "Typischste",
+    "bench.addMorePhotos": "Weitere Fotos hinzufügen",
+    "live.reviewsToday": "Bewertungen heute", "live.liveAvgRating": "Live-Ø Bewertung",
+    "live.activeCountries": "Aktive Länder", "live.feedStatus": "Feed-Status",
+    "live.paused": "⏸ Pausiert", "live.live": "🔴 Live",
+    "live.positive": "Positiv", "live.neutral": "Neutral", "live.negative": "Negativ",
+    "live.inFeed": "im Feed", "live.waiting": "Warte auf Bewertungen...",
+    "alerts.critical": "Kritisch", "alerts.high": "Hoch", "alerts.totalAlerts": "Warnungen gesamt",
+    "alerts.cleanDealers": "Saubere Händler", "alerts.percentNetwork": "% des Netzwerks",
+    "alerts.recentNegative": "🔴 Negative Bewertungen (letzte 7 Tage)",
+    "alerts.dealersAttention": "⚠ Händler mit Handlungsbedarf",
+    "alerts.noData": "Noch keine Daten importiert", "alerts.goToAdmin": "Zum Admin-Tab, um Länder zu importieren",
+    "alerts.noCritical": "✓ Keine kritischen Probleme",
+    "nav.dealerOverview": "Händlerübersicht", "nav.dealerOverviewDesc": "Händler, Tabelle & Karten",
+    "nav.liveReviews": "Live-Bewertungen", "nav.liveReviewsDesc": "Echtzeit-Feed & Stimmung",
+    "nav.benchmark": "Benchmark", "nav.benchmarkDesc": "Länder & Händler vergleichen",
+    "nav.profileQuality": "Profilqualität", "nav.profileQualityDesc": "Ø Score:",
+    "admin.importing": "Importiere", "admin.countries": "Länder", "admin.country": "Land",
+    "admin.allImported": "Alle Länder importiert ✓", "admin.selectToImport": "Länder zum Import auswählen",
+    "admin.estCalls": "Geschätzt", "admin.apiCalls": "API-Aufrufe", "admin.cost": "Kosten",
+    "admin.googlePlaces": "{t("admin.googlePlaces")}", "admin.googlePlacesDesc": "Händlerdaten, Bewertungen, GPS, 5 Rezensionen",
+    "admin.googlePlacesNote": "⚠ Max 5 Rezensionen pro Ort",
+    "misc.noCritical": "✓ Keine kritischen Probleme", "misc.noActiveAlerts": "Keine aktiven Warnungen ✓",
+    "misc.showingMax": "Zeige 60 von", "misc.useSearch": "Händler · Suche oder Länderfilter nutzen",
+    "misc.details": "Details", "misc.brands": "Marken:", "misc.address": "Adresse:", "misc.placeId": "Ort-ID:",
+    "misc.latestReviews": "Neueste Bewertungen",
+    "overview.dealersAcross": "Händler in", "overview.countries": "Ländern",
+    "review.original": "Original", "review.translated": "Übersetzung",
+    "region.all": "Alle", "region.central": "Mitteleuropa", "region.western": "Westeuropa",
+    "region.southern": "Südeuropa", "region.northern": "Nordeuropa",
+    "region.baltics": "Baltikum", "region.balkans": "Balkan", "region.british": "Britische Inseln",
+    "photo.showroom": "Showroom", "photo.serviceArea": "Werkstatt", "photo.reception": "Empfang",
+    "photo.exterior": "Außenbereich", "photo.waitingLounge": "Warteraum", "photo.partsDept": "Teileabteilung",
+    "sentiment.service": "Service", "sentiment.sales": "Verkauf", "sentiment.parts": "Teile",
+    "sentiment.communication": "Kommunikation", "sentiment.value": "Preis-Leistung",
+    "summary.networkRating": "Netzwerk-Bewertung", "summary.nps": "NPS Score", "summary.responseRate": "Antwortrate",
+    "summary.negativePercent": "Negativ %", "summary.countryPerformance": "Länder-Performance Heatmap",
+    "summary.moM": "MoM",
+  },
+  pl: {
+    "app.title": "ŠKODA Opinie Dealerów", "app.subtitle": "Europejski panel monitorowania · PoC",
+    "tab.summary": "🏠 Podsumowanie", "tab.summary.sub": "Widok zarządczy",
+    "tab.admin": "⚙ Admin", "tab.admin.sub": "Import & Konfiguracja",
+    "tab.alerts": "🔔 Alerty", "tab.alerts.sub": "aktywnych",
+    "tab.overview": "📊 Dealerzy", "tab.overview.sub": "dealerów",
+    "tab.reviews": "💬 Opinie na żywo", "tab.reviews.sub": "Feed w czasie rzeczywistym",
+    "tab.sentiment": "🧠 Sentyment", "tab.sentiment.sub": "Analiza AI",
+    "tab.benchmark": "📈 Benchmark", "tab.benchmark.sub": "Porównanie",
+    "tab.profile": "🏗 Jakość profilu", "tab.profile.sub": "Kompletność",
+    "stat.countries": "Kraje", "stat.dealers": "Dealerzy", "stat.avgRating": "Śr. ocena", "stat.alerts": "Alerty",
+    "stat.rating": "Ocena", "stat.reviews": "Opinie", "stat.negative": "Negatywne", "stat.trend6mo": "Trend (6 mies.)",
+    "stat.totalReviews": "Łącznie opinii", "stat.negativeAvg": "Śr. negatywne", "stat.activeAlerts": "Aktywne alerty", "stat.multibrand": "Multimarkowy",
+    "label.networkAvg": "Średnia sieci", "label.countryAvg": "Średnia kraju", "label.profile": "Profil",
+    "label.country": "Kraj", "label.dealer": "Dealer", "label.results": "wyników",
+    "label.allCountries": "Wszystkie kraje", "label.selectDealer": "Wybierz dealera:", "label.selectCountry": "Wybierz kraj:",
+    "label.search": "Szukaj dealera, miasto, kraj...", "label.allDealers": "Wszyscy dealerzy",
+    "label.withAlerts": "Z alertami", "label.highCritical": "Wysokie + Krytyczne", "label.criticalOnly": "Tylko krytyczne",
+    "label.table": "☰ Tabela", "label.cards": "⊞ Karty",
+    "label.all": "Wszystko", "label.critical": "Krytyczne", "label.high": "Wysokie", "label.medium": "Średnie",
+    "label.warning": "Ostrzeżenie", "label.good": "Dobre", "label.clean": "OK",
+    "label.region": "Region:", "label.photos": "zdjęć", "label.dealers": "dealerów", "label.reviews": "opinii",
+    "label.dAgo": "d temu", "label.today": "Dziś", "label.target": "cel:",
+    "btn.call": "📞 Zadzwoń", "btn.email": "✉ E-mail", "btn.website": "🌐 Strona", "btn.googleMaps": "📍 Google Maps",
+    "btn.respond": "Odpowiedz", "btn.escalate": "Eskaluj", "btn.resume": "▶ Wznów", "btn.pause": "⏸ Wstrzymaj",
+    "btn.selectAll": "+ Zaznacz wszystko", "btn.clearSelection": "Wyczyść wybór",
+    "btn.backToList": "← Powrót do listy", "btn.openBenchmark": "Otwórz Benchmark →",
+    "btn.viewAll": "Pokaż wszystko →", "btn.import": "▶ Importuj",
+    "section.criticalIssues": "🚨 Krytyczne problemy", "section.networkHealth": "Kondycja sieci",
+    "section.top5": "🏆 Top 5 dealerów", "section.bottom5": "⚠ Najgorsi 5 dealerów",
+    "section.risingStars": "📈 Wschodzące gwiazdy", "section.declining": "📉 Spadki",
+    "section.photoGallery": "📷 Galeria zdjęć", "section.ratingTimeline": "📈 Oś czasu ocen (6 miesięcy)",
+    "section.dealerVsNetwork": "🎯 Dealer vs średnia sieci", "section.aiPlan": "🤖 Plan poprawy AI",
+    "section.reviewHighlights": "⭐ Wyróżnione opinie", "section.recentReviews": "💬 Ostatnie opinie",
+    "section.top5in": "🏆 Top 5 w", "section.bottom5in": "⚠ Najgorsi 5 w",
+    "section.importedData": "✓ Zaimportowane dane", "section.dataSource": "📡 Konfiguracja źródła danych",
+    "section.sentimentByCategory": "Sentyment wg kategorii (wszystkie kraje)", "section.overallSentiment": "Ogólny sentyment",
+    "section.aiKeywords": "🔑 Słowa kluczowe AI", "section.aiInsight": "🤖 Podsumowanie AI",
+    "section.avgRatingByCountry": "Średnia ocena wg kraju", "section.ratingDistribution": "Rozkład ocen",
+    "section.monthlyVolume": "Miesięczna ilość opinii", "section.ratingTrend": "Trend ocen i % negatywnych",
+    "section.countrySummary": "Podsumowanie krajów", "section.scoreDistribution": "Rozkład wyników",
+    "section.categoryAverages": "Średnie kategorii", "section.countryRanking": "Ranking krajów",
+    "section.liveRatingDist": "Dystrybucja ocen na żywo", "section.liveSentiment": "Sentyment na żywo",
+    "section.liveReviewFeed": "Feed opinii na żywo", "section.feedPaused": "Feed wstrzymany",
+    "section.liveCountryRatings": "Oceny krajów na żywo", "section.ratingTrendChart": "Trend ocen",
+    "section.reviewVolumeTrend": "Trend ilości opinii", "section.sentimentComparison": "Porównanie sentymentu",
+    "section.quickNavigation": "Szybka nawigacja",
+    "chart.avgRating": "Śr. ocena", "chart.reviews": "Opinie", "chart.negative": "Negatywne",
+    "chart.negativePercent": "Negatywne %", "chart.positivePercent": "Pozytywne %", "chart.neutralPercent": "Neutralne %",
+    "chart.thisDealer": "Ten dealer", "chart.networkAvg": "Średnia sieci", "chart.countryAvg": "Średnia kraju",
+    "chart.satisfactionRate": "Wskaźnik satysfakcji", "chart.weightedAvg": "Średnia ważona",
+    "chart.total": "łącznie", "chart.analyzed": "przeanalizowano",
+    "pq.networkAvgScore": "Śr. wynik sieci", "pq.grade": "Ocena",
+    "pq.criticalBelow50": "Krytyczne (<50%)", "pq.warningBelow70": "Ostrzeżenie (<70%)",
+    "pq.totalAlerts": "Łącznie alertów", "pq.profileScore": "Wynik profilu",
+    "pq.basicInfo": "📋 Dane podstawowe", "pq.onlinePresence": "🌐 Obecność online",
+    "pq.activityFreshness": "🔄 Aktywność & Aktualność",
+    "pq.phone": "Numer telefonu", "pq.email": "Adres e-mail", "pq.website": "Strona internetowa",
+    "pq.hours": "Godziny otwarcia", "pq.address": "Pełny adres + GPS", "pq.photosMin5": "Zdjęcia (min 5)",
+    "pq.description": "Opis", "pq.services": "Lista usług", "pq.teamContacts": "Kontakty do zespołu",
+    "pq.certifications": "Certyfikaty", "pq.googleBusiness": "Google Business",
+    "pq.responseRate": "Wskaźnik odpowiedzi", "pq.avgResponseTime": "Śr. czas odpowiedzi",
+    "pq.socialMedia": "Media społecznościowe", "pq.promotions": "Publikowane promocje",
+    "pq.lastUpdate": "Ostatnia aktualizacja", "pq.monthlyUpdates": "Miesięczne aktualizacje",
+    "pq.stockVehicles": "Pojazdy online", "pq.configuratorLink": "Link do konfiguratora",
+    "pq.provided": "Podany", "pq.missing": "Brak", "pq.verified": "Zweryfikowany",
+    "pq.active": "Aktywny", "pq.inactive": "Nieaktywny", "pq.complete": "Kompletne", "pq.incomplete": "Niekompletne",
+    "pq.claimed": "Przejęty", "pq.unclaimed": "Nieprzejęty", "pq.listed": "Wymienione",
+    "pq.present": "Obecne", "pq.none": "Brak", "pq.belowMin": "poniżej min",
+    "pq.vsCountryAvg": "vs średnia kraju", "pq.basic": "Podstawowy", "pq.online": "Online",
+    "pq.activity": "Aktywność", "pq.freshness": "Aktualność", "pq.responsePercent": "Odpowiedzi %",
+    "pq.excellent": "Doskonałe (80+)", "pq.good": "Dobre (70-79)", "pq.average": "Średnie (60-69)",
+    "pq.poor": "Słabe (50-59)", "pq.criticalLow": "Krytyczne (<50)", "pq.activeAlerts": "⚠ Aktywne alerty",
+    "bench.detail": "Szczegóły dealera", "bench.countryVs": "Kraj vs Kraj", "bench.dealerVs": "Dealer vs Dealer",
+    "bench.selectCountryA": "— Wybierz kraj A —", "bench.selectCountryB": "— Wybierz kraj B —",
+    "bench.selectDealerA": "— Wybierz dealera A —", "bench.selectDealerB": "— Wybierz dealera B —",
+    "bench.vs": "VS", "bench.3months": "3 miesiące", "bench.6months": "6 miesięcy",
+    "bench.recommendations": "zaleceń", "bench.bestReview": "Najlepsza opinia",
+    "bench.needsAttention": "Wymaga uwagi", "bench.mostTypical": "Najbardziej typowa",
+    "bench.addMorePhotos": "Dodaj więcej zdjęć",
+    "live.reviewsToday": "Opinie dziś", "live.liveAvgRating": "Śr. ocena na żywo",
+    "live.activeCountries": "Aktywne kraje", "live.feedStatus": "Status feedu",
+    "live.paused": "⏸ Wstrzymany", "live.live": "🔴 Na żywo",
+    "live.positive": "Pozytywne", "live.neutral": "Neutralne", "live.negative": "Negatywne",
+    "live.inFeed": "w feedzie", "live.waiting": "Oczekiwanie na opinie...",
+    "alerts.critical": "Krytyczne", "alerts.high": "Wysokie", "alerts.totalAlerts": "Łącznie alertów",
+    "alerts.cleanDealers": "Czyści dealerzy", "alerts.percentNetwork": "% sieci",
+    "alerts.recentNegative": "🔴 Negatywne opinie (ostatnie 7 dni)",
+    "alerts.dealersAttention": "⚠ Dealerzy wymagający uwagi",
+    "alerts.noData": "Brak zaimportowanych danych", "alerts.goToAdmin": "Przejdź do Admin aby importować kraje",
+    "alerts.noCritical": "✓ Brak krytycznych problemów",
+    "nav.dealerOverview": "Przegląd dealerów", "nav.dealerOverviewDesc": "dealerzy, tabela & karty",
+    "nav.liveReviews": "Opinie na żywo", "nav.liveReviewsDesc": "Feed & sentyment",
+    "nav.benchmark": "Benchmark", "nav.benchmarkDesc": "Porównanie krajów & dealerów",
+    "nav.profileQuality": "Jakość profilu", "nav.profileQualityDesc": "Śr. wynik:",
+    "admin.importing": "Importowanie", "admin.countries": "krajów", "admin.country": "kraj",
+    "admin.allImported": "Wszystkie kraje zaimportowane ✓", "admin.selectToImport": "Wybierz kraje do importu",
+    "admin.estCalls": "Szac.", "admin.apiCalls": "wywołań API", "admin.cost": "koszt",
+    "admin.googlePlaces": "{t("admin.googlePlaces")}", "admin.googlePlacesDesc": "Dane dealerów, oceny, GPS, 5 opinii",
+    "admin.googlePlacesNote": "⚠ Max 5 opinii na miejsce",
+    "misc.noCritical": "✓ Brak krytycznych problemów", "misc.noActiveAlerts": "Brak aktywnych alertów ✓",
+    "misc.showingMax": "Pokazano 60 z", "misc.useSearch": "dealerów · Użyj wyszukiwarki lub filtra krajów",
+    "misc.details": "Szczegóły", "misc.brands": "Marki:", "misc.address": "Adres:", "misc.placeId": "ID miejsca:",
+    "misc.latestReviews": "Ostatnie opinie",
+    "overview.dealersAcross": "dealerów w", "overview.countries": "krajach",
+    "review.original": "Oryginał", "review.translated": "Tłumaczenie",
+    "region.all": "Wszystko", "region.central": "Europa Środkowa", "region.western": "Europa Zachodnia",
+    "region.southern": "Europa Południowa", "region.northern": "Europa Północna",
+    "region.baltics": "Kraje bałtyckie", "region.balkans": "Bałkany", "region.british": "Wyspy Brytyjskie",
+    "photo.showroom": "Salon", "photo.serviceArea": "Serwis", "photo.reception": "Recepcja",
+    "photo.exterior": "Zewnątrz", "photo.waitingLounge": "Poczekalnia", "photo.partsDept": "Dział części",
+    "sentiment.service": "Serwis", "sentiment.sales": "Sprzedaż", "sentiment.parts": "Części",
+    "sentiment.communication": "Komunikacja", "sentiment.value": "Wartość",
+    "summary.networkRating": "Ocena sieci", "summary.nps": "NPS Score", "summary.responseRate": "Wskaźnik odpowiedzi",
+    "summary.negativePercent": "Negatywne %", "summary.countryPerformance": "Heatmapa krajów",
+    "summary.moM": "MoM",
+  },
+};
+
+const LangContext = React.createContext("en");
+function useLang() {
+  const lang = React.useContext(LangContext);
+  return (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en[key] || key;
+}
+
 // ── European countries with ŠKODA presence ──
 const EUROPEAN_COUNTRIES = [
   { code: "CZ", name: "Czech Republic", nameLocal: "Česko", flag: "🇨🇿", region: "Central", dealers: 87, priority: true },
@@ -196,10 +673,56 @@ function generateReviews(city, cc, rating) {
       date: date.toISOString().split("T")[0],
       daysAgo,
       author: `User${Math.floor(Math.random()*9000+1000)}`,
+      langCode: COUNTRY_LANG[cc] || "en",
+      langName: LANG_NAMES[COUNTRY_LANG[cc] || "en"] || "English",
+      localText: (LOCAL_REVIEWS[COUNTRY_LANG[cc]] || [])[Math.floor(Math.random() * (LOCAL_REVIEWS[COUNTRY_LANG[cc]] || [{ text: "" }]).length)]?.text || "",
     });
   }
   return reviews.sort((a,b) => a.daysAgo - b.daysAgo);
 }
+
+// Country code to language mapping for reviews
+const COUNTRY_LANG = {
+  CZ: "cs", SK: "cs", DE: "de", AT: "de", CH: "de", PL: "pl",
+  FR: "fr", ES: "es", IT: "it", PT: "pt", NL: "nl", BE: "nl",
+  SE: "sv", NO: "no", DK: "da", FI: "fi", HU: "hu", RO: "ro",
+  BG: "bg", HR: "hr", SI: "sl", RS: "sr", GR: "el", TR: "tr",
+  IE: "en", GB: "en", LT: "lt", LV: "lv", EE: "et",
+};
+const LANG_NAMES = {
+  cs: "Čeština", de: "Deutsch", pl: "Polski", fr: "Français", es: "Español",
+  it: "Italiano", pt: "Português", nl: "Nederlands", sv: "Svenska",
+  no: "Norsk", da: "Dansk", fi: "Suomi", hu: "Magyar", ro: "Română",
+  bg: "Български", hr: "Hrvatski", sl: "Slovenščina", sr: "Srpski",
+  el: "Ελληνικά", tr: "Türkçe", en: "English", lt: "Lietuvių",
+  lv: "Latviešu", et: "Eesti",
+};
+const LOCAL_REVIEWS = {
+  cs: [
+    { stars: 5, text: "Výborný servis v tomto dealerství. Personál byl velmi profesionální a ochotný." },
+    { stars: 5, text: "Koupil jsem tu nový Enyaq. Prodejní tým vše perfektně vysvětlil. Vřele doporučuji!" },
+    { stars: 4, text: "Celkově dobrá zkušenost. Servis byl rychlý, i když komunikace mohla být lepší." },
+    { stars: 3, text: "Průměrná zkušenost. Auto bylo opraveno dobře, ale recepce byla dost chladná." },
+    { stars: 2, text: "Zklamání ze servisu. Musel jsem čekat 3 týdny na jednoduchý termín opravy." },
+    { stars: 1, text: "Hrozná zkušenost. Velmi hrubý personál. Už se sem nikdy nevrátím." },
+  ],
+  de: [
+    { stars: 5, text: "Ausgezeichneter Service beim Händler. Das Personal war sehr professionell und hilfsbereit." },
+    { stars: 5, text: "Habe hier meinen neuen Enyaq gekauft. Das Verkaufsteam hat alles perfekt erklärt. Sehr empfehlenswert!" },
+    { stars: 4, text: "Insgesamt gute Erfahrung. Der Service war schnell, die Kommunikation könnte besser sein." },
+    { stars: 3, text: "Durchschnittliche Erfahrung. Der Empfang war eher kühl." },
+    { stars: 2, text: "Enttäuscht vom Service. 3 Wochen Wartezeit für eine einfache Reparatur." },
+    { stars: 1, text: "Schreckliche Erfahrung. Sehr unhöfliches Personal. Komme nie wieder." },
+  ],
+  pl: [
+    { stars: 5, text: "Doskonała obsługa w tym salonie. Personel był bardzo profesjonalny i pomocny." },
+    { stars: 5, text: "Kupiłem tu nowego Enyaqa. Zespół sprzedaży wszystko doskonale wyjaśnił. Gorąco polecam!" },
+    { stars: 4, text: "Ogólnie dobre doświadczenie. Serwis był szybki, choć komunikacja mogłaby być lepsza." },
+    { stars: 3, text: "Przeciętne doświadczenie. Samochód został dobrze naprawiony, ale recepcja była dość chłodna." },
+    { stars: 2, text: "Rozczarowanie serwisem. Musiałem czekać 3 tygodnie na prosty termin naprawy." },
+    { stars: 1, text: "Okropne doświadczenie. Bardzo niegrzeczny personel. Nigdy tu nie wrócę." },
+  ],
+};
 
 function generateMonthlyData(rating) {
   const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
@@ -380,6 +903,7 @@ EUROPEAN_COUNTRIES.forEach(c => {
 
 const Badge = ({ children, color, style = {} }) => {
   const T = useTheme();
+  const t = useLang();
   const c = color || T.SKODA_GREEN;
   return (
     <span style={{
@@ -393,6 +917,7 @@ const Badge = ({ children, color, style = {} }) => {
 
 const Stat = ({ label, value, sub, alert }) => {
   const T = useTheme();
+  const t = useLang();
   return (
     <div style={{
       background: T.SURFACE_2, borderRadius: 8, padding: "14px 16px",
@@ -422,6 +947,47 @@ const StarRating = ({ rating, size = 14 }) => {
   );
 };
 
+
+// ── Review item with original language + translation ──
+const ReviewItem = ({ review, compact }) => {
+  const T = useTheme();
+  const t = useLang();
+  const [showOriginal, setShowOriginal] = React.useState(false);
+  const hasLocal = review.localText && review.langCode !== "en";
+  const borderColor = review.stars >= 4 ? T.SKODA_GREEN : review.stars >= 3 ? T.ALERT_YELLOW : T.ALERT_RED;
+  return (
+    <div style={{ background: T.SURFACE, borderRadius: 6, padding: compact ? "8px 12px" : "10px 14px", borderLeft: `3px solid ${borderColor}` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <StarRating rating={review.stars} size={12} />
+          <span style={{ fontSize: 11, fontWeight: 600, color: T.TEXT_DIM }}>{review.author}</span>
+          {hasLocal && (
+            <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: T.BORDER + "44", color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase" }}>{review.langName}</span>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {hasLocal && (
+            <button onClick={() => setShowOriginal(!showOriginal)} style={{ fontSize: 10, padding: "1px 8px", borderRadius: 4, border: `1px solid ${T.BORDER}`, background: showOriginal ? T.SKODA_GREEN + "22" : "transparent", color: showOriginal ? T.SKODA_GREEN : T.TEXT_DIM, cursor: "pointer", fontWeight: 600 }}>
+              {showOriginal ? t("review.original") : "🌐"}
+            </button>
+          )}
+          <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{review.date}</span>
+        </div>
+      </div>
+      {hasLocal && showOriginal ? (
+        <div>
+          <div style={{ fontSize: 11, color: T.SKODA_GREEN, fontWeight: 600, marginBottom: 2 }}>{t("review.original")} ({review.langName}):</div>
+          <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.5, fontStyle: "italic" }}>{review.localText}</div>
+          <div style={{ fontSize: 11, color: T.TEXT_DIM, fontWeight: 600, marginTop: 6, marginBottom: 2 }}>{t("review.translated")} (EN):</div>
+          <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{review.text}</div>
+        </div>
+      ) : (
+        <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{review.text}</div>
+      )}
+    </div>
+  );
+};
+
 // ═══════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════
@@ -430,6 +996,8 @@ function useTheme() { return React.useContext(ThemeContext); }
 
 function SkodaDealerDashboard() {
   const [darkMode, setDarkMode] = useState(true);
+  const [lang, setLang] = useState("en");
+  const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en[key] || key;
   const T = darkMode ? THEMES.dark : THEMES.light;
   const [activeTab, setActiveTab] = useState("summary");
   const [selectedCountries, setSelectedCountries] = useState(new Set(["CZ"]));
@@ -524,18 +1092,19 @@ function SkodaDealerDashboard() {
   };
 
   const tabs = [
-    { id: "summary", label: "🏠 Summary", sub: "Executive view" },
-    { id: "admin", label: "⚙ Admin", sub: "Import & Config" },
-    { id: "alerts", label: "🔔 Alerts", sub: `${stats.alerts} active`, alert: stats.alerts > 0 },
-    { id: "overview", label: "📊 Dealers", sub: `${stats.dealers} dealers` },
-    { id: "reviews", label: "💬 Live Reviews", sub: "Real-time feed" },
-    { id: "sentiment", label: "🧠 Sentiment", sub: "AI Analysis" },
-    { id: "benchmark", label: "📈 Benchmark", sub: "Compare" },
-    { id: "profile", label: "🏗 Profile Quality", sub: "Completeness" },
+    { id: "summary", label: t("tab.summary"), sub: t("tab.summary.sub") },
+    { id: "admin", label: t("tab.admin"), sub: t("tab.admin.sub") },
+    { id: "alerts", label: t("tab.alerts"), sub: `${stats.alerts} ${t("tab.alerts.sub")}`, alert: stats.alerts > 0 },
+    { id: "overview", label: t("tab.overview"), sub: `${stats.dealers} ${t("tab.overview.sub")}` },
+    { id: "reviews", label: t("tab.reviews"), sub: t("tab.reviews.sub") },
+    { id: "sentiment", label: t("tab.sentiment"), sub: t("tab.sentiment.sub") },
+    { id: "benchmark", label: t("tab.benchmark"), sub: t("tab.benchmark.sub") },
+    { id: "profile", label: t("tab.profile"), sub: t("tab.profile.sub") },
   ];
 
   return (
     <ThemeContext.Provider value={T}>
+    <LangContext.Provider value={lang}>
     <div style={{
       background: T.SKODA_DARK, color: T.TEXT, minHeight: "100vh",
       fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
@@ -604,19 +1173,28 @@ function SkodaDealerDashboard() {
             fontWeight: 800, fontSize: 16, color: "#fff",
           }}>Š</div>
           <div>
-            <div className="app-header-title" style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>ŠKODA Dealer Reviews</div>
-            <div className="app-header-subtitle" style={{ fontSize: 11, color: T.TEXT_DIM }}>Europe-wide monitoring dashboard · PoC</div>
+            <div className="app-header-title" style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>{t("app.title")}</div>
+            <div className="app-header-subtitle" style={{ fontSize: 11, color: T.TEXT_DIM }}>{t("app.subtitle")}</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {importedCountryCodes.size > 0 && (
             <div className="app-header-stats" style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
-              <Stat label="Countries" value={stats.countries} />
-              <Stat label="Dealers" value={stats.dealers} />
-              <Stat label="Avg Rating" value={`${stats.avg}★`} />
-              <Stat label="Alerts" value={stats.alerts} alert={stats.alerts > 5} />
+              <Stat label={t("stat.countries")} value={stats.countries} />
+              <Stat label={t("stat.dealers")} value={stats.dealers} />
+              <Stat label={t("stat.avgRating")} value={`${stats.avg}★`} />
+              <Stat label={t("stat.alerts")} value={stats.alerts} alert={stats.alerts > 5} />
             </div>
           )}
+          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: `1px solid ${T.BORDER}`, flexShrink: 0 }}>
+            {[{c:"en",l:"EN"},{c:"cs",l:"CZ"},{c:"de",l:"DE"},{c:"pl",l:"PL"}].map(x => (
+              <button key={x.c} onClick={() => setLang(x.c)} style={{
+                padding: "4px 8px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer",
+                background: lang === x.c ? T.SKODA_GREEN : T.SURFACE_2, color: lang === x.c ? "#fff" : T.TEXT_DIM,
+                transition: "all 0.2s",
+              }}>{x.l}</button>
+            ))}
+          </div>
           <button className="app-header-theme-btn" onClick={() => setDarkMode(!darkMode)} style={{
             width: 40, height: 40, borderRadius: 8, border: `1px solid ${T.BORDER}`,
             background: T.SURFACE_2, color: T.TEXT, fontSize: 18,
@@ -689,6 +1267,7 @@ function SkodaDealerDashboard() {
         {activeTab === "profile" && <ProfileQualityPanel dealers={allDealers} onSelectDealer={setSelectedDealer} setActiveTab={(t) => { setActiveTab(t); }} />}
       </div>
     </div>
+    </LangContext.Provider>
     </ThemeContext.Provider>
   );
 }
@@ -699,6 +1278,7 @@ function SkodaDealerDashboard() {
 
 function AdminPanel({ countries, selected, imported, importedData, toggle, selectRegion, onImport, onRemove, importing, progress, regionFilter, setRegionFilter, setSelected }) {
   const T = useTheme();
+  const t = useLang();
   const toImport = [...selected].filter(c => !imported.has(c));
   const filtered = regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter);
 
@@ -708,7 +1288,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
       {imported.size > 0 && (
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>
-            ✓ Imported Data ({imported.size} countries, {Object.values(importedData).flat().length} dealers)
+            {t("section.importedData")} ({imported.size} countries, {Object.values(importedData).flat().length} dealers)
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {[...imported].map(code => {
@@ -736,7 +1316,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
 
       {/* Region filter + batch actions */}
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontSize: 12, color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>Region:</span>
+        <span style={{ fontSize: 12, color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>{t("label.region")}</span>
         {REGIONS.map(r => (
           <button key={r} onClick={() => setRegionFilter(r)} style={{
             padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
@@ -751,12 +1331,12 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
           background: T.SURFACE_2, color: T.SKODA_ACCENT, border: `1px solid ${T.BORDER}`,
           cursor: "pointer",
-        }}>+ Select all {regionFilter}</button>
+        }}>{t("btn.selectAll")} {regionFilter}</button>
         <button onClick={() => setSelected(new Set())} style={{
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
           background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`,
           cursor: "pointer",
-        }}>Clear selection</button>
+        }}>{t("btn.clearSelection")}</button>
       </div>
 
       {/* Country grid */}
@@ -821,7 +1401,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
             ? `Importing ${progress?.country}... (${progress?.current}/${progress?.total})`
             : toImport.length
               ? `▶ Import ${toImport.length} ${toImport.length === 1 ? "country" : "countries"}`
-              : imported.size > 0 ? "All selected countries imported ✓" : "Select countries to import"}
+              : imported.size > 0 ? "{t("admin.allImported")}" : "{t("admin.selectToImport")}"}
         </button>
         {importing && (
           <div style={{ flex: 1, height: 6, background: T.SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
@@ -841,12 +1421,12 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
 
       {/* API Config info */}
       <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>📡 Data Source Configuration</div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t("section.dataSource")}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12, color: T.TEXT_DIM }}>
           <div>
-            <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Google Places API</div>
-            <div>Dealer metadata, ratings, GPS, 5 reviews</div>
-            <div style={{ color: T.ALERT_YELLOW }}>⚠ Max 5 reviews per place</div>
+            <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>{t("admin.googlePlaces")}</div>
+            <div>{t("admin.googlePlacesDesc")}</div>
+            <div style={{ color: T.ALERT_YELLOW }}>{t("admin.googlePlacesNote")}</div>
           </div>
           <div>
             <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Reviews API (Outscraper/SerpAPI)</div>
@@ -863,7 +1443,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
           </div>
         </div>
         <div style={{ marginTop: 12, padding: "8px 12px", background: T.SKODA_GREEN + "11", borderRadius: 6, fontSize: 11, color: T.SKODA_GREEN }}>
-          PoC Mode: Using simulated data based on real Google Places API structure. Production version would connect to live APIs.
+          PoC Mode: Using simulated data based on real {t("admin.googlePlaces")} structure. Production version would connect to live APIs.
         </div>
       </div>
     </div>
@@ -876,6 +1456,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
 
 function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
   const T = useTheme();
+  const t = useLang();
   const alertDealers = dealers
     .filter(d => d.alerts.length > 0)
     .sort((a, b) => {
@@ -891,23 +1472,23 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
-      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>{t("alerts.goToAdmin")}</div>
     </div>
   );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", gap: 12 }}>
-        <Stat label="Critical" value={criticalCount} alert={criticalCount > 0} />
-        <Stat label="High" value={highCount} alert={highCount > 0} />
-        <Stat label="Total alerts" value={alertDealers.length} />
-        <Stat label="Clean dealers" value={dealers.length - alertDealers.length} sub={`${((1 - alertDealers.length/dealers.length)*100).toFixed(0)}% of network`} />
+        <Stat label={t("alerts.critical")} value={criticalCount} alert={criticalCount > 0} />
+        <Stat label={t("alerts.high")} value={highCount} alert={highCount > 0} />
+        <Stat label={t("alerts.totalAlerts")} value={alertDealers.length} />
+        <Stat label={t("alerts.cleanDealers")} value={dealers.length - alertDealers.length} sub={`${((1 - alertDealers.length/dealers.length)*100).toFixed(0)}% of network`} />
       </div>
 
       {/* Recent negative reviews */}
       <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.ALERT_RED }}>🔴 Recent Negative Reviews (last 7 days)</div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.ALERT_RED }}>{t("alerts.recentNegative")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
           {dealers.flatMap(d => d.recentReviews.filter(r => r.stars <= 2 && r.daysAgo <= 7).map(r => ({ ...r, dealer: d })))
             .sort((a, b) => a.daysAgo - b.daysAgo)
@@ -923,13 +1504,14 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
                     <StarRating rating={r.stars} size={12} />
                     <span style={{ fontWeight: 600, fontSize: 12 }}>{r.dealer.name}</span>
                     <Badge color={T.TEXT_DIM}>{r.dealer.flag} {r.dealer.countryName}</Badge>
+                    {r.review?.langCode && r.review.langCode !== "en" && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: T.BORDER + "44", color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase" }}>{r.review.langName || r.review.langCode}</span>}
                   </div>
-                  <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.daysAgo === 0 ? "Today" : `${r.daysAgo}d ago`}</span>
+                  <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.daysAgo === 0 ? t("label.today") : `${r.daysAgo}${t("label.dAgo")}`}</span>
                 </div>
                 <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`, cursor: "pointer", fontFamily: "inherit" }}>Respond</button>
-                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.ALERT_RED + "22", color: T.ALERT_RED, border: `1px solid ${T.ALERT_RED}44`, cursor: "pointer", fontFamily: "inherit" }}>Escalate</button>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`, cursor: "pointer", fontFamily: "inherit" }}>{t("btn.respond")}</button>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.ALERT_RED + "22", color: T.ALERT_RED, border: `1px solid ${T.ALERT_RED}44`, cursor: "pointer", fontFamily: "inherit" }}>{t("btn.escalate")}</button>
                 </div>
               </div>
             ))}
@@ -938,7 +1520,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
 
       {/* Dealers requiring attention */}
       <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>⚠ Dealers Requiring Attention</div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("alerts.dealersAttention")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 400, overflowY: "auto" }}>
           {alertDealers.slice(0, 20).map((d, i) => (
             <div key={d.id} className="dealer-row" onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }}
@@ -975,12 +1557,13 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
 
 function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiveTab }) {
   const T = useTheme();
+  const t = useLang();
 
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
-      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>{t("alerts.goToAdmin")}</div>
     </div>
   );
 
@@ -1085,7 +1668,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
         {/* Network Rating */}
         <div style={{ background: `linear-gradient(135deg, ${T.SKODA_GREEN}22, ${T.SKODA_GREEN}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_GREEN}44` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Network Rating</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.networkRating")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <span style={{ fontSize: 36, fontWeight: 800, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{avgRating}</span>
             <span style={{ fontSize: 14, color: T.TEXT_DIM }}>/ 5</span>
@@ -1102,7 +1685,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
         {/* Response Rate */}
         <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Response Rate</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.responseRate")}</div>
           <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: avgResponseRate >= 70 ? T.SKODA_ACCENT : avgResponseRate >= 40 ? T.ALERT_YELLOW : T.ALERT_RED }}>{avgResponseRate}%</div>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>avg review response</div>
         </div>
@@ -1150,7 +1733,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="reviews" fill={T.SKODA_ACCENT + "88"} radius={[4,4,0,0]} name="Reviews" />
+                <Bar dataKey="reviews" fill={T.SKODA_ACCENT + "88"} radius={[4,4,0,0]} name={t("chart.reviews")} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1202,14 +1785,14 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED }}>🚨 Critical Issues</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED }}>{t("section.criticalIssues")}</span>
               <button onClick={() => setActiveTab("alerts")} style={{
                 fontSize: 11, padding: "4px 10px", borderRadius: 6, background: T.SURFACE_3, color: T.TEXT_DIM,
                 border: `1px solid ${T.BORDER}`, cursor: "pointer", fontFamily: "inherit",
-              }}>View all →</button>
+              }}>{t("btn.viewAll")}</button>
             </div>
             {topAlerts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 20, color: T.SKODA_ACCENT, fontSize: 13, fontWeight: 600 }}>✓ No critical issues</div>
+              <div style={{ textAlign: "center", padding: 20, color: T.SKODA_ACCENT, fontSize: 13, fontWeight: 600 }}>{t("alerts.noCritical")}</div>
             ) : topAlerts.map((a, i) => (
               <div key={i} onClick={() => { onSelectDealer(a.dealer); setActiveTab("benchmark"); }} style={{
                 display: "flex", alignItems: "center", gap: 10, padding: "10px 0",
@@ -1232,7 +1815,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
           {/* Network health */}
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>Network Health</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>{t("section.networkHealth")}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
                 { label: "Avg Rating", value: avgRating, target: 4.2, unit: "★" },
@@ -1273,7 +1856,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {/* Top 5 */}
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 12 }}>🏆 Top 5 Dealers</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 12 }}>{t("section.top5")}</div>
             {topDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
@@ -1291,7 +1874,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
           {/* Bottom 5 */}
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 Dealers</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>{t("section.bottom5")}</div>
             {bottomDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
@@ -1311,7 +1894,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {/* Rising */}
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#4ADE80", marginBottom: 12 }}>📈 Rising Stars</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#4ADE80", marginBottom: 12 }}>{t("section.risingStars")}</div>
             {risingDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
@@ -1329,7 +1912,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
           {/* Declining */}
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_ORANGE, marginBottom: 12 }}>📉 Declining</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_ORANGE, marginBottom: 12 }}>{t("section.declining")}</div>
             {decliningDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
@@ -1350,10 +1933,10 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       {/* ── Row 5: Quick navigation cards ── */}
       <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
         {[
-          { tab: "overview", icon: "📊", label: "Dealer Overview", desc: `${totalDealers} dealers, table & card view`, color: T.SKODA_ACCENT },
-          { tab: "reviews", icon: "💬", label: "Live Reviews", desc: "Real-time feed & sentiment", color: "#60A5FA" },
-          { tab: "benchmark", icon: "📈", label: "Benchmark", desc: "Compare countries & dealers", color: "#F59E0B" },
-          { tab: "profile", icon: "🏗", label: "Profile Quality", desc: `Avg score: ${avgProfileScore}%`, color: "#A78BFA" },
+          { tab: "overview", icon: "📊", label: t("nav.dealerOverview"), desc: `${totalDealers} ${t("nav.dealerOverviewDesc")}`, color: T.SKODA_ACCENT },
+          { tab: "reviews", icon: "💬", label: t("nav.liveReviews"), desc: t("nav.liveReviewsDesc"), color: "#60A5FA" },
+          { tab: "benchmark", icon: "📈", label: t("nav.benchmark"), desc: t("nav.benchmarkDesc"), color: "#F59E0B" },
+          { tab: "profile", icon: "🏗", label: t("nav.profileQuality"), desc: `${t("nav.profileQualityDesc")} ${avgProfileScore}%`, color: "#A78BFA" },
         ].map(nav => (
           <div key={nav.tab} onClick={() => setActiveTab(nav.tab)} style={{
             background: T.SURFACE_2, borderRadius: 10, padding: "16px 14px",
@@ -1379,6 +1962,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
 function MiniSparkline({ data, width = 60, height = 20, color }) {
   const T = useTheme();
+  const t = useLang();
   color = color || T.SKODA_GREEN;
   if (!data || data.length < 2) return null;
   const values = data.map(d => parseFloat(d.avgRating));
@@ -1400,6 +1984,7 @@ function MiniSparkline({ data, width = 60, height = 20, color }) {
 
 function RatingBar({ rating, maxRating = 5, width = 80 }) {
   const T = useTheme();
+  const t = useLang();
   const pct = (rating / maxRating) * 100;
   const color = rating >= 4.5 ? T.SKODA_GREEN : rating >= 4.0 ? T.SKODA_ACCENT : rating >= 3.5 ? T.ALERT_YELLOW : rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
   return (
@@ -1416,6 +2001,7 @@ function RatingBar({ rating, maxRating = 5, width = 80 }) {
 
 function NegativeBar({ percent }) {
   const T = useTheme();
+  const t = useLang();
   const color = percent > 20 ? T.ALERT_RED : percent > 12 ? T.ALERT_ORANGE : percent > 6 ? T.ALERT_YELLOW : T.SKODA_GREEN;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1429,14 +2015,15 @@ function NegativeBar({ percent }) {
 
 function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, sortBy, setSortBy, sortDir, setSortDir, alertFilter, setAlertFilter, countryFilter, setCountryFilter, onSelectDealer }) {
   const T = useTheme();
+  const t = useLang();
   const [expandedDealer, setExpandedDealer] = useState(null);
   const [viewMode, setViewMode] = useState("table"); // table | cards
 
   if (!allDealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
-      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>{t("alerts.goToAdmin")}</div>
     </div>
   );
 
@@ -1513,7 +2100,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
       {/* ── Country filter pills ── */}
       <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontSize: 10, color: T.TEXT_DIM, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginRight: 4 }}>Country:</span>
+        <span style={{ fontSize: 10, color: T.TEXT_DIM, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginRight: 4 }}>{t("label.country")}:</span>
         <button onClick={() => setCountryFilter("all")} style={{
           padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
           background: countryFilter === "all" ? T.SKODA_GREEN + "22" : T.SURFACE_2,
@@ -1541,26 +2128,26 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       {/* ── KPI Row ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Avg Rating</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.avgRating")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             <span style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.avg) >= 4.0 ? T.SKODA_GREEN : T.ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.avg}</span>
             <span style={{ fontSize: 16, color: T.TEXT_DIM }}>/ 5</span>
           </div>
         </div>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Total Reviews</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.totalReviews")}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.reviews.toLocaleString()}</div>
         </div>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Negative Avg</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.negativeAvg")}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.negAvg) > 15 ? T.ALERT_RED : parseFloat(fStats.negAvg) > 10 ? T.ALERT_ORANGE : T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.negAvg}%</div>
         </div>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Active Alerts</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.activeAlerts")}</div>
           <div style={{ fontSize: 28, fontWeight: 800, color: fStats.alerts > 0 ? T.ALERT_RED : T.SKODA_GREEN, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.alerts}</div>
         </div>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Multibrand</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.multibrand")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             <span style={{ fontSize: 28, fontWeight: 800, color: T.ALERT_YELLOW, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.multibrand}</span>
             <span style={{ fontSize: 12, color: T.TEXT_DIM }}>/ {dealers.length}</span>
@@ -1571,7 +2158,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       {/* ── Charts Row 1: Rating by Country + Distribution ── */}
       <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Average Rating by Country</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.avgRatingByCountry")}</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={countryData} margin={{ left: 0, right: 8, bottom: 0 }}>
@@ -1581,7 +2168,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }}
                   formatter={(v, name) => [parseFloat(v).toFixed(2) + "★", name]}
                   labelFormatter={l => `${countryData.find(c=>c.name===l)?.flag || ""} ${l}`} />
-                <Bar dataKey="avgRating" radius={[4,4,0,0]} name="Avg Rating">
+                <Bar dataKey="avgRating" radius={[4,4,0,0]} name={t("chart.avgRating")}>
                   {countryData.map((c, i) => (
                     <Cell key={i} fill={c.avgRating >= 4.5 ? T.SKODA_GREEN : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE} />
                   ))}
@@ -1592,7 +2179,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         </div>
 
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Distribution</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingDistribution")}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 0" }}>
             {distribution.map(b => {
               const pct = allDealers.length ? (b.count / allDealers.length * 100) : 0;
@@ -1624,7 +2211,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       {/* ── Charts Row 2: Monthly Trend + Negative % ── */}
       <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Monthly Review Volume</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
               <BarChart data={monthlyTrend} margin={{ left: 0, right: 8 }}>
@@ -1632,15 +2219,15 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} tickLine={false} />
                 <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="reviews" fill={T.SKODA_GREEN + "88"} radius={[3,3,0,0]} name="Reviews" />
-                <Bar dataKey="negative" fill={T.ALERT_RED + "88"} radius={[3,3,0,0]} name="Negative" />
+                <Bar dataKey="reviews" fill={T.SKODA_GREEN + "88"} radius={[3,3,0,0]} name={t("chart.reviews")} />
+                <Bar dataKey="negative" fill={T.ALERT_RED + "88"} radius={[3,3,0,0]} name={t("chart.negative")} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Avg Rating & Negative % Trend</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrend")}</div>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
               <LineChart data={monthlyTrend} margin={{ left: 0, right: 8 }}>
@@ -1649,8 +2236,8 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 <YAxis yAxisId="left" domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
                 <YAxis yAxisId="right" orientation="right" domain={[0, 30]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 3 }} name="Avg Rating" />
-                <Line yAxisId="right" type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} strokeDasharray="4 4" dot={{ fill: T.ALERT_RED, r: 3 }} name="Negative %" />
+                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 3 }} name={t("chart.avgRating")} />
+                <Line yAxisId="right" type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} strokeDasharray="4 4" dot={{ fill: T.ALERT_RED, r: 3 }} name={t("chart.negativePercent")} />
                 <Legend wrapperStyle={{ fontSize: 10, color: T.TEXT_DIM }} />
               </LineChart>
             </ResponsiveContainer>
@@ -1664,14 +2251,14 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         background: T.SURFACE_2, borderRadius: 8, padding: "10px 14px", border: `1px solid ${T.BORDER}`,
       }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.TEXT_DIM} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input placeholder="Search dealer, city, country..." value={search} onChange={e => setSearch(e.target.value)}
+        <input placeholder={t("label.search")} value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: 200, border: "none", background: "transparent", padding: "4px 0" }} />
         <div style={{ width: 1, height: 20, background: T.BORDER }} />
         <select value={alertFilter} onChange={e => setAlertFilter(e.target.value)} style={{ background: "transparent", border: "none", fontSize: 12 }}>
-          <option value="all">All dealers</option>
-          <option value="any">With alerts</option>
-          <option value="high">High + Critical</option>
-          <option value="critical">Critical only</option>
+          <option value="all">{t("label.allDealers")}</option>
+          <option value="any">{t("label.withAlerts")}</option>
+          <option value="high">{t("label.highCritical")}</option>
+          <option value="critical">{t("label.criticalOnly")}</option>
         </select>
         <div style={{ width: 1, height: 20, background: T.BORDER }} />
         <div style={{ display: "flex", gap: 2 }}>
@@ -1681,7 +2268,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
               background: viewMode === m ? T.SKODA_GREEN + "22" : "transparent",
               color: viewMode === m ? T.SKODA_GREEN : T.TEXT_DIM,
               border: "none", cursor: "pointer", fontFamily: "inherit",
-            }}>{m === "table" ? "☰ Table" : "⊞ Cards"}</button>
+            }}>{m === "table" ? t("label.table") : t("label.cards")}</button>
           ))}
         </div>
         <span style={{ fontSize: 11, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{dealers.length} results</span>
@@ -1696,11 +2283,11 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 <tr style={{ background: T.SURFACE }}>
                   <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: T.TEXT_DIM, borderBottom: `2px solid ${T.BORDER}`, textTransform: "uppercase", letterSpacing: 0.8, width: 30 }}>#</th>
                   <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: T.TEXT_DIM, borderBottom: `2px solid ${T.BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>Dealer</th>
-                  <SortHeader col="rating" label="Rating" />
-                  <SortHeader col="reviews" label="Reviews" />
-                  <SortHeader col="negative" label="Negative" />
+                  <SortHeader col="rating" label={t("stat.rating")} />
+                  <SortHeader col="reviews" label={t("stat.reviews")} />
+                  <SortHeader col="negative" label={t("stat.negative")} />
                   <th style={{ padding: "10px 10px", textAlign: "center", fontSize: 10, fontWeight: 700, color: T.TEXT_DIM, borderBottom: `2px solid ${T.BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>6mo Trend</th>
-                  <SortHeader col="alerts" label="Alerts" />
+                  <SortHeader col="alerts" label={t("stat.alerts")} />
                 </tr>
               </thead>
               <tbody>
@@ -1762,17 +2349,17 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                             <div style={{ padding: "14px 16px 14px 48px", animation: "slideIn 0.2s ease" }}>
                               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 12 }}>
                                 <div>
-                                  <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Details</div>
+                                  <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>{t("misc.details")}</div>
                                   <div style={{ fontSize: 11, color: T.TEXT, lineHeight: 1.8 }}>
-                                    {d.isMultibrand && <div>Brands: <span style={{ color: T.ALERT_YELLOW }}>{d.brands.join(", ")}</span></div>}
-                                    <div>Address: {d.address}</div>
-                                    <div>Place ID: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.TEXT_DIM }}>{d.placeId}</span></div>
+                                    {d.isMultibrand && <div>{t("misc.brands")} <span style={{ color: T.ALERT_YELLOW }}>{d.brands.join(", ")}</span></div>}
+                                    <div>{t("misc.address")} {d.address}</div>
+                                    <div>{t("misc.placeId")} <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.TEXT_DIM }}>{d.placeId}</span></div>
                                   </div>
                                 </div>
                                 <div>
                                   <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Alerts</div>
                                   {d.alerts.length === 0
-                                    ? <div style={{ fontSize: 11, color: T.SKODA_GREEN }}>No active alerts ✓</div>
+                                    ? <div style={{ fontSize: 11, color: T.SKODA_GREEN }}>{t("misc.noActiveAlerts")}</div>
                                     : d.alerts.map((a, j) => (
                                       <div key={j} style={{ fontSize: 11, color: a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW, marginBottom: 3 }}>
                                         {a.severity === "critical" ? "🔴" : a.severity === "high" ? "🟠" : "🟡"} {a.text}
@@ -1784,11 +2371,11 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                                     padding: "8px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700,
                                     background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`,
                                     cursor: "pointer", fontFamily: "inherit",
-                                  }}>Open in Benchmark →</button>
+                                  }}>{t("btn.openBenchmark")}</button>
                                 </div>
                               </div>
                               {/* Recent reviews preview */}
-                              <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Latest Reviews</div>
+                              <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>{t("misc.latestReviews")}</div>
                               <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
                                 {d.recentReviews.slice(0, 4).map(r => (
                                   <div key={r.id} style={{
@@ -1878,7 +2465,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
       {/* ── Country summary table ── */}
       <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Country Summary</div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.countrySummary")}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {countryData.map(c => {
             const rColor = c.avgRating >= 4.5 ? T.SKODA_GREEN : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
@@ -1954,6 +2541,7 @@ function generateLiveReview(dealers) {
 
 function LiveReviewsPanel({ dealers }) {
   const T = useTheme();
+  const t = useLang();
   const [reviews, setReviews] = useState([]);
   const [paused, setPaused] = useState(false);
   const [countryStats, setCountryStats] = useState({});
@@ -2076,8 +2664,8 @@ function LiveReviewsPanel({ dealers }) {
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
-      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>{t("alerts.goToAdmin")}</div>
     </div>
   );
 
@@ -2113,10 +2701,10 @@ function LiveReviewsPanel({ dealers }) {
     <div className="live-panel" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* KPI Row */}
       <div className="live-kpi-row" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-        <Stat label="Reviews Today" value={todayCount} />
-        <Stat label="Live Avg Rating" value={`${liveAvg}★`} />
-        <Stat label="Active Countries" value={sortedCountries.length} />
-        <Stat label="Feed Status" value={paused ? "⏸ Paused" : "🔴 Live"} />
+        <Stat label={t("live.reviewsToday")} value={todayCount} />
+        <Stat label={t("live.liveAvgRating")} value={`${liveAvg}★`} />
+        <Stat label={t("live.activeCountries")} value={sortedCountries.length} />
+        <Stat label={t("live.feedStatus")} value={paused ? t("live.paused") : t("live.live")} />
       </div>
 
       {/* Country filter + controls */}
@@ -2124,7 +2712,7 @@ function LiveReviewsPanel({ dealers }) {
         <select value={feedCountry} onChange={e => setFeedCountry(e.target.value)} style={{
           padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.BORDER}`, background: T.SURFACE, color: T.TEXT, fontSize: 13, minWidth: 180,
         }}>
-          <option value="all">🌍 All countries</option>
+          <option value="all">{t("label.allCountries")}</option>
           {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
         </select>
         {selectedCountryData && (
@@ -2141,7 +2729,7 @@ function LiveReviewsPanel({ dealers }) {
             color: paused ? T.SKODA_ACCENT : T.TEXT_DIM,
             border: `1px solid ${paused ? T.SKODA_GREEN + "44" : T.BORDER}`,
             cursor: "pointer", fontFamily: "inherit",
-          }}>{paused ? "▶ Resume" : "⏸ Pause"}</button>
+          }}>{paused ? t("btn.resume") : t("btn.pause")}</button>
         </div>
       </div>
 
@@ -2150,7 +2738,7 @@ function LiveReviewsPanel({ dealers }) {
         {/* Star Distribution Gauge */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <span style={{ fontSize: 13, fontWeight: 600 }}>Live Rating Distribution</span>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{t("section.liveRatingDist")}</span>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{totalStars > 1 ? totalStars : 0} total</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -2179,7 +2767,7 @@ function LiveReviewsPanel({ dealers }) {
             const wAvg = (starDist[1]*1 + starDist[2]*2 + starDist[3]*3 + starDist[4]*4 + starDist[5]*5) / totalStars;
             return (
               <div style={{ marginTop: 14, padding: "10px 14px", background: T.SURFACE_3, borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: T.TEXT_DIM }}>Weighted average</span>
+                <span style={{ fontSize: 12, color: T.TEXT_DIM }}>{t("chart.weightedAvg")}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <StarRating rating={wAvg} size={14} />
                   <span style={{ fontSize: 16, fontWeight: 700, color: T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{wAvg.toFixed(2)}</span>
@@ -2192,7 +2780,7 @@ function LiveReviewsPanel({ dealers }) {
         {/* Live Sentiment Breakdown */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <span style={{ fontSize: 13, fontWeight: 600 }}>Live Sentiment</span>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{t("section.liveSentiment")}</span>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{sentTotal > 1 ? sentTotal : 0} analyzed</span>
           </div>
           {/* Stacked bar */}
@@ -2208,9 +2796,9 @@ function LiveReviewsPanel({ dealers }) {
           {/* Legend */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
             {[
-              { label: "Positive", value: sentimentLive.positive, color: T.SKODA_ACCENT, icon: "😊" },
-              { label: "Neutral", value: sentimentLive.neutral, color: T.ALERT_YELLOW, icon: "😐" },
-              { label: "Negative", value: sentimentLive.negative, color: T.ALERT_RED, icon: "😞" },
+              { label: t("live.positive"), value: sentimentLive.positive, color: T.SKODA_ACCENT, icon: "😊" },
+              { label: t("live.neutral"), value: sentimentLive.neutral, color: T.ALERT_YELLOW, icon: "😐" },
+              { label: t("live.negative"), value: sentimentLive.negative, color: T.ALERT_RED, icon: "😞" },
             ].map(s => (
               <div key={s.label} style={{ textAlign: "center", padding: "10px 8px", background: s.color + "11", borderRadius: 8, border: `1px solid ${s.color}33` }}>
                 <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
@@ -2224,7 +2812,7 @@ function LiveReviewsPanel({ dealers }) {
 
           {/* Sentiment trend mini */}
           <div style={{ marginTop: 14, padding: "10px 14px", background: T.SURFACE_3, borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: T.TEXT_DIM }}>Satisfaction rate</span>
+            <span style={{ fontSize: 12, color: T.TEXT_DIM }}>{t("chart.satisfactionRate")}</span>
             <span style={{ fontSize: 16, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
               color: sentTotal > 1 && sentimentLive.positive/sentTotal > 0.6 ? T.SKODA_ACCENT : sentTotal > 1 && sentimentLive.negative/sentTotal > 0.3 ? T.ALERT_RED : T.ALERT_YELLOW }}>
               {sentTotal > 1 ? Math.round((sentimentLive.positive + sentimentLive.neutral * 0.5) / sentTotal * 100) : 0}%
@@ -2245,7 +2833,7 @@ function LiveReviewsPanel({ dealers }) {
                 background: paused ? T.ALERT_YELLOW : T.ALERT_RED,
                 animation: paused ? "none" : "pulse 1.5s infinite",
               }} />
-              <span style={{ fontSize: 13, fontWeight: 600 }}>{paused ? "Feed Paused" : "Live Review Feed"}</span>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>{paused ? t("section.feedPaused") : t("section.liveReviewFeed")}</span>
               {feedCountry !== "all" && <Badge color={T.SKODA_ACCENT}>{countries.find(c=>c.code===feedCountry)?.flag} {countries.find(c=>c.code===feedCountry)?.name}</Badge>}
             </div>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{displayReviews.length} in feed</span>
@@ -2269,6 +2857,7 @@ function LiveReviewsPanel({ dealers }) {
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <StarRating rating={r.stars} size={12} />
                       <span style={{ fontSize: 11, fontWeight: 600, color: T.TEXT }}>{r.author}</span>
+                      {r.langCode && r.langCode !== "en" && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: T.BORDER + "44", color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase" }}>{r.langName || r.langCode}</span>}
                     </div>
                     <span style={{ fontSize: 10, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{timeAgo(r.timestamp)}</span>
                   </div>
@@ -2288,7 +2877,7 @@ function LiveReviewsPanel({ dealers }) {
         {/* Middle — Live Country Stats */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>Live Country Ratings</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>{t("section.liveCountryRatings")}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 440, overflowY: "auto" }}>
               {sortedCountries.map(c => {
                 const isChanged = changedCountries.has(c.code);
@@ -2386,10 +2975,11 @@ function LiveReviewsPanel({ dealers }) {
 
 function SentimentPanel({ dealers }) {
   const T = useTheme();
+  const t = useLang();
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
     </div>
   );
 
@@ -2437,16 +3027,16 @@ function SentimentPanel({ dealers }) {
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
         {/* Category breakdown */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Sentiment by Category (all countries)</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentByCategory")}</div>
           <div style={{ height: 250 }}>
             <ResponsiveContainer>
               <BarChart data={aggregated} layout="vertical" margin={{ left: 80 }}>
                 <XAxis type="number" domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
                 <YAxis type="category" dataKey="category" tick={{ fill: T.TEXT, fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="positive" stackId="a" fill={T.SKODA_GREEN} name="Positive %" />
-                <Bar dataKey="neutral" stackId="a" fill="#555" name="Neutral %" />
-                <Bar dataKey="negative" stackId="a" fill={T.ALERT_RED} name="Negative %" radius={[0,4,4,0]} />
+                <Bar dataKey="positive" stackId="a" fill={T.SKODA_GREEN} name={t("chart.positivePercent")} />
+                <Bar dataKey="neutral" stackId="a" fill="#555" name={t("chart.neutralPercent")} />
+                <Bar dataKey="negative" stackId="a" fill={T.ALERT_RED} name={t("chart.negativePercent")} radius={[0,4,4,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -2454,7 +3044,7 @@ function SentimentPanel({ dealers }) {
 
         {/* Overall pie */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Overall Sentiment</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.overallSentiment")}</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer>
               <PieChart>
@@ -2478,7 +3068,7 @@ function SentimentPanel({ dealers }) {
 
       {/* Keywords */}
       <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🔑 AI-Extracted Keywords</div>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.aiKeywords")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {keywords.map(kw => (
             <div key={kw.word} style={{
@@ -2499,7 +3089,7 @@ function SentimentPanel({ dealers }) {
         background: `linear-gradient(135deg, ${T.SKODA_GREEN}11, ${T.SKODA_GREEN}05)`,
         borderRadius: 10, padding: 16, border: `1px solid ${T.SKODA_GREEN}33`,
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 8 }}>🤖 AI Insight Summary</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 8 }}>{t("section.aiInsight")}</div>
         <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.7 }}>
           Across {dealers.length} dealers in {new Set(dealers.map(d=>d.country)).size} countries, the primary positive drivers
           are <strong>professional staff</strong> and <strong>helpful service</strong>. The most common complaints involve <strong>waiting
@@ -2519,6 +3109,7 @@ function SentimentPanel({ dealers }) {
 
 function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
   const T = useTheme();
+  const t = useLang();
   const [sortBy, setSortBy] = React.useState("score");
   const [sortDir, setSortDir] = React.useState("asc");
   const [countryFilter, setCountryFilter] = React.useState("all");
@@ -2528,7 +3119,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
     </div>
   );
 
@@ -2588,11 +3179,11 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
   // Distribution for pie chart
   const distData = [
-    { name: "Excellent (80+)", value: goodCount, color: T.SKODA_ACCENT },
-    { name: "Good (70-79)", value: dealers.filter(d => d.profileQuality.totalScore >= 70 && d.profileQuality.totalScore < 80).length, color: "#4ADE80" },
-    { name: "Average (60-69)", value: dealers.filter(d => d.profileQuality.totalScore >= 60 && d.profileQuality.totalScore < 70).length, color: T.ALERT_YELLOW },
-    { name: "Poor (50-59)", value: dealers.filter(d => d.profileQuality.totalScore >= 50 && d.profileQuality.totalScore < 60).length, color: T.ALERT_ORANGE },
-    { name: "Critical (<50)", value: criticalCount, color: T.ALERT_RED },
+    { name: t("pq.excellent"), value: goodCount, color: T.SKODA_ACCENT },
+    { name: t("pq.good"), value: dealers.filter(d => d.profileQuality.totalScore >= 70 && d.profileQuality.totalScore < 80).length, color: "#4ADE80" },
+    { name: t("pq.average"), value: dealers.filter(d => d.profileQuality.totalScore >= 60 && d.profileQuality.totalScore < 70).length, color: T.ALERT_YELLOW },
+    { name: t("pq.poor"), value: dealers.filter(d => d.profileQuality.totalScore >= 50 && d.profileQuality.totalScore < 60).length, color: T.ALERT_ORANGE },
+    { name: t("pq.criticalLow"), value: criticalCount, color: T.ALERT_RED },
   ].filter(d => d.value > 0);
 
   // Category avg bar data
@@ -2648,8 +3239,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <button onClick={() => setSelectedDealer(null)} style={{ alignSelf: "flex-start", padding: "6px 14px", borderRadius: 6, border: `1px solid ${T.BORDER}`, background: T.SURFACE_2, color: T.TEXT, cursor: "pointer", fontSize: 12 }}>
-          ← Back to list
-        </button>
+{t("btn.backToList")}</button>
 
         {/* Header */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 20, border: `1px solid ${T.BORDER}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
@@ -2660,7 +3250,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 40, fontWeight: 700, color: getScoreColor(pq.totalScore) }}>{pq.totalScore}</div>
-              <div style={{ fontSize: 11, color: T.TEXT_DIM }}>Profile Score</div>
+              <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{t("pq.profileScore")}</div>
             </div>
             <div style={{ width: 50, height: 50, borderRadius: "50%", border: `3px solid ${getScoreColor(pq.totalScore)}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontSize: 18, fontWeight: 700, color: getScoreColor(pq.totalScore) }}>{getGrade(pq.totalScore)}</span>
@@ -2671,7 +3261,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         {/* Alerts */}
         {pq.alerts.length > 0 && (
           <div style={{ background: T.ALERT_RED + "11", borderRadius: 10, padding: 14, border: `1px solid ${T.ALERT_RED}33` }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 8 }}>⚠ Active Alerts ({pq.alerts.length})</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 8 }}>{t("pq.activeAlerts")} ({pq.alerts.length})</div>
             {pq.alerts.map((a, i) => (
               <div key={i} style={{ fontSize: 12, color: T.TEXT, padding: "4px 0", display: "flex", gap: 8, alignItems: "center" }}>
                 <span style={{ color: a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW }}>●</span>
@@ -2683,44 +3273,44 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
         {/* Category breakdowns */}
         <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-          <CategorySection title="Basic Info" icon="📋" data={cats.basic} items={[
-            { ok: cats.basic.phone, label: "Phone number", detail: cats.basic.phone ? "Provided" : "Missing" },
-            { ok: cats.basic.email, label: "Email address", detail: cats.basic.email ? "Verified" : "Missing" },
-            { ok: cats.basic.website, label: "Website", detail: cats.basic.website ? "Active" : "Missing" },
-            { ok: cats.basic.hours, label: "Opening hours", detail: cats.basic.hours ? "Complete" : "Incomplete" },
-            { ok: cats.basic.address, label: "Full address + GPS", detail: cats.basic.address ? "Complete" : "Incomplete" },
-            { ok: cats.basic.photos >= 5, label: "Photos (min 5)", detail: `${cats.basic.photos} photos` },
-            { ok: cats.basic.description, label: "Description", detail: cats.basic.description ? `${cats.basic.descLength} chars` : "Missing" },
-            { ok: cats.basic.services, label: "Services listed", detail: cats.basic.services ? "Complete" : "Incomplete" },
-            { ok: cats.basic.team, label: "Team contacts", detail: cats.basic.team ? "Listed" : "Missing" },
-            { ok: cats.basic.certifications, label: "Certifications", detail: cats.basic.certifications ? "Present" : "None" },
+          <CategorySection title={t("pq.basicInfo")} icon="📋" data={cats.basic} items={[
+            { ok: cats.basic.phone, label: t("pq.phone"), detail: cats.basic.phone ? t("pq.provided") : t("pq.missing") },
+            { ok: cats.basic.email, label: t("pq.email"), detail: cats.basic.email ? t("pq.verified") : t("pq.missing") },
+            { ok: cats.basic.website, label: t("pq.website"), detail: cats.basic.website ? t("pq.active") : t("pq.missing") },
+            { ok: cats.basic.hours, label: t("pq.hours"), detail: cats.basic.hours ? t("pq.complete") : t("pq.incomplete") },
+            { ok: cats.basic.address, label: t("pq.address"), detail: cats.basic.address ? t("pq.complete") : t("pq.incomplete") },
+            { ok: cats.basic.photos >= 5, label: t("pq.photosMin5"), detail: `${cats.basic.photos} ${t("label.photos")}` },
+            { ok: cats.basic.description, label: t("pq.description"), detail: cats.basic.description ? `${cats.basic.descLength} chars` : t("pq.missing") },
+            { ok: cats.basic.services, label: t("pq.services"), detail: cats.basic.services ? t("pq.complete") : t("pq.incomplete") },
+            { ok: cats.basic.team, label: t("pq.teamContacts"), detail: cats.basic.team ? t("pq.listed") : t("pq.missing") },
+            { ok: cats.basic.certifications, label: t("pq.certifications"), detail: cats.basic.certifications ? t("pq.present") : t("pq.none") },
           ]} />
 
-          <CategorySection title="Online Presence" icon="🌐" data={cats.online} items={[
-            { ok: cats.online.googleClaimed, label: "Google Business", detail: cats.online.googleClaimed ? "Claimed" : "Unclaimed" },
-            { ok: cats.online.responseRate >= 70, label: "Review response rate", detail: `${cats.online.responseRate}%` },
-            { ok: cats.online.avgResponseHours <= 48, label: "Avg response time", detail: `${cats.online.avgResponseHours}h` },
-            { ok: cats.online.socialMedia, label: "Social media", detail: cats.online.socialMedia ? "Active" : "Inactive" },
-            { ok: cats.online.promotions, label: "Promotions published", detail: cats.online.promotions ? "Active" : "None" },
+          <CategorySection title={t("pq.onlinePresence")} icon="🌐" data={cats.online} items={[
+            { ok: cats.online.googleClaimed, label: t("pq.googleBusiness"), detail: cats.online.googleClaimed ? t("pq.claimed") : t("pq.unclaimed") },
+            { ok: cats.online.responseRate >= 70, label: t("pq.responseRate"), detail: `${cats.online.responseRate}%` },
+            { ok: cats.online.avgResponseHours <= 48, label: t("pq.avgResponseTime"), detail: `${cats.online.avgResponseHours}h` },
+            { ok: cats.online.socialMedia, label: t("pq.socialMedia"), detail: cats.online.socialMedia ? t("pq.active") : t("pq.inactive") },
+            { ok: cats.online.promotions, label: t("pq.promotions"), detail: cats.online.promotions ? t("pq.active") : t("pq.none") },
           ]} />
 
-          <CategorySection title="Activity & Freshness" icon="🔄" data={cats.activity} items={[
-            { ok: cats.activity.lastUpdateDays <= 90, label: "Last profile update", detail: `${cats.activity.lastUpdateDays} days ago` },
-            { ok: cats.activity.updateFrequency >= 1, label: "Monthly updates", detail: `${cats.activity.updateFrequency}x/month` },
-            { ok: cats.activity.stockVehicles >= 5, label: "Stock vehicles online", detail: `${cats.activity.stockVehicles} vehicles` },
-            { ok: cats.activity.configuratorLink, label: "Configurator link", detail: cats.activity.configuratorLink ? "Active" : "Missing" },
+          <CategorySection title={t("pq.activityFreshness")} icon="🔄" data={cats.activity} items={[
+            { ok: cats.activity.lastUpdateDays <= 90, label: t("pq.lastUpdate"), detail: `${cats.activity.lastUpdateDays} ${t("label.dAgo")}` },
+            { ok: cats.activity.updateFrequency >= 1, label: t("pq.monthlyUpdates"), detail: `${cats.activity.updateFrequency}x/month` },
+            { ok: cats.activity.stockVehicles >= 5, label: t("pq.stockVehicles"), detail: `${cats.activity.stockVehicles} vehicles` },
+            { ok: cats.activity.configuratorLink, label: t("pq.configuratorLink"), detail: cats.activity.configuratorLink ? t("pq.active") : t("pq.missing") },
           ]} />
         </div>
 
         {/* Comparison with country avg */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>vs Country Average ({d.flag} {d.countryName})</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("pq.vsCountryAvg")} ({d.flag} {d.countryName})</div>
           <div style={{ height: 250 }}>
             <ResponsiveContainer>
               <BarChart data={(() => {
                 const countryDealers = dealers.filter(dd => dd.country === d.country);
                 return ["basic","online","activity"].map(cat => {
-                  const catName = cat === "basic" ? "Basic Info" : cat === "online" ? "Online" : "Activity";
+                  const catName = cat === "basic" ? t("pq.basicInfo") : cat === "online" ? t("pq.online") : t("pq.activity");
                   const countryAvg = Math.round(countryDealers.reduce((s,dd) => s + dd.profileQuality.categories[cat].score, 0) / countryDealers.length);
                   return { category: catName, dealer: d.profileQuality.categories[cat].score, country: countryAvg };
                 });
@@ -2729,8 +3319,8 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
                 <XAxis dataKey="category" tick={{ fill: T.TEXT_DIM, fontSize: 11 }} />
                 <YAxis domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="dealer" fill={T.SKODA_ACCENT} name="This dealer" radius={[4,4,0,0]} />
-                <Bar dataKey="country" fill="#888" name="Country avg" radius={[4,4,0,0]} />
+                <Bar dataKey="dealer" fill={T.SKODA_ACCENT} name={t("chart.thisDealer")} radius={[4,4,0,0]} />
+                <Bar dataKey="country" fill="#888" name={t("chart.countryAvg")} radius={[4,4,0,0]} />
                 <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
               </BarChart>
             </ResponsiveContainer>
@@ -2746,17 +3336,17 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* KPI Row */}
       <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
-        <Stat label="Network Avg Score" value={`${avgScore}%`} />
-        <Stat label="Grade" value={getGrade(avgScore)} />
-        <Stat label="Critical (<50%)" value={criticalCount} alert={criticalCount > 0} />
-        <Stat label="Warning (<70%)" value={warningCount} />
-        <Stat label="Total Alerts" value={totalAlerts} alert={totalAlerts > 10} />
+        <Stat label={t("pq.networkAvgScore")} value={`${avgScore}%`} />
+        <Stat label={t("pq.grade")} value={getGrade(avgScore)} />
+        <Stat label=t("pq.criticalBelow50") value={criticalCount} alert={criticalCount > 0} />
+        <Stat label=t("pq.warningBelow70") value={warningCount} />
+        <Stat label={t("pq.totalAlerts")} value={totalAlerts} alert={totalAlerts > 10} />
       </div>
 
       <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         {/* Score Distribution Pie */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Score Distribution</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.scoreDistribution")}</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
               <PieChart>
@@ -2772,7 +3362,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
         {/* Category Averages */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Category Averages</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.categoryAverages")}</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={catAvg} layout="vertical">
@@ -2788,7 +3378,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
         {/* Country Heatmap */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Country Ranking</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.countryRanking")}</div>
           <div style={{ maxHeight: 240, overflowY: "auto" }}>
             {countryStats.map((c, i) => (
               <div key={c.code} onClick={() => setCountryFilter(c.code)} style={{
@@ -2832,14 +3422,14 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: T.SURFACE_3 }}>
-                <SortHeader label="Dealer" field="name" />
-                <SortHeader label="Country" field="country" />
-                <SortHeader label="Profile Score" field="score" />
+                <SortHeader label={t("label.dealer")} field="name" />
+                <SortHeader label={t("label.country")} field="country" />
+                <SortHeader label={t("pq.profileScore")} field="score" />
                 <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Basic</th>
                 <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Online</th>
                 <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Activity</th>
-                <SortHeader label="Freshness" field="freshness" />
-                <SortHeader label="Response %" field="responseRate" />
+                <SortHeader label={t("pq.freshness")} field="freshness" />
+                <SortHeader label={t("pq.responsePercent")} field="responseRate" />
                 <th style={{ padding: "10px 12px", textAlign: "left", fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, borderBottom: `1px solid ${T.BORDER}` }}>Alerts</th>
               </tr>
             </thead>
@@ -2897,6 +3487,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
 function BenchmarkPanel({ dealers, selected, onSelect }) {
   const T = useTheme();
+  const t = useLang();
   const [benchMode, setBenchMode] = React.useState("detail");
   const [countryA, setCountryA] = React.useState("");
   const [countryB, setCountryB] = React.useState("");
@@ -2911,7 +3502,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
-      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>{t("alerts.noData")}</div>
     </div>
   );
 
@@ -2964,7 +3555,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
           padding: "4px 12px", borderRadius: 6, border: `1px solid ${period === p ? COLOR_A : T.BORDER}`,
           background: period === p ? COLOR_A + "22" : "transparent", color: period === p ? COLOR_A : T.TEXT_DIM,
           cursor: "pointer", fontSize: 12, fontWeight: 600,
-        }}>{p === "3m" ? "3 months" : "6 months"}</button>
+        }}>{p === "3m" ? t("bench.3months") : t("bench.6months")}</button>
       ))}
     </div>
   );
@@ -3028,12 +3619,12 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
     // Mock photo gallery
     const mockPhotos = [
-      { label: "Showroom", color: "#2563EB" },
-      { label: "Service Area", color: "#059669" },
-      { label: "Reception", color: "#D97706" },
-      { label: "Exterior", color: "#7C3AED" },
-      { label: "Waiting Lounge", color: "#DC2626" },
-      { label: "Parts Dept", color: "#0891B2" },
+      { label: t("photo.showroom"), color: "#2563EB" },
+      { label: t("photo.serviceArea"), color: "#059669" },
+      { label: t("photo.reception"), color: "#D97706" },
+      { label: t("photo.exterior"), color: "#7C3AED" },
+      { label: t("photo.waitingLounge"), color: "#DC2626" },
+      { label: t("photo.partsDept"), color: "#0891B2" },
     ];
 
     const pq = dealer?.profileQuality;
@@ -3043,7 +3634,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
     return (
       <>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: T.TEXT_DIM }}>Select dealer:</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: T.TEXT_DIM }}>{t("label.selectDealer")}</span>
           <select value={dealer?.id || ""} onChange={e => onSelect(dealers.find(d => d.id === e.target.value))} style={{ flex: 1, maxWidth: 500 }}>
             {dealers.map(d => <option key={d.id} value={d.id}>{d.flag} {d.name} ({d.city}, {d.countryName}) – {d.rating}★</option>)}
           </select>
@@ -3061,30 +3652,30 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                   <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 4 }}>{flag} {dealer.address || `${dealer.city}, ${dealer.countryName}`}</div>
                   {dealer.isMultibrand && <Badge color={T.ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
                   <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                    <a href={`tel:${dealer.phone}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SKODA_GREEN, color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>📞 Call</a>
-                    <a href={`mailto:info@${dealer.website?.replace("https://www.","")}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: "#2563EB", color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>✉ Email</a>
-                    <a href={dealer.website} target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SURFACE, border: `1px solid ${T.BORDER}`, color: T.TEXT, fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>🌐 Website</a>
-                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dealer.name + " " + dealer.city)}&query_place_id=${dealer.placeId}`} target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SURFACE, border: `1px solid ${T.BORDER}`, color: T.TEXT, fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>📍 Google Maps</a>
+                    <a href={`tel:${dealer.phone}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SKODA_GREEN, color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.call")}</a>
+                    <a href={`mailto:info@${dealer.website?.replace("https://www.","")}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: "#2563EB", color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.email")}</a>
+                    <a href={dealer.website} target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SURFACE, border: `1px solid ${T.BORDER}`, color: T.TEXT, fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.website")}</a>
+                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dealer.name + " " + dealer.city)}&query_place_id=${dealer.placeId}`} target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SURFACE, border: `1px solid ${T.BORDER}`, color: T.TEXT, fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.googleMaps")}</a>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                  <Stat label="Rating" value={`${dealer.rating}★`} />
-                  <Stat label="Reviews" value={dealer.reviewCount} />
-                  <Stat label="Negative" value={`${dealer.negativePercent}%`} alert={dealer.negativePercent > 20} />
-                  <Stat label="Trend (6mo)" value={`${dealer.trend > 0 ? "+" : ""}${dealer.trend}`} />
+                  <Stat label={t("stat.rating")} value={`${dealer.rating}★`} />
+                  <Stat label={t("stat.reviews")} value={dealer.reviewCount} />
+                  <Stat label={t("stat.negative")} value={`${dealer.negativePercent}%`} alert={dealer.negativePercent > 20} />
+                  <Stat label={t("stat.trend6mo")} value={`${dealer.trend > 0 ? "+" : ""}${dealer.trend}`} />
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, paddingTop: 12, borderTop: `1px solid ${T.BORDER}33` }}>
-                <Badge color={T.SKODA_GREEN}>Network avg: {avgNetwork}★</Badge>
-                <Badge color={T.TEXT_DIM}>Country avg: {avgCountry}★</Badge>
+                <Badge color={T.SKODA_GREEN}>{t("label.networkAvg")}: {avgNetwork}★</Badge>
+                <Badge color={T.TEXT_DIM}>{t("label.countryAvg")}: {avgCountry}★</Badge>
                 <Badge color={T.TEXT_DIM}>📞 {dealer.phone}</Badge>
-                {pq && <Badge color={gradeColor}>Profile: {pq.totalScore}%</Badge>}
+                {pq && <Badge color={gradeColor}>{t("label.profile")}: {pq.totalScore}%</Badge>}
               </div>
             </div>
 
             {/* ── Photo Gallery (mock) ── */}
             <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>📷 Photo Gallery ({pq ? pq.categories.basic.photos : 0} photos)</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.photoGallery")} ({pq ? pq.categories.basic.photos : 0} {t("label.photos")})</div>
               <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
                 {mockPhotos.slice(0, pq ? Math.max(1, Math.min(6, pq.categories.basic.photos)) : 2).map((p, i) => (
                   <div key={i} style={{ minWidth: 140, height: 100, borderRadius: 8, background: `linear-gradient(135deg, ${p.color}44, ${p.color}22)`, border: `1px solid ${p.color}33`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
@@ -3095,7 +3686,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 {pq && pq.categories.basic.photos < 5 && (
                   <div style={{ minWidth: 140, height: 100, borderRadius: 8, border: `2px dashed ${T.BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
                     <div style={{ fontSize: 20 }}>➕</div>
-                    <div style={{ fontSize: 10, color: T.ALERT_ORANGE, fontWeight: 600 }}>Add more photos</div>
+                    <div style={{ fontSize: 10, color: T.ALERT_ORANGE, fontWeight: 600 }}>{t("bench.addMorePhotos")}</div>
                   </div>
                 )}
               </div>
@@ -3104,7 +3695,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             {/* ── Rating Timeline & Radar ── */}
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>📈 Rating Timeline (6 months)</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTimeline")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
                     <ComposedChart data={dealer.monthlyData}>
@@ -3113,24 +3704,24 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                       <YAxis yAxisId="rating" domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
                       <YAxis yAxisId="count" orientation="right" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
                       <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                      <Bar yAxisId="count" dataKey="reviews" fill={T.SKODA_GREEN + "33"} radius={[4,4,0,0]} name="Reviews" />
-                      <Bar yAxisId="count" dataKey="negative" fill={T.ALERT_RED + "44"} radius={[4,4,0,0]} name="Negative" />
-                      <Line yAxisId="rating" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 4 }} name="Avg Rating" />
+                      <Bar yAxisId="count" dataKey="reviews" fill={T.SKODA_GREEN + "33"} radius={[4,4,0,0]} name={t("chart.reviews")} />
+                      <Bar yAxisId="count" dataKey="negative" fill={T.ALERT_RED + "44"} radius={[4,4,0,0]} name={t("chart.negative")} />
+                      <Line yAxisId="rating" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 4 }} name={t("chart.avgRating")} />
                       <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </div>
               </div>
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🎯 Dealer vs Network Average</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.dealerVsNetwork")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
                     <RadarChart data={radarData}>
                       <PolarGrid stroke={T.BORDER} />
                       <PolarAngleAxis dataKey="category" tick={{ fill: T.TEXT, fontSize: 11 }} />
                       <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 9 }} />
-                      <Radar name="This dealer" dataKey="dealer" stroke={T.SKODA_GREEN} fill={T.SKODA_GREEN} fillOpacity={0.3} />
-                      <Radar name="Network avg" dataKey="network" stroke="#888" fill="#888" fillOpacity={0.1} />
+                      <Radar name={t("chart.thisDealer")} dataKey="dealer" stroke={T.SKODA_GREEN} fill={T.SKODA_GREEN} fillOpacity={0.3} />
+                      <Radar name={t("chart.networkAvg")} dataKey="network" stroke="#888" fill="#888" fillOpacity={0.1} />
                       <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
                     </RadarChart>
                   </ResponsiveContainer>
@@ -3142,8 +3733,8 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             {improvementPlan.length > 0 && (
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>🤖 AI Improvement Plan</div>
-                  <Badge color={T.TEXT_DIM}>{improvementPlan.length} recommendations</Badge>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{t("section.aiPlan")}</div>
+                  <Badge color={T.TEXT_DIM}>{improvementPlan.length} {t("bench.recommendations")}</Badge>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {improvementPlan.slice(0, 8).map((item, i) => (
@@ -3164,11 +3755,11 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* ── Review Highlights ── */}
             <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>⭐ Review Highlights</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.reviewHighlights")}</div>
               <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                {[{ label: "Best Review", review: bestReview, accent: T.SKODA_GREEN },
-                  { label: "Needs Attention", review: worstReview, accent: T.ALERT_RED },
-                  { label: "Most Typical", review: typicalReview, accent: T.ALERT_YELLOW }
+                {[{ label: t("bench.bestReview"), review: bestReview, accent: T.SKODA_GREEN },
+                  { label: t("bench.needsAttention"), review: worstReview, accent: T.ALERT_RED },
+                  { label: t("bench.mostTypical"), review: typicalReview, accent: T.ALERT_YELLOW }
                 ].map((h, i) => h.review && (
                   <div key={i} style={{ background: T.SURFACE, borderRadius: 8, padding: 14, borderTop: `3px solid ${h.accent}` }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: h.accent, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{h.label}</div>
@@ -3182,19 +3773,10 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* ── All Recent Reviews ── */}
             <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>💬 Recent Reviews</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.recentReviews")}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {dealer.recentReviews.slice(0, 5).map(r => (
-                  <div key={r.id} style={{ background: T.SURFACE, borderRadius: 6, padding: "10px 14px", borderLeft: `3px solid ${r.stars >= 4 ? T.SKODA_GREEN : r.stars >= 3 ? T.ALERT_YELLOW : T.ALERT_RED}` }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <StarRating rating={r.stars} size={12} />
-                        <span style={{ fontSize: 11, fontWeight: 600, color: T.TEXT_DIM }}>{r.author}</span>
-                      </div>
-                      <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.date}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
-                  </div>
+                  <ReviewItem key={r.id} review={r} />
                 ))}
               </div>
             </div>
@@ -3202,7 +3784,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             {/* ── Top / Bottom 5 ── */}
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {flag} {dealer.countryName}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>{t("section.top5in")} {flag} {dealer.countryName}</div>
                 {topDealers.map((d, i) => (
                   <div key={d.id} onClick={() => onSelect(d)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none", cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7 }}>
                     <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : T.TEXT_DIM }}>{i+1}.</span>
@@ -3212,7 +3794,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 ))}
               </div>
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 in {flag} {dealer.countryName}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>{t("section.bottom5in")} {flag} {dealer.countryName}</div>
                 {bottomDealers.map((d, i) => (
                   <div key={d.id} onClick={() => onSelect(d)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none", cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7 }}>
                     <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: T.ALERT_RED }}>{i+1}.</span>
@@ -3250,12 +3832,12 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
       <>
         <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <select value={countryA} onChange={e => setCountryA(e.target.value)} style={selectStyle}>
-            <option value="">— Select country A —</option>
+            <option value="">{t("bench.selectCountryA")}</option>
             {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
           </select>
           <span style={{ fontSize: 16, fontWeight: 700, color: T.TEXT_DIM }}>VS</span>
           <select value={countryB} onChange={e => setCountryB(e.target.value)} style={selectStyle}>
-            <option value="">— Select country B —</option>
+            <option value="">{t("bench.selectCountryB")}</option>
             {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
           </select>
           <PeriodPicker />
@@ -3280,16 +3862,16 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* KPI comparison */}
             <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <CompareVal label="Avg Rating" valA={aggA.avgRating} valB={aggB.avgRating} suffix="★" />
-              <CompareVal label="Total Reviews" valA={aggA.totalReviews} valB={aggB.totalReviews} suffix="" />
-              <CompareVal label="Negative %" valA={aggA.negPercent} valB={aggB.negPercent} suffix="%" lower />
+              <CompareVal label={t("stat.avgRating")} valA={aggA.avgRating} valB={aggB.avgRating} suffix="★" />
+              <CompareVal label={t("stat.totalReviews")} valA={aggA.totalReviews} valB={aggB.totalReviews} suffix="" />
+              <CompareVal label={t("stat.negative") + " %"} valA={aggA.negPercent} valB={aggB.negPercent} suffix="%" lower />
               <CompareVal label="Trend" valA={aggA.avgTrend > 0 ? "+"+aggA.avgTrend : aggA.avgTrend} valB={aggB.avgTrend > 0 ? "+"+aggB.avgTrend : aggB.avgTrend} suffix="" />
             </div>
 
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {/* Rating trend */}
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
                     <LineChart data={trendData}>
@@ -3307,7 +3889,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
               {/* Radar sentiment */}
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Sentiment Comparison</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentComparison")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
                     <RadarChart data={radarData}>
@@ -3325,7 +3907,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* Volume bar chart */}
             <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Monthly Review Volume</div>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
               <div style={{ height: 250 }}>
                 <ResponsiveContainer>
                   <BarChart data={volumeData}>
@@ -3411,16 +3993,16 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* KPI comparison */}
             <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <CompareVal label="Rating" valA={dealerA.rating} valB={dealerB.rating} suffix="★" />
-              <CompareVal label="Reviews" valA={dealerA.reviewCount} valB={dealerB.reviewCount} suffix="" />
-              <CompareVal label="Negative %" valA={dealerA.negativePercent} valB={dealerB.negativePercent} suffix="%" lower />
+              <CompareVal label={t("stat.rating")} valA={dealerA.rating} valB={dealerB.rating} suffix="★" />
+              <CompareVal label={t("stat.reviews")} valA={dealerA.reviewCount} valB={dealerB.reviewCount} suffix="" />
+              <CompareVal label={t("stat.negative") + " %"} valA={dealerA.negativePercent} valB={dealerB.negativePercent} suffix="%" lower />
               <CompareVal label="Trend" valA={dealerA.trend > 0 ? "+"+dealerA.trend : dealerA.trend} valB={dealerB.trend > 0 ? "+"+dealerB.trend : dealerB.trend} suffix="" />
             </div>
 
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {/* Radar */}
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Sentiment Comparison</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentComparison")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
                     <RadarChart data={radarData}>
@@ -3437,7 +4019,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
               {/* Trend */}
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend</div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
                     <LineChart data={trendData}>
@@ -3479,9 +4061,9 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
   // ── Tabs + render ──
   const modes = [
-    { id: "detail", label: "📋 Dealer Detail" },
-    { id: "country", label: "🌍 Country vs Country" },
-    { id: "dealer", label: "🏢 Dealer vs Dealer" },
+    { id: "detail", label: t("bench.detail") },
+    { id: "country", label: t("bench.countryVs") },
+    { id: "dealer", label: t("bench.dealerVs") },
   ];
 
   return (
