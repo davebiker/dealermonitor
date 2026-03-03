@@ -570,6 +570,18 @@ function SkodaDealerDashboard() {
           .resp-grid-5 { grid-template-columns: repeat(2, 1fr) !important; }
           .resp-flex-wrap { flex-direction: column !important; align-items: stretch !important; }
           .resp-flex-wrap select { width: 100% !important; max-width: 100% !important; }
+          /* Mobile header */
+          .app-header { padding: 8px 10px !important; }
+          .app-header-subtitle { display: none !important; }
+          .app-header-stats { display: none !important; }
+          .app-header-logo { width: 28px !important; height: 28px !important; font-size: 13px !important; }
+          .app-header-title { font-size: 13px !important; }
+          .app-header-theme-btn { width: 32px !important; height: 32px !important; font-size: 15px !important; }
+          /* Mobile tabs */
+          .app-tabs { padding: 4px 6px !important; gap: 1px !important; }
+          .app-tabs .tab-btn { padding: 6px 8px !important; }
+          .app-tabs .tab-sub { display: none !important; }
+          .app-tabs .tab-label { font-size: 12px !important; }
         }
         @media (max-width: 480px) {
           .live-kpi-row { grid-template-columns: 1fr !important; }
@@ -579,33 +591,33 @@ function SkodaDealerDashboard() {
       `}</style>
 
       {/* ── HEADER ── */}
-      <div style={{
+      <div className="app-header" style={{
         background: T.SURFACE, borderBottom: `1px solid ${T.BORDER}`,
         padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 100, flexWrap: "wrap", gap: 8, transition: "background 0.3s",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
+          <div className="app-header-logo" style={{
             width: 36, height: 36, borderRadius: 8,
             background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontWeight: 800, fontSize: 16, color: "#fff",
           }}>Š</div>
           <div>
-            <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>ŠKODA Dealer Reviews</div>
-            <div style={{ fontSize: 11, color: T.TEXT_DIM }}>Europe-wide monitoring dashboard · PoC</div>
+            <div className="app-header-title" style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>ŠKODA Dealer Reviews</div>
+            <div className="app-header-subtitle" style={{ fontSize: 11, color: T.TEXT_DIM }}>Europe-wide monitoring dashboard · PoC</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {importedCountryCodes.size > 0 && (
-            <div className="resp-flex-wrap" style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div className="app-header-stats" style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
               <Stat label="Countries" value={stats.countries} />
               <Stat label="Dealers" value={stats.dealers} />
               <Stat label="Avg Rating" value={`${stats.avg}★`} />
               <Stat label="Alerts" value={stats.alerts} alert={stats.alerts > 5} />
             </div>
           )}
-          <button onClick={() => setDarkMode(!darkMode)} style={{
+          <button className="app-header-theme-btn" onClick={() => setDarkMode(!darkMode)} style={{
             width: 40, height: 40, borderRadius: 8, border: `1px solid ${T.BORDER}`,
             background: T.SURFACE_2, color: T.TEXT, fontSize: 18,
             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
@@ -617,7 +629,7 @@ function SkodaDealerDashboard() {
       </div>
 
       {/* ── TABS ── */}
-      <div style={{
+      <div className="app-tabs" style={{
         display: "flex", gap: 2, padding: "8px 12px", background: T.SURFACE,
         borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", WebkitOverflowScrolling: "touch", transition: "background 0.3s",
       }}>
@@ -629,8 +641,8 @@ function SkodaDealerDashboard() {
             display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2,
             borderLeft: activeTab === t.id ? `3px solid ${T.SKODA_GREEN}` : "3px solid transparent",
           }}>
-            <span style={{ fontWeight: 600, fontSize: 13 }}>{t.label}</span>
-            <span style={{ fontSize: 10, color: t.alert ? T.ALERT_RED : T.TEXT_DIM,
+            <span className="tab-label" style={{ fontWeight: 600, fontSize: 13 }}>{t.label}</span>
+            <span className="tab-sub" style={{ fontSize: 10, color: t.alert ? T.ALERT_RED : T.TEXT_DIM,
               animation: t.alert ? "pulse 2s infinite" : "none" }}>{t.sub}</span>
           </button>
         ))}
