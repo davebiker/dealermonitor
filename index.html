@@ -397,10 +397,10 @@ const Stat = ({ label, value, sub, alert }) => {
     <div style={{
       background: T.SURFACE_2, borderRadius: 8, padding: "14px 16px",
       border: `1px solid ${alert ? T.ALERT_RED + "44" : T.BORDER}`,
-      minWidth: 140, flex: 1,
+      minWidth: 100, flex: 1,
     }}>
       <div style={{ fontSize: 11, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 700, color: alert ? T.ALERT_RED : T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: alert ? T.ALERT_RED : T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: T.TEXT_DIM, marginTop: 2 }}>{sub}</div>}
     </div>
   );
@@ -554,13 +554,34 @@ function SkodaDealerDashboard() {
         .tab-btn:hover { background: ${T.SURFACE_3} !important; }
         input, select { background: ${T.SURFACE}; color: ${T.TEXT}; border: 1px solid ${T.BORDER}; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-size: 13px; outline: none; }
         input:focus, select:focus { border-color: ${T.SKODA_GREEN}; }
+        /* Responsive — all panels */
+        @media (max-width: 1024px) {
+          .live-main-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .live-kpi-row { grid-template-columns: repeat(2, 1fr) !important; }
+          .live-dist-row { grid-template-columns: 1fr !important; }
+          .live-main-grid { grid-template-columns: 1fr !important; }
+          .live-controls { flex-direction: column !important; align-items: stretch !important; }
+          .live-controls select { width: 100% !important; min-width: unset !important; }
+          .resp-grid-2 { grid-template-columns: 1fr !important; }
+          .resp-grid-3 { grid-template-columns: 1fr !important; }
+          .resp-grid-5 { grid-template-columns: repeat(2, 1fr) !important; }
+          .resp-flex-wrap { flex-direction: column !important; align-items: stretch !important; }
+          .resp-flex-wrap select { width: 100% !important; max-width: 100% !important; }
+        }
+        @media (max-width: 480px) {
+          .live-kpi-row { grid-template-columns: 1fr !important; }
+          .resp-grid-5 { grid-template-columns: 1fr !important; }
+        }
+
       `}</style>
 
       {/* ── HEADER ── */}
       <div style={{
         background: T.SURFACE, borderBottom: `1px solid ${T.BORDER}`,
-        padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 100, transition: "background 0.3s",
+        padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
+        position: "sticky", top: 0, zIndex: 100, flexWrap: "wrap", gap: 8, transition: "background 0.3s",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{
@@ -576,7 +597,7 @@ function SkodaDealerDashboard() {
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {importedCountryCodes.size > 0 && (
-            <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div className="resp-flex-wrap" style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
               <Stat label="Countries" value={stats.countries} />
               <Stat label="Dealers" value={stats.dealers} />
               <Stat label="Avg Rating" value={`${stats.avg}★`} />
@@ -596,12 +617,12 @@ function SkodaDealerDashboard() {
 
       {/* ── TABS ── */}
       <div style={{
-        display: "flex", gap: 2, padding: "8px 24px", background: T.SURFACE,
-        borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", transition: "background 0.3s",
+        display: "flex", gap: 2, padding: "8px 12px", background: T.SURFACE,
+        borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", WebkitOverflowScrolling: "touch", transition: "background 0.3s",
       }}>
         {tabs.map(t => (
           <button key={t.id} className="tab-btn" onClick={() => setActiveTab(t.id)} style={{
-            padding: "10px 20px", borderRadius: 6,
+            padding: "10px 14px", borderRadius: 6, flexShrink: 0, whiteSpace: "nowrap",
             background: activeTab === t.id ? T.SKODA_GREEN + "22" : "transparent",
             color: activeTab === t.id ? T.SKODA_GREEN : T.TEXT_DIM,
             display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2,
@@ -615,7 +636,7 @@ function SkodaDealerDashboard() {
       </div>
 
       {/* ── CONTENT ── */}
-      <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ padding: "16px 12px", maxWidth: 1400, margin: "0 auto" }}>
         {activeTab === "admin" && <AdminPanel
           countries={EUROPEAN_COUNTRIES}
           selected={selectedCountries}
@@ -1183,7 +1204,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       </div>
 
       {/* ── Charts Row 2: Monthly Trend + Negative % ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Monthly Review Volume</div>
           <div style={{ height: 180 }}>
@@ -1520,6 +1541,15 @@ function LiveReviewsPanel({ dealers }) {
   const [countryStats, setCountryStats] = useState({});
   const [changedCountries, setChangedCountries] = useState(new Set());
   const [todayCount, setTodayCount] = useState(0);
+  const [feedCountry, setFeedCountry] = useState("all");
+  const [starDist, setStarDist] = useState({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+  const [sentimentLive, setSentimentLive] = useState({ positive: 0, neutral: 0, negative: 0 });
+  const [hotDealers, setHotDealers] = useState([]);
+  const [coldDealers, setColdDealers] = useState([]);
+
+  const countries = useMemo(() =>
+    [...new Map(dealers.map(d => [d.country, { code: d.country, name: d.countryName, flag: d.flag }])).values()].sort((a,b) => a.name.localeCompare(b.name)),
+  [dealers]);
 
   // Initialize country stats from dealers
   useEffect(() => {
@@ -1545,12 +1575,56 @@ function LiveReviewsPanel({ dealers }) {
   useEffect(() => {
     if (!dealers.length || paused) return;
     const interval = setInterval(() => {
-      const review = generateLiveReview(dealers);
-      setReviews(prev => [review, ...prev].slice(0, 25));
+      const pool = feedCountry === "all" ? dealers : dealers.filter(d => d.country === feedCountry);
+      if (!pool.length) return;
+      const review = generateLiveReview(pool);
+      setReviews(prev => [review, ...prev].slice(0, 30));
       setTodayCount(prev => prev + 1);
+
+      // Update star distribution
+      setStarDist(prev => {
+        const next = { ...prev };
+        next[review.stars] = (next[review.stars] || 0) + 1;
+        return next;
+      });
+
+      // Update live sentiment
+      setSentimentLive(prev => {
+        const next = { ...prev };
+        if (review.stars >= 4) next.positive++;
+        else if (review.stars === 3) next.neutral++;
+        else next.negative++;
+        return next;
+      });
+
+      // Track hot/cold dealers
+      setHotDealers(prev => {
+        const map = new Map(prev.map(d => [d.name, d]));
+        const existing = map.get(review.dealer.name);
+        if (existing) {
+          existing.count++;
+          existing.totalStars += review.stars;
+          existing.avg = +(existing.totalStars / existing.count).toFixed(1);
+        } else {
+          map.set(review.dealer.name, { ...review.dealer, count: 1, totalStars: review.stars, avg: review.stars });
+        }
+        return [...map.values()].sort((a,b) => b.avg - a.avg || b.count - a.count).slice(0, 5);
+      });
+      setColdDealers(prev => {
+        const map = new Map(prev.map(d => [d.name, d]));
+        const existing = map.get(review.dealer.name);
+        if (existing) {
+          existing.count++;
+          existing.totalStars += review.stars;
+          existing.avg = +(existing.totalStars / existing.count).toFixed(1);
+        } else {
+          map.set(review.dealer.name, { ...review.dealer, count: 1, totalStars: review.stars, avg: review.stars });
+        }
+        return [...map.values()].sort((a,b) => a.avg - b.avg || b.count - a.count).slice(0, 5);
+      });
     }, 3000 + Math.random() * 2000);
     return () => clearInterval(interval);
-  }, [dealers, paused]);
+  }, [dealers, paused, feedCountry]);
 
   // Live country stats fluctuation
   useEffect(() => {
@@ -1560,7 +1634,6 @@ function LiveReviewsPanel({ dealers }) {
         const next = { ...prev };
         const codes = Object.keys(next);
         const changed = new Set();
-        // Update 2-4 random countries
         const count = 2 + Math.floor(Math.random() * 3);
         for (let i = 0; i < count; i++) {
           const code = codes[Math.floor(Math.random() * codes.length)];
@@ -1577,7 +1650,6 @@ function LiveReviewsPanel({ dealers }) {
         setChangedCountries(changed);
         return next;
       });
-      // Clear flash after 2s
       setTimeout(() => setChangedCountries(new Set()), 2000);
     }, 5000);
     return () => clearInterval(interval);
@@ -1608,18 +1680,143 @@ function LiveReviewsPanel({ dealers }) {
     return () => clearInterval(t);
   }, []);
 
+  // Star distribution data
+  const totalStars = Object.values(starDist).reduce((a,b) => a+b, 0) || 1;
+  const starColors = { 5: T.SKODA_ACCENT, 4: "#4ADE80", 3: T.ALERT_YELLOW, 2: T.ALERT_ORANGE, 1: T.ALERT_RED };
+
+  // Sentiment totals
+  const sentTotal = sentimentLive.positive + sentimentLive.neutral + sentimentLive.negative || 1;
+
+  // Filtered reviews for display
+  const displayReviews = feedCountry === "all" ? reviews : reviews.filter(r => r.dealer.country === feedCountry);
+  const selectedCountryData = feedCountry !== "all" ? countryStats[feedCountry] : null;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="live-panel" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* KPI Row */}
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="live-kpi-row" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
         <Stat label="Reviews Today" value={todayCount} />
         <Stat label="Live Avg Rating" value={`${liveAvg}★`} />
         <Stat label="Active Countries" value={sortedCountries.length} />
-        <Stat label="Feed Status" value={paused ? "Paused" : "Live"} />
+        <Stat label="Feed Status" value={paused ? "⏸ Paused" : "🔴 Live"} />
       </div>
 
-      {/* Main grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16, alignItems: "start" }}>
+      {/* Country filter + controls */}
+      <div className="live-controls" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <select value={feedCountry} onChange={e => setFeedCountry(e.target.value)} style={{
+          padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.BORDER}`, background: T.SURFACE, color: T.TEXT, fontSize: 13, minWidth: 180,
+        }}>
+          <option value="all">🌍 All countries</option>
+          {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+        </select>
+        {selectedCountryData && (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <Badge color={T.SKODA_ACCENT}>{selectedCountryData.avgRating.toFixed(2)}★ avg</Badge>
+            <Badge color={T.TEXT_DIM}>{selectedCountryData.dealers} dealers</Badge>
+            <Badge color={T.TEXT_DIM}>{selectedCountryData.reviews.toLocaleString()} reviews</Badge>
+          </div>
+        )}
+        <div style={{ marginLeft: "auto" }}>
+          <button onClick={() => setPaused(!paused)} style={{
+            padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+            background: paused ? T.SKODA_GREEN + "22" : T.SURFACE_3,
+            color: paused ? T.SKODA_ACCENT : T.TEXT_DIM,
+            border: `1px solid ${paused ? T.SKODA_GREEN + "44" : T.BORDER}`,
+            cursor: "pointer", fontFamily: "inherit",
+          }}>{paused ? "▶ Resume" : "⏸ Pause"}</button>
+        </div>
+      </div>
+
+      {/* Live Star Distribution + Sentiment */}
+      <div className="live-dist-row resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* Star Distribution Gauge */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>Live Rating Distribution</span>
+            <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{totalStars > 1 ? totalStars : 0} total</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {[5,4,3,2,1].map(star => {
+              const count = starDist[star] || 0;
+              const pct = totalStars > 1 ? Math.round(count / totalStars * 100) : 0;
+              return (
+                <div key={star} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, width: 20, color: starColors[star] }}>{star}★</span>
+                  <div style={{ flex: 1, height: 16, borderRadius: 8, background: T.SURFACE_3, overflow: "hidden", position: "relative" }}>
+                    <div style={{
+                      width: `${pct}%`, height: "100%", borderRadius: 8,
+                      background: `linear-gradient(90deg, ${starColors[star]}88, ${starColors[star]})`,
+                      transition: "width 0.6s ease",
+                      minWidth: count > 0 ? 4 : 0,
+                    }} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: T.TEXT_DIM, minWidth: 36, textAlign: "right" }}>{pct}%</span>
+                  <span style={{ fontSize: 10, color: T.TEXT_DIM, minWidth: 24, textAlign: "right" }}>({count})</span>
+                </div>
+              );
+            })}
+          </div>
+          {/* Visual avg indicator */}
+          {totalStars > 1 && (() => {
+            const wAvg = (starDist[1]*1 + starDist[2]*2 + starDist[3]*3 + starDist[4]*4 + starDist[5]*5) / totalStars;
+            return (
+              <div style={{ marginTop: 14, padding: "10px 14px", background: T.SURFACE_3, borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 12, color: T.TEXT_DIM }}>Weighted average</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <StarRating rating={wAvg} size={14} />
+                  <span style={{ fontSize: 16, fontWeight: 700, color: T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{wAvg.toFixed(2)}</span>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Live Sentiment Breakdown */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>Live Sentiment</span>
+            <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{sentTotal > 1 ? sentTotal : 0} analyzed</span>
+          </div>
+          {/* Stacked bar */}
+          <div style={{ height: 28, borderRadius: 8, overflow: "hidden", display: "flex", marginBottom: 14, background: T.SURFACE_3 }}>
+            {sentTotal > 1 && (
+              <>
+                <div style={{ width: `${sentimentLive.positive/sentTotal*100}%`, background: T.SKODA_ACCENT, transition: "width 0.6s" }} />
+                <div style={{ width: `${sentimentLive.neutral/sentTotal*100}%`, background: T.ALERT_YELLOW, transition: "width 0.6s" }} />
+                <div style={{ width: `${sentimentLive.negative/sentTotal*100}%`, background: T.ALERT_RED, transition: "width 0.6s" }} />
+              </>
+            )}
+          </div>
+          {/* Legend */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            {[
+              { label: "Positive", value: sentimentLive.positive, color: T.SKODA_ACCENT, icon: "😊" },
+              { label: "Neutral", value: sentimentLive.neutral, color: T.ALERT_YELLOW, icon: "😐" },
+              { label: "Negative", value: sentimentLive.negative, color: T.ALERT_RED, icon: "😞" },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: "center", padding: "10px 8px", background: s.color + "11", borderRadius: 8, border: `1px solid ${s.color}33` }}>
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: s.color, fontFamily: "'JetBrains Mono', monospace" }}>
+                  {sentTotal > 1 ? Math.round(s.value/sentTotal*100) : 0}%
+                </div>
+                <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{s.label} ({s.value})</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sentiment trend mini */}
+          <div style={{ marginTop: 14, padding: "10px 14px", background: T.SURFACE_3, borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: T.TEXT_DIM }}>Satisfaction rate</span>
+            <span style={{ fontSize: 16, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+              color: sentTotal > 1 && sentimentLive.positive/sentTotal > 0.6 ? T.SKODA_ACCENT : sentTotal > 1 && sentimentLive.negative/sentTotal > 0.3 ? T.ALERT_RED : T.ALERT_YELLOW }}>
+              {sentTotal > 1 ? Math.round((sentimentLive.positive + sentimentLive.neutral * 0.5) / sentTotal * 100) : 0}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main 3-column grid */}
+      <div className="live-main-grid" style={{ display: "grid", gridTemplateColumns: "5fr 3fr 3fr", gap: 16, alignItems: "start" }}>
 
         {/* Left — Live Review Feed */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
@@ -1631,23 +1828,18 @@ function LiveReviewsPanel({ dealers }) {
                 animation: paused ? "none" : "pulse 1.5s infinite",
               }} />
               <span style={{ fontSize: 13, fontWeight: 600 }}>{paused ? "Feed Paused" : "Live Review Feed"}</span>
+              {feedCountry !== "all" && <Badge color={T.SKODA_ACCENT}>{countries.find(c=>c.code===feedCountry)?.flag} {countries.find(c=>c.code===feedCountry)?.name}</Badge>}
             </div>
-            <button onClick={() => setPaused(!paused)} style={{
-              padding: "6px 14px", borderRadius: 6, fontSize: 11, fontWeight: 600,
-              background: paused ? T.SKODA_GREEN + "22" : T.SURFACE_3,
-              color: paused ? T.SKODA_ACCENT : T.TEXT_DIM,
-              border: `1px solid ${paused ? T.SKODA_GREEN + "44" : T.BORDER}`,
-              cursor: "pointer", fontFamily: "inherit",
-            }}>{paused ? "▶ Resume" : "⏸ Pause"}</button>
+            <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{displayReviews.length} in feed</span>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 600, overflowY: "auto" }}>
-            {reviews.length === 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 500, overflowY: "auto" }}>
+            {displayReviews.length === 0 && (
               <div style={{ textAlign: "center", padding: 40, color: T.TEXT_DIM, fontSize: 13 }}>
                 Waiting for reviews...
               </div>
             )}
-            {reviews.map((r, i) => {
+            {displayReviews.map((r, i) => {
               const borderColor = r.stars >= 4 ? T.SKODA_ACCENT : r.stars >= 3 ? T.ALERT_YELLOW : T.ALERT_RED;
               return (
                 <div key={r.id} style={{
@@ -1666,7 +1858,7 @@ function LiveReviewsPanel({ dealers }) {
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: 14 }}>{r.dealer.flag}</span>
                     <span style={{ fontSize: 11, color: T.TEXT_DIM }}>
-                      <span style={{ fontWeight: 600, color: T.TEXT }}>{r.dealer.name}</span> · {r.dealer.city}, {r.dealer.countryName}
+                      <span style={{ fontWeight: 600, color: T.TEXT }}>{r.dealer.name}</span> · {r.dealer.city}
                     </span>
                   </div>
                 </div>
@@ -1675,43 +1867,76 @@ function LiveReviewsPanel({ dealers }) {
           </div>
         </div>
 
-        {/* Right — Live Country Stats */}
+        {/* Middle — Live Country Stats */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>Live Country Ratings</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {sortedCountries.map((c, i) => {
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 440, overflowY: "auto" }}>
+              {sortedCountries.map(c => {
                 const isChanged = changedCountries.has(c.code);
                 const ratingColor = c.avgRating >= 4.5 ? T.SKODA_ACCENT : c.avgRating >= 4.0 ? T.SKODA_GREEN : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
                 const trendIcon = c.trend > 0.001 ? "▲" : c.trend < -0.001 ? "▼" : "–";
                 const trendColor = c.trend > 0.001 ? T.SKODA_ACCENT : c.trend < -0.001 ? T.ALERT_RED : T.TEXT_DIM;
+                const isSelected = feedCountry === c.code;
                 return (
-                  <div key={c.code} style={{
-                    display: "flex", alignItems: "center", gap: 10, padding: "8px 10px",
-                    borderRadius: 6,
-                    background: isChanged ? (c.trend > 0 ? T.SKODA_GREEN + "15" : c.trend < 0 ? T.ALERT_RED + "10" : "transparent") : "transparent",
+                  <div key={c.code} onClick={() => setFeedCountry(isSelected ? "all" : c.code)} style={{
+                    display: "flex", alignItems: "center", gap: 8, padding: "7px 8px",
+                    borderRadius: 6, cursor: "pointer",
+                    background: isSelected ? T.SKODA_GREEN + "22" : isChanged ? (c.trend > 0 ? T.SKODA_GREEN + "15" : c.trend < 0 ? T.ALERT_RED + "10" : "transparent") : "transparent",
+                    border: isSelected ? `1px solid ${T.SKODA_GREEN}44` : "1px solid transparent",
                     transition: "background 0.5s",
                   }}>
-                    <span style={{ fontSize: 18, width: 28, textAlign: "center" }}>{c.flag}</span>
+                    <span style={{ fontSize: 16 }}>{c.flag}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
-                      <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{c.dealers} dealers · {c.reviews.toLocaleString()} reviews</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                      <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{c.dealers}d · {c.reviews.toLocaleString()}r</div>
                     </div>
-                    <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{
-                        fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 14, color: ratingColor,
-                        transition: "color 0.3s",
-                        animation: isChanged ? "pulse 0.6s ease" : "none",
-                      }}>{c.avgRating.toFixed(2)}</span>
-                      <span style={{
-                        fontSize: 10, fontWeight: 700, color: trendColor, width: 14, textAlign: "center",
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}>{trendIcon}</span>
-                    </div>
+                    <span style={{
+                      fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 13, color: ratingColor,
+                      animation: isChanged ? "pulse 0.6s ease" : "none",
+                    }}>{c.avgRating.toFixed(2)}</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: trendColor, width: 12 }}>{trendIcon}</span>
                   </div>
                 );
               })}
             </div>
+          </div>
+        </div>
+
+        {/* Right — Hot & Cold dealers + Activity */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Hot dealers */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.SKODA_ACCENT }}>🔥 Top Dealers (live session)</div>
+            {hotDealers.length === 0 ? (
+              <div style={{ fontSize: 12, color: T.TEXT_DIM, padding: 8 }}>Collecting data...</div>
+            ) : hotDealers.map((d, i) => (
+              <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < hotDealers.length - 1 ? `1px solid ${T.BORDER}22` : "none" }}>
+                <span style={{ fontSize: 12, width: 18, color: i === 0 ? "#FFD700" : T.TEXT_DIM, fontWeight: 700 }}>{i+1}.</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{d.flag} {d.city} · {d.count} reviews</div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{d.avg}★</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Cold dealers */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.ALERT_RED }}>❄ Worst Dealers (live session)</div>
+            {coldDealers.length === 0 ? (
+              <div style={{ fontSize: 12, color: T.TEXT_DIM, padding: 8 }}>Collecting data...</div>
+            ) : coldDealers.map((d, i) => (
+              <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < coldDealers.length - 1 ? `1px solid ${T.BORDER}22` : "none" }}>
+                <span style={{ fontSize: 12, width: 18, color: T.ALERT_RED, fontWeight: 700 }}>{i+1}.</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{d.flag} {d.city} · {d.count} reviews</div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: d.avg < 2.5 ? T.ALERT_RED : T.ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{d.avg}★</span>
+              </div>
+            ))}
           </div>
 
           {/* Live activity indicator */}
@@ -1727,8 +1952,7 @@ function LiveReviewsPanel({ dealers }) {
               <span style={{ fontSize: 12, fontWeight: 600, color: T.SKODA_ACCENT }}>Live Monitoring Active</span>
             </div>
             <div style={{ fontSize: 11, color: T.TEXT_DIM, lineHeight: 1.6 }}>
-              Ratings update every 5 seconds. New reviews arrive every 3–5 seconds.
-              Data reflects simulated real-time monitoring of the ŠKODA dealer network.
+              Ratings update every 5s. Reviews every 3–5s. Click a country to filter the feed.
             </div>
           </div>
         </div>
@@ -1736,6 +1960,7 @@ function LiveReviewsPanel({ dealers }) {
     </div>
   );
 }
+
 
 // ═══════════════════════════════════════════════════════════════
 // SENTIMENT PANEL
@@ -2039,7 +2264,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         )}
 
         {/* Category breakdowns */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
           <CategorySection title="Basic Info" icon="📋" data={cats.basic} items={[
             { ok: cats.basic.phone, label: "Phone number", detail: cats.basic.phone ? "Provided" : "Missing" },
             { ok: cats.basic.email, label: "Email address", detail: cats.basic.email ? "Verified" : "Missing" },
@@ -2102,7 +2327,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* KPI Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+      <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
         <Stat label="Network Avg Score" value={`${avgScore}%`} />
         <Stat label="Grade" value={getGrade(avgScore)} />
         <Stat label="Critical (<50%)" value={criticalCount} alert={criticalCount > 0} />
@@ -2110,7 +2335,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         <Stat label="Total Alerts" value={totalAlerts} alert={totalAlerts > 10} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+      <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         {/* Score Distribution Pie */}
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Score Distribution</div>
@@ -2185,7 +2410,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
       {/* Dealer Table */}
       <div style={{ background: T.SURFACE_2, borderRadius: 10, border: `1px solid ${T.BORDER}`, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: T.SURFACE_3 }}>
@@ -2374,7 +2599,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 <Badge color={T.TEXT_DIM}>Country avg: {avgCountry}★</Badge>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Dealer vs Network Average</div>
                 <div style={{ height: 280 }}>
@@ -2405,7 +2630,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 </div>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {flag} {dealer.countryName}</div>
                 {topDealers.map((d, i) => (
@@ -2467,7 +2692,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
     return (
       <>
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <select value={countryA} onChange={e => setCountryA(e.target.value)} style={selectStyle}>
             <option value="">— Select country A —</option>
             {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
@@ -2483,7 +2708,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
         {aggA && aggB && (
           <>
             {/* Country headers */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "center" }}>
+            <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "center" }}>
               <div style={{ background: COLOR_A + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_A}44`, textAlign: "center" }}>
                 <div style={{ fontSize: 28 }}>{aggA.flag}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: COLOR_A }}>{aggA.name}</div>
@@ -2498,14 +2723,14 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             </div>
 
             {/* KPI comparison */}
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <CompareVal label="Avg Rating" valA={aggA.avgRating} valB={aggB.avgRating} suffix="★" />
               <CompareVal label="Total Reviews" valA={aggA.totalReviews} valB={aggB.totalReviews} suffix="" />
               <CompareVal label="Negative %" valA={aggA.negPercent} valB={aggB.negPercent} suffix="%" lower />
               <CompareVal label="Trend" valA={aggA.avgTrend > 0 ? "+"+aggA.avgTrend : aggA.avgTrend} valB={aggB.avgTrend > 0 ? "+"+aggB.avgTrend : aggB.avgTrend} suffix="" />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {/* Rating trend */}
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend</div>
@@ -2584,7 +2809,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
     return (
       <>
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <select value={compareCountry} onChange={e => { setCompareCountry(e.target.value); setDealerAId(""); setDealerBId(""); }} style={selectStyle}>
             <option value="">— Select country —</option>
             {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
@@ -2608,7 +2833,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
         {dealerA && dealerB && (
           <>
             {/* Dealer headers */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "center" }}>
+            <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "center" }}>
               <div style={{ background: COLOR_A + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_A}44` }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: COLOR_A }}>{dealerA.name}</div>
                 <div style={{ fontSize: 12, color: T.TEXT_DIM }}>{dealerA.flag} {dealerA.city}</div>
@@ -2629,14 +2854,14 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             </div>
 
             {/* KPI comparison */}
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <CompareVal label="Rating" valA={dealerA.rating} valB={dealerB.rating} suffix="★" />
               <CompareVal label="Reviews" valA={dealerA.reviewCount} valB={dealerB.reviewCount} suffix="" />
               <CompareVal label="Negative %" valA={dealerA.negativePercent} valB={dealerB.negativePercent} suffix="%" lower />
               <CompareVal label="Trend" valA={dealerA.trend > 0 ? "+"+dealerA.trend : dealerA.trend} valB={dealerB.trend > 0 ? "+"+dealerB.trend : dealerB.trend} suffix="" />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {/* Radar */}
               <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Sentiment Comparison</div>
@@ -2674,7 +2899,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             </div>
 
             {/* Side-by-side reviews */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {[{ d: dealerA, color: COLOR_A }, { d: dealerB, color: COLOR_B }].map(({ d, color }) => (
                 <div key={d.id} style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                   <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color }}>Latest from {d.name}</div>
