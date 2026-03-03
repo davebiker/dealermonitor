@@ -205,7 +205,7 @@ function generateMonthlyData(rating) {
   const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
   return months.map((m, i) => ({
     month: m,
-    avgRating: Math.max(2.5, Math.min(5, rating + (Math.random()-0.5)*0.6 - (5-i)*0.03)).toFixed(2),
+    avgRating: parseFloat(Math.max(2.5, Math.min(5, rating + (Math.random()-0.5)*0.6 - (5-i)*0.03)).toFixed(2)),
     reviews: Math.floor(30 + Math.random() * 120),
     negative: Math.floor(3 + Math.random() * 15),
   }));
@@ -2516,7 +2516,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
     const monthly = [];
     const allMonths = ds[0]?.monthlyData || [];
     allMonths.slice(-months).forEach((m, i) => {
-      const ratings = ds.map(d => d.monthlyData[d.monthlyData.length - months + i]?.avgRating || 0);
+      const ratings = ds.map(d => parseFloat(d.monthlyData[d.monthlyData.length - months + i]?.avgRating) || d.rating);
       const reviews = ds.map(d => d.monthlyData[d.monthlyData.length - months + i]?.reviews || 0);
       monthly.push({ month: m.month, avgRating: +(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(2), reviews: reviews.reduce((a,b)=>a+b,0) });
     });
@@ -2683,7 +2683,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
     })) : [];
 
     const trendData = aggA && aggB ? aggA.monthly.map((m, i) => ({
-      month: m.month, A: m.avgRating, B: aggB.monthly[i]?.avgRating || 0,
+      month: m.month, A: parseFloat(m.avgRating), B: parseFloat(aggB.monthly[i]?.avgRating) || parseFloat(m.avgRating),
     })) : [];
 
     const volumeData = aggA && aggB ? aggA.monthly.map((m, i) => ({
@@ -2804,7 +2804,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
     }) : [];
 
     const trendData = dealerA && dealerB ? dealerA.monthlyData.slice(-months).map((m, i) => ({
-      month: m.month, A: m.avgRating, B: dealerB.monthlyData.slice(-months)[i]?.avgRating || 0,
+      month: m.month, A: parseFloat(m.avgRating), B: parseFloat(dealerB.monthlyData.slice(-months)[i]?.avgRating) || parseFloat(m.avgRating),
     })) : [];
 
     return (
