@@ -141,6 +141,7 @@ function generateDealerData(country) {
       city: city.name,
       country: country.code,
       countryName: country.name,
+      flag: country.flag,
       address: city.address || `${city.name}, ${country.name}`,
       lat: city.lat + (Math.random()-0.5)*0.05,
       lng: city.lng + (Math.random()-0.5)*0.05,
@@ -821,7 +822,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <StarRating rating={r.stars} size={12} />
                     <span style={{ fontWeight: 600, fontSize: 12 }}>{r.dealer.name}</span>
-                    <Badge color={T.TEXT_DIM}>{r.dealer.countryName}</Badge>
+                    <Badge color={T.TEXT_DIM}>{r.dealer.flag} {r.dealer.countryName}</Badge>
                   </div>
                   <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.daysAgo === 0 ? "Today" : `${r.daysAgo}d ago`}</span>
                 </div>
@@ -851,7 +852,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.city}, {d.countryName} · {d.reviewCount} reviews</div>
+                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city}, {d.countryName} · {d.reviewCount} reviews</div>
               </div>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 {d.alerts.map((a, j) => (
@@ -1202,7 +1203,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 {dealers.slice(0, 60).map((d, i) => {
                   const isExpanded = expandedDealer === d.id;
                   const trendColor = d.trend > 0.1 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM;
-                  const flag = EUROPEAN_COUNTRIES.find(c => c.code === d.country)?.flag || "";
+                  const flag = d.flag || "";
                   return (
                     <React.Fragment key={d.id}>
                       <tr className="dealer-row"
@@ -1321,7 +1322,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         /* ── Card view ── */
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
           {dealers.slice(0, 30).map((d, i) => {
-            const flag = EUROPEAN_COUNTRIES.find(c => c.code === d.country)?.flag || "";
+            const flag = d.flag || "";
             const ratingColor = d.rating >= 4.5 ? T.SKODA_GREEN : d.rating >= 4.0 ? T.SKODA_ACCENT : d.rating >= 3.5 ? T.ALERT_YELLOW : d.rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
             return (
               <div key={d.id} onClick={() => onSelectDealer(d)} className="dealer-row" style={{
@@ -1435,7 +1436,6 @@ const LIVE_AUTHORS = ["Martin K.", "Anna S.", "Petr N.", "Jana V.", "Thomas M.",
 function generateLiveReview(dealers) {
   const dealer = dealers[Math.floor(Math.random() * dealers.length)];
   const tpl = LIVE_REVIEW_TEMPLATES[Math.floor(Math.random() * LIVE_REVIEW_TEMPLATES.length)];
-  const flag = EUROPEAN_COUNTRIES.find(c => c.code === dealer.country)?.flag || "";
   const starAdjust = dealer.rating > 4.2 ? (Math.random() > 0.7 ? 1 : 0) : dealer.rating < 3.5 ? (Math.random() > 0.6 ? -1 : 0) : 0;
   const stars = Math.max(1, Math.min(5, tpl.stars + starAdjust));
   return {
@@ -1444,7 +1444,7 @@ function generateLiveReview(dealers) {
     text: tpl.text,
     author: LIVE_AUTHORS[Math.floor(Math.random() * LIVE_AUTHORS.length)],
     timestamp: Date.now(),
-    dealer: { name: dealer.name, city: dealer.city, countryName: dealer.countryName, country: dealer.country, flag },
+    dealer: { name: dealer.name, city: dealer.city, countryName: dealer.countryName, country: dealer.country, flag: dealer.flag },
   };
 }
 
@@ -1819,6 +1819,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
   );
 
   const dealer = selected || dealers[0];
+  const flag = dealer?.flag || "";
   const countryDealers = dealers.filter(d => d.country === dealer?.country);
   const avgNetwork = (dealers.reduce((s,d) => s+d.rating, 0) / dealers.length).toFixed(2);
   const avgCountry = countryDealers.length ? (countryDealers.reduce((s,d) => s+d.rating, 0) / countryDealers.length).toFixed(2) : 0;
@@ -1853,7 +1854,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
         <span style={{ fontSize: 12, fontWeight: 600, color: T.TEXT_DIM }}>Select dealer:</span>
         <select value={dealer?.id || ""} onChange={e => onSelect(dealers.find(d => d.id === e.target.value))}
           style={{ flex: 1, maxWidth: 500 }}>
-          {dealers.map(d => <option key={d.id} value={d.id}>{d.name} ({d.city}, {d.countryName}) – {d.rating}★</option>)}
+          {dealers.map(d => <option key={d.id} value={d.id}>{d.flag} {d.name} ({d.city}, {d.countryName}) – {d.rating}★</option>)}
         </select>
       </div>
 
@@ -1866,7 +1867,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
           }}>
             <div>
               <div style={{ fontSize: 18, fontWeight: 700 }}>{dealer.name}</div>
-              <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 2 }}>{dealer.city}, {dealer.countryName}</div>
+              <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 2 }}>{flag} {dealer.city}, {dealer.countryName}</div>
               {dealer.isMultibrand && <Badge color={T.ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
             </div>
             <div style={{ display: "flex", gap: 12 }}>
@@ -1919,7 +1920,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
           {/* Country ranking */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {dealer.countryName}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {flag} {dealer.countryName}</div>
               {topDealers.map((d, i) => (
                 <div key={d.id} onClick={() => onSelect(d)} style={{
                   display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
@@ -1933,7 +1934,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               ))}
             </div>
             <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 in {dealer.countryName}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 in {flag} {dealer.countryName}</div>
               {bottomDealers.map((d, i) => (
                 <div key={d.id} onClick={() => onSelect(d)} style={{
                   display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
