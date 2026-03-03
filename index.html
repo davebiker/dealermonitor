@@ -431,7 +431,7 @@ function useTheme() { return React.useContext(ThemeContext); }
 function SkodaDealerDashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const T = darkMode ? THEMES.dark : THEMES.light;
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("summary");
   const [selectedCountries, setSelectedCountries] = useState(new Set(["CZ"]));
   const [importedData, setImportedData] = useState({});
   const [importing, setImporting] = useState(false);
@@ -524,9 +524,10 @@ function SkodaDealerDashboard() {
   };
 
   const tabs = [
+    { id: "summary", label: "🏠 Summary", sub: "Executive view" },
     { id: "admin", label: "⚙ Admin", sub: "Import & Config" },
     { id: "alerts", label: "🔔 Alerts", sub: `${stats.alerts} active`, alert: stats.alerts > 0 },
-    { id: "overview", label: "📊 Overview", sub: `${stats.dealers} dealers` },
+    { id: "overview", label: "📊 Dealers", sub: `${stats.dealers} dealers` },
     { id: "reviews", label: "💬 Live Reviews", sub: "Real-time feed" },
     { id: "sentiment", label: "🧠 Sentiment", sub: "AI Analysis" },
     { id: "benchmark", label: "📈 Benchmark", sub: "Compare" },
@@ -637,6 +638,7 @@ function SkodaDealerDashboard() {
 
       {/* ── CONTENT ── */}
       <div style={{ padding: "16px 12px", maxWidth: 1400, margin: "0 auto" }}>
+        {activeTab === "summary" && <ExecutiveSummaryPanel dealers={allDealers} importedData={importedData} onSelectDealer={setSelectedDealer} setActiveTab={setActiveTab} />}
         {activeTab === "admin" && <AdminPanel
           countries={EUROPEAN_COUNTRIES}
           selected={selectedCountries}
@@ -954,6 +956,410 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════
+// EXECUTIVE SUMMARY PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiveTab }) {
+  const T = useTheme();
+
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+    </div>
+  );
+
+  // ── Compute all metrics ──
+  const totalDealers = dealers.length;
+  const avgRating = parseFloat((dealers.reduce((s,d) => s + d.rating, 0) / totalDealers).toFixed(2));
+  const totalReviews = dealers.reduce((s,d) => s + d.reviewCount, 0);
+  const negAvg = parseFloat((dealers.reduce((s,d) => s + d.negativePercent, 0) / totalDealers).toFixed(1));
+  const totalAlerts = dealers.reduce((s,d) => s + d.alerts.length, 0);
+  const criticalAlerts = dealers.filter(d => d.alerts.some(a => a.severity === "critical")).length;
+  const avgTrend = parseFloat((dealers.reduce((s,d) => s + d.trend, 0) / totalDealers).toFixed(3));
+  const avgProfileScore = Math.round(dealers.reduce((s,d) => s + d.profileQuality.totalScore, 0) / totalDealers);
+
+  // NPS calculation (5★ = promoter, 3-4★ = passive, 1-2★ = detractor)
+  const promoters = dealers.filter(d => d.rating >= 4.5).length;
+  const detractors = dealers.filter(d => d.rating < 3.5).length;
+  const nps = Math.round((promoters / totalDealers - detractors / totalDealers) * 100);
+
+  // Response rate avg
+  const avgResponseRate = Math.round(dealers.reduce((s,d) => s + d.profileQuality.categories.online.responseRate, 0) / totalDealers);
+
+  // ── Monthly trend ──
+  const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
+  const monthlyTrend = months.map((m, i) => {
+    const mData = dealers.map(d => d.monthlyData[i]);
+    const mAvg = parseFloat((mData.reduce((s,md) => s + parseFloat(md.avgRating), 0) / mData.length).toFixed(2));
+    const mReviews = mData.reduce((s,md) => s + md.reviews, 0);
+    const mNeg = mData.reduce((s,md) => s + md.negative, 0);
+    const mNegPct = parseFloat((mNeg / mReviews * 100).toFixed(1));
+    return { month: m, avgRating: mAvg, reviews: mReviews, negative: mNeg, negPct: mNegPct };
+  });
+
+  // Week-over-week (simulate from last 2 months)
+  const lastMonth = monthlyTrend[monthlyTrend.length - 1];
+  const prevMonth = monthlyTrend[monthlyTrend.length - 2];
+  const wowRating = parseFloat((lastMonth.avgRating - prevMonth.avgRating).toFixed(2));
+  const wowReviews = lastMonth.reviews - prevMonth.reviews;
+  const wowNeg = parseFloat((lastMonth.negPct - prevMonth.negPct).toFixed(1));
+
+  // ── Country data ──
+  const byCountry = {};
+  dealers.forEach(d => {
+    if (!byCountry[d.country]) {
+      byCountry[d.country] = { code: d.country, name: d.countryName, flag: d.flag, dealers: 0, totalRating: 0, reviews: 0, alerts: 0, negatives: [] };
+    }
+    byCountry[d.country].dealers++;
+    byCountry[d.country].totalRating += d.rating;
+    byCountry[d.country].reviews += d.reviewCount;
+    byCountry[d.country].alerts += d.alerts.length;
+    byCountry[d.country].negatives.push(d.negativePercent);
+  });
+  Object.values(byCountry).forEach(c => {
+    c.avgRating = parseFloat((c.totalRating / c.dealers).toFixed(2));
+    c.negAvg = parseFloat((c.negatives.reduce((a,b) => a+b, 0) / c.negatives.length).toFixed(1));
+  });
+  const countryList = Object.values(byCountry).sort((a,b) => b.avgRating - a.avgRating);
+
+  // ── Top 3 critical alerts ──
+  const topAlerts = dealers
+    .flatMap(d => d.alerts.map(a => ({ ...a, dealer: d })))
+    .sort((a,b) => {
+      const sev = { critical: 3, high: 2, medium: 1 };
+      return (sev[b.severity] || 0) - (sev[a.severity] || 0);
+    })
+    .slice(0, 5);
+
+  // ── Top / Bottom performers ──
+  const topDealers = [...dealers].sort((a,b) => b.rating - a.rating).slice(0, 5);
+  const bottomDealers = [...dealers].sort((a,b) => a.rating - b.rating).slice(0, 5);
+  const risingDealers = [...dealers].sort((a,b) => b.trend - a.trend).slice(0, 5);
+  const decliningDealers = [...dealers].sort((a,b) => a.trend - b.trend).slice(0, 5);
+
+  // ── Helpers ──
+  const WowBadge = ({ value, suffix, invert }) => {
+    const isPositive = invert ? value < 0 : value > 0;
+    const isNeutral = value === 0;
+    return (
+      <span style={{
+        fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+        color: isNeutral ? T.TEXT_DIM : isPositive ? T.SKODA_ACCENT : T.ALERT_RED,
+        display: "inline-flex", alignItems: "center", gap: 2,
+      }}>
+        {value > 0 ? "↑" : value < 0 ? "↓" : "→"}{Math.abs(value)}{suffix}
+      </span>
+    );
+  };
+
+  // Heatmap color
+  const heatColor = (rating) => {
+    if (rating >= 4.5) return T.SKODA_ACCENT;
+    if (rating >= 4.2) return T.SKODA_GREEN;
+    if (rating >= 4.0) return "#4ADE80";
+    if (rating >= 3.8) return T.ALERT_YELLOW;
+    if (rating >= 3.5) return T.ALERT_ORANGE;
+    return T.ALERT_RED;
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {/* ── Row 1: Hero KPI cards ── */}
+      <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+        {/* Network Rating */}
+        <div style={{ background: `linear-gradient(135deg, ${T.SKODA_GREEN}22, ${T.SKODA_GREEN}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_GREEN}44` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Network Rating</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+            <span style={{ fontSize: 36, fontWeight: 800, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{avgRating}</span>
+            <span style={{ fontSize: 14, color: T.TEXT_DIM }}>/ 5</span>
+          </div>
+          <div style={{ marginTop: 6 }}><WowBadge value={wowRating} suffix=" MoM" /></div>
+        </div>
+
+        {/* NPS */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>NPS Score</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: nps >= 50 ? T.SKODA_ACCENT : nps >= 0 ? T.ALERT_YELLOW : T.ALERT_RED }}>{nps > 0 ? "+" : ""}{nps}</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>{promoters} promoters · {detractors} detractors</div>
+        </div>
+
+        {/* Response Rate */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Response Rate</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: avgResponseRate >= 70 ? T.SKODA_ACCENT : avgResponseRate >= 40 ? T.ALERT_YELLOW : T.ALERT_RED }}>{avgResponseRate}%</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>avg review response</div>
+        </div>
+
+        {/* Negative trend */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Negative Reviews</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: negAvg > 15 ? T.ALERT_RED : negAvg > 10 ? T.ALERT_ORANGE : T.TEXT }}>{negAvg}%</div>
+          <div style={{ marginTop: 6 }}><WowBadge value={wowNeg} suffix="% MoM" invert /></div>
+        </div>
+
+        {/* Alerts */}
+        <div style={{ background: totalAlerts > 0 ? T.ALERT_RED + "08" : T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${totalAlerts > 0 ? T.ALERT_RED + "33" : T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Active Alerts</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: totalAlerts > 0 ? T.ALERT_RED : T.SKODA_ACCENT }}>{totalAlerts}</div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>{criticalAlerts} critical</div>
+        </div>
+      </div>
+
+      {/* ── Row 2: Sparkline metrics ── */}
+      <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        {/* Rating trend sparkline */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend (6 months)</div>
+          <div style={{ height: 160 }}>
+            <ResponsiveContainer>
+              <LineChart data={monthlyTrend}>
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Line type="monotone" dataKey="avgRating" stroke={T.SKODA_ACCENT} strokeWidth={2.5} dot={{ fill: T.SKODA_ACCENT, r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Review volume trend */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Review Volume</div>
+          <div style={{ height: 160 }}>
+            <ResponsiveContainer>
+              <BarChart data={monthlyTrend}>
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Bar dataKey="reviews" fill={T.SKODA_ACCENT + "88"} radius={[4,4,0,0]} name="Reviews" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Negative % trend */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Negative % Trend</div>
+          <div style={{ height: 160 }}>
+            <ResponsiveContainer>
+              <LineChart data={monthlyTrend}>
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 20]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} formatter={(v) => [`${v}%`, "Negative"]} />
+                <Line type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} dot={{ fill: T.ALERT_RED, r: 4 }} strokeDasharray="6 3" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Row 3: Country Heatmap + Top Alerts ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+        {/* Country heatmap */}
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>Country Performance Map</span>
+            <span style={{ fontSize: 10, color: T.TEXT_DIM }}>{countryList.length} countries</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: 8 }}>
+            {countryList.map(c => (
+              <div key={c.code} onClick={() => { setActiveTab("overview"); }} style={{
+                background: heatColor(c.avgRating) + "15",
+                borderRadius: 8, padding: "10px 10px",
+                border: `1px solid ${heatColor(c.avgRating)}44`,
+                cursor: "pointer", textAlign: "center", transition: "transform 0.15s",
+              }}>
+                <div style={{ fontSize: 22, marginBottom: 4 }}>{c.flag}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>{c.name}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: heatColor(c.avgRating) }}>{c.avgRating}</div>
+                <div style={{ fontSize: 9, color: T.TEXT_DIM, marginTop: 2 }}>{c.dealers}d · {c.negAvg}% neg</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top alerts */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED }}>🚨 Critical Issues</span>
+              <button onClick={() => setActiveTab("alerts")} style={{
+                fontSize: 11, padding: "4px 10px", borderRadius: 6, background: T.SURFACE_3, color: T.TEXT_DIM,
+                border: `1px solid ${T.BORDER}`, cursor: "pointer", fontFamily: "inherit",
+              }}>View all →</button>
+            </div>
+            {topAlerts.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 20, color: T.SKODA_ACCENT, fontSize: 13, fontWeight: 600 }}>✓ No critical issues</div>
+            ) : topAlerts.map((a, i) => (
+              <div key={i} onClick={() => { onSelectDealer(a.dealer); setActiveTab("benchmark"); }} style={{
+                display: "flex", alignItems: "center", gap: 10, padding: "10px 0",
+                borderBottom: i < topAlerts.length - 1 ? `1px solid ${T.BORDER}22` : "none",
+                cursor: "pointer",
+              }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 4,
+                  background: a.severity === "critical" ? T.ALERT_RED + "22" : a.severity === "high" ? T.ALERT_ORANGE + "22" : T.ALERT_YELLOW + "22",
+                  color: a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW,
+                  textTransform: "uppercase",
+                }}>{a.severity}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{a.text}</div>
+                  <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{a.dealer.flag} {a.dealer.name} · {a.dealer.city}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Network health */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>Network Health</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { label: "Avg Rating", value: avgRating, target: 4.2, unit: "★" },
+                { label: "Negative %", value: negAvg, target: 10, unit: "%", invert: true },
+                { label: "Profile Score", value: avgProfileScore, target: 75, unit: "%" },
+                { label: "Response Rate", value: avgResponseRate, target: 70, unit: "%" },
+              ].map(m => {
+                const hit = m.invert ? m.value <= m.target : m.value >= m.target;
+                return (
+                  <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 14 }}>{hit ? "✅" : "⚠️"}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600 }}>{m.label}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                        <div style={{ flex: 1, height: 5, borderRadius: 3, background: T.SURFACE_3, overflow: "hidden" }}>
+                          <div style={{
+                            width: `${Math.min(100, m.invert ? Math.max(0, (1 - m.value / (m.target * 2)) * 100) : (m.value / (m.target * 1.3)) * 100)}%`,
+                            height: "100%", borderRadius: 3,
+                            background: hit ? T.SKODA_ACCENT : T.ALERT_ORANGE,
+                          }} />
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: hit ? T.SKODA_ACCENT : T.ALERT_ORANGE, minWidth: 36 }}>
+                          {m.value}{m.unit}
+                        </span>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 9, color: T.TEXT_DIM }}>target: {m.target}{m.unit}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Row 4: Top/Bottom performers + Rising/Declining ── */}
+      <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {/* Top 5 */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 12 }}>🏆 Top 5 Dealers</div>
+            {topDealers.map((d, i) => (
+              <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
+                borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none",
+              }}>
+                <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : T.TEXT_DIM }}>{i+1}.</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{d.rating}★</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom 5 */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 Dealers</div>
+            {bottomDealers.map((d, i) => (
+              <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
+                borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none",
+              }}>
+                <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: T.ALERT_RED }}>{i+1}.</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: T.ALERT_RED, fontFamily: "'JetBrains Mono', monospace" }}>{d.rating}★</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {/* Rising */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#4ADE80", marginBottom: 12 }}>📈 Rising Stars</div>
+            {risingDealers.map((d, i) => (
+              <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
+                borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none",
+              }}>
+                <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: "#4ADE80" }}>{i+1}.</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#4ADE80", fontFamily: "'JetBrains Mono', monospace" }}>+{d.trend}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Declining */}
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_ORANGE, marginBottom: 12 }}>📉 Declining</div>
+            {decliningDealers.map((d, i) => (
+              <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "7px 0", cursor: "pointer",
+                borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none",
+              }}>
+                <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: T.ALERT_ORANGE }}>{i+1}.</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                  <div style={{ fontSize: 9, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: T.ALERT_RED, fontFamily: "'JetBrains Mono', monospace" }}>{d.trend}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Row 5: Quick navigation cards ── */}
+      <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+        {[
+          { tab: "overview", icon: "📊", label: "Dealer Overview", desc: `${totalDealers} dealers, table & card view`, color: T.SKODA_ACCENT },
+          { tab: "reviews", icon: "💬", label: "Live Reviews", desc: "Real-time feed & sentiment", color: "#60A5FA" },
+          { tab: "benchmark", icon: "📈", label: "Benchmark", desc: "Compare countries & dealers", color: "#F59E0B" },
+          { tab: "profile", icon: "🏗", label: "Profile Quality", desc: `Avg score: ${avgProfileScore}%`, color: "#A78BFA" },
+        ].map(nav => (
+          <div key={nav.tab} onClick={() => setActiveTab(nav.tab)} style={{
+            background: T.SURFACE_2, borderRadius: 10, padding: "16px 14px",
+            border: `1px solid ${T.BORDER}`, cursor: "pointer", transition: "all 0.15s",
+            display: "flex", alignItems: "center", gap: 12,
+          }} className="dealer-row">
+            <span style={{ fontSize: 24 }}>{nav.icon}</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: nav.color }}>{nav.label}</div>
+              <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{nav.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 // ═══════════════════════════════════════════════════════════════
 // OVERVIEW PANEL (Enhanced)
