@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ŠKODA Dealer Reviews Dashboard – PoC</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234BA82E'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='20' font-weight='bold' fill='white'>Š</text></svg>">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/recharts@2.15.3/umd/Recharts.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    // React & Recharts globals
+    const { useState, useEffect, useCallback, useMemo, Fragment } = React;
+    const { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line, CartesianGrid, Legend } = Recharts;
+
+
+// ═══════════════════════════════════════════════════════════════
+// ŠKODA DEALER REVIEWS DASHBOARD – PoC (All Europe)
+// ═══════════════════════════════════════════════════════════════
+
+const SKODA_GREEN = "#4BA82E";
+const SKODA_DARK = "#0E1A0E";
+const SKODA_ACCENT = "#78D64B";
+const SURFACE = "#141E14";
+const SURFACE_2 = "#1C2A1C";
+const SURFACE_3 = "#243324";
+const BORDER = "#2A3D2A";
+const TEXT = "#E8F0E8";
+const TEXT_DIM = "#8CA08C";
+const ALERT_RED = "#FF4444";
+const ALERT_ORANGE = "#FF8C00";
+const ALERT_YELLOW = "#FFD700";
+
+// ── European countries with ŠKODA presence ──
+const EUROPEAN_COUNTRIES = [
+  { code: "CZ", name: "Czech Republic", nameLocal: "Česko", flag: "🇨🇿", region: "Central", dealers: 87, priority: true },
+  { code: "DE", name: "Germany", nameLocal: "Deutschland", flag: "🇩🇪", region: "Western", dealers: 620, priority: true },
+  { code: "PL", name: "Poland", nameLocal: "Polska", flag: "🇵🇱", region: "Central", dealers: 165, priority: true },
+  { code: "GB", name: "United Kingdom", nameLocal: "UK", flag: "🇬🇧", region: "Western", dealers: 155, priority: true },
+  { code: "FR", name: "France", nameLocal: "France", flag: "🇫🇷", region: "Western", dealers: 210, priority: true },
+  { code: "ES", name: "Spain", nameLocal: "España", flag: "🇪🇸", region: "Southern", dealers: 125, priority: false },
+  { code: "IT", name: "Italy", nameLocal: "Italia", flag: "🇮🇹", region: "Southern", dealers: 140, priority: false },
+  { code: "AT", name: "Austria", nameLocal: "Österreich", flag: "🇦🇹", region: "Central", dealers: 95, priority: true },
+  { code: "CH", name: "Switzerland", nameLocal: "Schweiz", flag: "🇨🇭", region: "Central", dealers: 85, priority: false },
+  { code: "NL", name: "Netherlands", nameLocal: "Nederland", flag: "🇳🇱", region: "Western", dealers: 90, priority: false },
+  { code: "BE", name: "Belgium", nameLocal: "Belgique", flag: "🇧🇪", region: "Western", dealers: 70, priority: false },
+  { code: "SE", name: "Sweden", nameLocal: "Sverige", flag: "🇸🇪", region: "Nordic", dealers: 55, priority: false },
+  { code: "NO", name: "Norway", nameLocal: "Norge", flag: "🇳🇴", region: "Nordic", dealers: 45, priority: false },
+  { code: "DK", name: "Denmark", nameLocal: "Danmark", flag: "🇩🇰", region: "Nordic", dealers: 50, priority: false },
+  { code: "FI", name: "Finland", nameLocal: "Suomi", flag: "🇫🇮", region: "Nordic", dealers: 40, priority: false },
+  { code: "IE", name: "Ireland", nameLocal: "Éire", flag: "🇮🇪", region: "Western", dealers: 30, priority: false },
+  { code: "PT", name: "Portugal", nameLocal: "Portugal", flag: "🇵🇹", region: "Southern", dealers: 45, priority: false },
+  { code: "SK", name: "Slovakia", nameLocal: "Slovensko", flag: "🇸🇰", region: "Central", dealers: 55, priority: true },
+  { code: "HU", name: "Hungary", nameLocal: "Magyarország", flag: "🇭🇺", region: "Central", dealers: 60, priority: false },
+  { code: "RO", name: "Romania", nameLocal: "România", flag: "🇷🇴", region: "Eastern", dealers: 45, priority: false },
+  { code: "BG", name: "Bulgaria", nameLocal: "България", flag: "🇧🇬", region: "Eastern", dealers: 25, priority: false },
+  { code: "HR", name: "Croatia", nameLocal: "Hrvatska", flag: "🇭🇷", region: "Southern", dealers: 20, priority: false },
+  { code: "SI", name: "Slovenia", nameLocal: "Slovenija", flag: "🇸🇮", region: "Central", dealers: 18, priority: false },
+  { code: "GR", name: "Greece", nameLocal: "Ελλάδα", flag: "🇬🇷", region: "Southern", dealers: 35, priority: false },
+  { code: "RS", name: "Serbia", nameLocal: "Србија", flag: "🇷🇸", region: "Eastern", dealers: 15, priority: false },
+  { code: "BA", name: "Bosnia & Herzegovina", nameLocal: "BiH", flag: "🇧🇦", region: "Eastern", dealers: 10, priority: false },
+  { code: "LT", name: "Lithuania", nameLocal: "Lietuva", flag: "🇱🇹", region: "Baltic", dealers: 12, priority: false },
+  { code: "LV", name: "Latvia", nameLocal: "Latvija", flag: "🇱🇻", region: "Baltic", dealers: 10, priority: false },
+  { code: "EE", name: "Estonia", nameLocal: "Eesti", flag: "🇪🇪", region: "Baltic", dealers: 8, priority: false },
+  { code: "IS", name: "Iceland", nameLocal: "Ísland", flag: "🇮🇸", region: "Nordic", dealers: 3, priority: false },
+  { code: "LU", name: "Luxembourg", nameLocal: "Lëtzebuerg", flag: "🇱🇺", region: "Western", dealers: 5, priority: false },
+  { code: "AL", name: "Albania", nameLocal: "Shqipëria", flag: "🇦🇱", region: "Eastern", dealers: 5, priority: false },
+  { code: "MK", name: "North Macedonia", nameLocal: "С. Македонија", flag: "🇲🇰", region: "Eastern", dealers: 4, priority: false },
+  { code: "CY", name: "Cyprus", nameLocal: "Κύπρος", flag: "🇨🇾", region: "Southern", dealers: 5, priority: false },
+  { code: "MT", name: "Malta", nameLocal: "Malta", flag: "🇲🇹", region: "Southern", dealers: 2, priority: false },
+  { code: "UA", name: "Ukraine", nameLocal: "Україна", flag: "🇺🇦", region: "Eastern", dealers: 30, priority: false },
+  { code: "TR", name: "Türkiye", nameLocal: "Türkiye", flag: "🇹🇷", region: "Southern", dealers: 65, priority: false },
+  { code: "MD", name: "Moldova", nameLocal: "Moldova", flag: "🇲🇩", region: "Eastern", dealers: 3, priority: false },
+];
+
+const REGIONS = ["All", "Central", "Western", "Nordic", "Southern", "Eastern", "Baltic"];
+
+// ── Mock data generator ──
+function generateDealerData(country) {
+  const cities = CITY_DATA[country.code] || [{ name: "Capital", lat: 50, lng: 14 }];
+  const dealers = [];
+  const numDealers = Math.min(country.dealers, cities.length * 3);
+
+  for (let i = 0; i < Math.min(numDealers, 15); i++) {
+    const city = cities[i % cities.length];
+    const isMultibrand = Math.random() > 0.6;
+    const rating = (3.2 + Math.random() * 1.8).toFixed(1);
+    const reviewCount = Math.floor(50 + Math.random() * 2200);
+    const negPct = Math.max(2, Math.floor(25 - rating * 4 + Math.random() * 15));
+    const trend = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 0.4).toFixed(2);
+
+    const sentiments = {
+      service: { pos: 55 + Math.floor(Math.random()*30), neu: 10+Math.floor(Math.random()*15), neg: 5+Math.floor(Math.random()*20) },
+      sales: { pos: 60 + Math.floor(Math.random()*25), neu: 8+Math.floor(Math.random()*12), neg: 4+Math.floor(Math.random()*18) },
+      parts: { pos: 45 + Math.floor(Math.random()*30), neu: 15+Math.floor(Math.random()*15), neg: 8+Math.floor(Math.random()*22) },
+      communication: { pos: 50 + Math.floor(Math.random()*30), neu: 12+Math.floor(Math.random()*15), neg: 6+Math.floor(Math.random()*20) },
+      value: { pos: 40 + Math.floor(Math.random()*35), neu: 15+Math.floor(Math.random()*15), neg: 10+Math.floor(Math.random()*20) },
+    };
+
+    const alerts = [];
+    if (parseFloat(rating) < 3.8) alerts.push({ severity: "high", text: `Low rating: ${rating}★` });
+    if (negPct > 20) alerts.push({ severity: "critical", text: `${negPct}% negative reviews` });
+    if (parseFloat(trend) < -0.2) alerts.push({ severity: "medium", text: `Rating declining: ${trend}` });
+
+    const recentReviews = generateReviews(city.name, country.code, parseFloat(rating));
+
+    dealers.push({
+      id: `${country.code}-${i}`,
+      name: isMultibrand
+        ? MULTIBRAND_NAMES[Math.floor(Math.random()*MULTIBRAND_NAMES.length)] + " " + city.name
+        : "ŠKODA " + DEALER_SUFFIXES[Math.floor(Math.random()*DEALER_SUFFIXES.length)] + " " + city.name,
+      city: city.name,
+      country: country.code,
+      countryName: country.name,
+      address: city.address || `${city.name}, ${country.name}`,
+      lat: city.lat + (Math.random()-0.5)*0.05,
+      lng: city.lng + (Math.random()-0.5)*0.05,
+      rating: parseFloat(rating),
+      reviewCount,
+      negativePercent: negPct,
+      trend: parseFloat(trend),
+      isMultibrand,
+      brands: isMultibrand ? ["ŠKODA", ...EXTRA_BRANDS.sort(()=>Math.random()-0.5).slice(0,Math.floor(1+Math.random()*3))] : ["ŠKODA"],
+      placeId: `ChIJ${Math.random().toString(36).substr(2,12)}`,
+      phone: city.phone || "+00 000 000 000",
+      website: `https://www.skoda-${city.name.toLowerCase().replace(/\s/g,"-")}.${country.code.toLowerCase()}`,
+      sentiments,
+      alerts,
+      recentReviews,
+      monthlyData: generateMonthlyData(parseFloat(rating)),
+    });
+  }
+  return dealers;
+}
+
+const MULTIBRAND_NAMES = ["Auto Palace", "Auto Centrum", "Koch Gruppe", "Motor Group", "PIA Store", "Car Lovers", "Autohaus Westend", "Motorpark", "Citygate", "Marshall", "Euro Motors", "Central Auto"];
+const DEALER_SUFFIXES = ["Zentrum", "Center", "Autohaus", "Salon", "Service", "Plus", "Direct", "Motors", "Auto"];
+const EXTRA_BRANDS = ["VW", "Audi", "SEAT", "Cupra", "Mazda", "Toyota", "Citroën", "Peugeot", "Renault"];
+
+function generateReviews(city, cc, rating) {
+  const templates = [
+    { stars: 5, text: `Excellent service at the ${city} dealership. Staff was very professional and helpful.` },
+    { stars: 5, text: `Bought my new Enyaq here. The sales team explained everything perfectly. Highly recommended!` },
+    { stars: 4, text: `Good experience overall. Service was quick, though communication could be better.` },
+    { stars: 4, text: `Nice showroom, friendly staff. Waiting time for service appointment was a bit long.` },
+    { stars: 3, text: `Average experience. The car was serviced well but the reception was quite cold.` },
+    { stars: 2, text: `Disappointed with the service. Had to wait 3 weeks for a simple repair appointment.` },
+    { stars: 1, text: `Terrible experience. Nobody spoke English, very rude staff. Will never come back.` },
+    { stars: 5, text: `Best dealer experience I've ever had. Mr. ${["Novák","Schmidt","Kowalski","Smith","García"][Math.floor(Math.random()*5)]} went above and beyond.` },
+    { stars: 3, text: `The service itself was fine but overpriced compared to independent garages.` },
+    { stars: 1, text: `Brought my car for warranty repair. They kept it for 2 weeks and the issue wasn't even fixed.` },
+  ];
+
+  const count = 5 + Math.floor(Math.random() * 5);
+  const reviews = [];
+  for (let i = 0; i < count; i++) {
+    const tpl = templates[Math.floor(Math.random() * templates.length)];
+    const daysAgo = Math.floor(Math.random() * 90);
+    const date = new Date(Date.now() - daysAgo * 86400000);
+    reviews.push({
+      id: `${cc}-r${i}`,
+      stars: Math.min(5, Math.max(1, tpl.stars + (rating > 4 ? 1 : rating < 3.5 ? -1 : 0) * (Math.random() > 0.5 ? 1 : 0))),
+      text: tpl.text,
+      date: date.toISOString().split("T")[0],
+      daysAgo,
+      author: `User${Math.floor(Math.random()*9000+1000)}`,
+    });
+  }
+  return reviews.sort((a,b) => a.daysAgo - b.daysAgo);
+}
+
+function generateMonthlyData(rating) {
+  const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
+  return months.map((m, i) => ({
+    month: m,
+    avgRating: Math.max(2.5, Math.min(5, rating + (Math.random()-0.5)*0.6 - (5-i)*0.03)).toFixed(2),
+    reviews: Math.floor(30 + Math.random() * 120),
+    negative: Math.floor(3 + Math.random() * 15),
+  }));
+}
+
+const CITY_DATA = {
+  CZ: [
+    { name: "Praha", lat: 50.08, lng: 14.44 }, { name: "Brno", lat: 49.19, lng: 16.61 },
+    { name: "Ostrava", lat: 49.82, lng: 18.29 }, { name: "Plzeň", lat: 49.74, lng: 13.37 },
+    { name: "Liberec", lat: 50.77, lng: 15.06 }, { name: "Olomouc", lat: 49.59, lng: 17.25 },
+    { name: "České Budějovice", lat: 48.97, lng: 14.47 }, { name: "Hradec Králové", lat: 50.21, lng: 15.83 },
+    { name: "Pardubice", lat: 50.04, lng: 15.78 }, { name: "Zlín", lat: 49.22, lng: 17.66 },
+  ],
+  DE: [
+    { name: "Berlin", lat: 52.52, lng: 13.40 }, { name: "München", lat: 48.14, lng: 11.58 },
+    { name: "Hamburg", lat: 53.55, lng: 9.99 }, { name: "Frankfurt", lat: 50.11, lng: 8.68 },
+    { name: "Köln", lat: 50.94, lng: 6.96 }, { name: "Stuttgart", lat: 48.78, lng: 9.18 },
+    { name: "Düsseldorf", lat: 51.23, lng: 6.78 }, { name: "Dresden", lat: 51.05, lng: 13.74 },
+    { name: "Leipzig", lat: 51.34, lng: 12.37 }, { name: "Hannover", lat: 52.37, lng: 9.74 },
+    { name: "Nürnberg", lat: 49.45, lng: 11.08 }, { name: "Bremen", lat: 53.08, lng: 8.80 },
+  ],
+  PL: [
+    { name: "Warszawa", lat: 52.23, lng: 21.01 }, { name: "Kraków", lat: 50.06, lng: 19.94 },
+    { name: "Wrocław", lat: 51.11, lng: 17.04 }, { name: "Poznań", lat: 52.41, lng: 16.93 },
+    { name: "Gdańsk", lat: 54.35, lng: 18.65 }, { name: "Łódź", lat: 51.77, lng: 19.45 },
+    { name: "Katowice", lat: 50.26, lng: 19.03 }, { name: "Szczecin", lat: 53.43, lng: 14.55 },
+    { name: "Lublin", lat: 51.25, lng: 22.57 }, { name: "Bydgoszcz", lat: 53.12, lng: 18.00 },
+  ],
+  GB: [
+    { name: "London", lat: 51.51, lng: -0.13 }, { name: "Birmingham", lat: 52.49, lng: -1.89 },
+    { name: "Manchester", lat: 53.48, lng: -2.24 }, { name: "Glasgow", lat: 55.86, lng: -4.25 },
+    { name: "Leeds", lat: 53.80, lng: -1.55 }, { name: "Bristol", lat: 51.45, lng: -2.59 },
+    { name: "Edinburgh", lat: 55.95, lng: -3.19 }, { name: "Cardiff", lat: 51.48, lng: -3.18 },
+    { name: "Liverpool", lat: 53.41, lng: -2.98 }, { name: "Newcastle", lat: 54.98, lng: -1.62 },
+  ],
+  FR: [
+    { name: "Paris", lat: 48.86, lng: 2.35 }, { name: "Lyon", lat: 45.76, lng: 4.84 },
+    { name: "Marseille", lat: 43.30, lng: 5.37 }, { name: "Toulouse", lat: 43.60, lng: 1.44 },
+    { name: "Nice", lat: 43.71, lng: 7.26 }, { name: "Nantes", lat: 47.22, lng: -1.55 },
+    { name: "Strasbourg", lat: 48.57, lng: 7.75 }, { name: "Bordeaux", lat: 44.84, lng: -0.58 },
+    { name: "Lille", lat: 50.63, lng: 3.06 }, { name: "Rennes", lat: 48.11, lng: -1.68 },
+  ],
+  ES: [
+    { name: "Madrid", lat: 40.42, lng: -3.70 }, { name: "Barcelona", lat: 41.39, lng: 2.17 },
+    { name: "Valencia", lat: 39.47, lng: -0.38 }, { name: "Sevilla", lat: 37.39, lng: -5.98 },
+    { name: "Bilbao", lat: 43.26, lng: -2.93 }, { name: "Málaga", lat: 36.72, lng: -4.42 },
+    { name: "Zaragoza", lat: 41.65, lng: -0.88 }, { name: "Palma", lat: 39.57, lng: 2.65 },
+  ],
+  IT: [
+    { name: "Milano", lat: 45.46, lng: 9.19 }, { name: "Roma", lat: 41.90, lng: 12.50 },
+    { name: "Torino", lat: 45.07, lng: 7.69 }, { name: "Firenze", lat: 43.77, lng: 11.25 },
+    { name: "Bologna", lat: 44.49, lng: 11.34 }, { name: "Napoli", lat: 40.85, lng: 14.27 },
+    { name: "Verona", lat: 45.44, lng: 10.99 }, { name: "Padova", lat: 45.41, lng: 11.88 },
+  ],
+  AT: [
+    { name: "Wien", lat: 48.21, lng: 16.37 }, { name: "Graz", lat: 47.07, lng: 15.44 },
+    { name: "Linz", lat: 48.31, lng: 14.29 }, { name: "Salzburg", lat: 47.80, lng: 13.04 },
+    { name: "Innsbruck", lat: 47.26, lng: 11.39 }, { name: "Klagenfurt", lat: 46.62, lng: 14.31 },
+  ],
+  SK: [
+    { name: "Bratislava", lat: 48.15, lng: 17.11 }, { name: "Košice", lat: 48.72, lng: 21.26 },
+    { name: "Žilina", lat: 49.22, lng: 18.74 }, { name: "Banská Bystrica", lat: 48.74, lng: 19.15 },
+    { name: "Nitra", lat: 48.31, lng: 18.09 }, { name: "Prešov", lat: 48.99, lng: 21.24 },
+  ],
+  CH: [
+    { name: "Zürich", lat: 47.38, lng: 8.54 }, { name: "Bern", lat: 46.95, lng: 7.45 },
+    { name: "Basel", lat: 47.56, lng: 7.59 }, { name: "Genève", lat: 46.20, lng: 6.14 },
+    { name: "Lausanne", lat: 46.52, lng: 6.63 },
+  ],
+  NL: [
+    { name: "Amsterdam", lat: 52.37, lng: 4.90 }, { name: "Rotterdam", lat: 51.92, lng: 4.48 },
+    { name: "Den Haag", lat: 52.08, lng: 4.30 }, { name: "Utrecht", lat: 52.09, lng: 5.12 },
+    { name: "Eindhoven", lat: 51.44, lng: 5.47 },
+  ],
+  SE: [
+    { name: "Stockholm", lat: 59.33, lng: 18.07 }, { name: "Göteborg", lat: 57.71, lng: 11.97 },
+    { name: "Malmö", lat: 55.60, lng: 13.00 }, { name: "Uppsala", lat: 59.86, lng: 17.64 },
+  ],
+  NO: [
+    { name: "Oslo", lat: 59.91, lng: 10.75 }, { name: "Bergen", lat: 60.39, lng: 5.32 },
+    { name: "Trondheim", lat: 63.43, lng: 10.40 }, { name: "Stavanger", lat: 58.97, lng: 5.73 },
+  ],
+  DK: [
+    { name: "København", lat: 55.68, lng: 12.57 }, { name: "Aarhus", lat: 56.16, lng: 10.20 },
+    { name: "Odense", lat: 55.40, lng: 10.39 }, { name: "Aalborg", lat: 57.05, lng: 9.92 },
+  ],
+  HU: [
+    { name: "Budapest", lat: 47.50, lng: 19.04 }, { name: "Debrecen", lat: 47.53, lng: 21.63 },
+    { name: "Szeged", lat: 46.25, lng: 20.15 }, { name: "Pécs", lat: 46.07, lng: 18.23 },
+  ],
+  RO: [
+    { name: "București", lat: 44.43, lng: 26.10 }, { name: "Cluj-Napoca", lat: 46.77, lng: 23.60 },
+    { name: "Timișoara", lat: 45.76, lng: 21.23 }, { name: "Iași", lat: 47.16, lng: 27.59 },
+  ],
+  TR: [
+    { name: "İstanbul", lat: 41.01, lng: 28.98 }, { name: "Ankara", lat: 39.93, lng: 32.86 },
+    { name: "İzmir", lat: 38.42, lng: 27.14 }, { name: "Antalya", lat: 36.90, lng: 30.69 },
+  ],
+};
+
+// Fill missing countries with generic capital data
+EUROPEAN_COUNTRIES.forEach(c => {
+  if (!CITY_DATA[c.code]) {
+    CITY_DATA[c.code] = [{ name: c.nameLocal, lat: 48 + Math.random()*12, lng: 5 + Math.random()*20 }];
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════════════════════════════
+
+const Badge = ({ children, color = SKODA_GREEN, style = {} }) => (
+  <span style={{
+    display: "inline-flex", alignItems: "center", gap: 4,
+    padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600,
+    background: color + "22", color, border: `1px solid ${color}44`,
+    ...style,
+  }}>{children}</span>
+);
+
+const Stat = ({ label, value, sub, alert }) => (
+  <div style={{
+    background: SURFACE_2, borderRadius: 8, padding: "14px 16px",
+    border: `1px solid ${alert ? ALERT_RED + "44" : BORDER}`,
+    minWidth: 140, flex: 1,
+  }}>
+    <div style={{ fontSize: 11, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 26, fontWeight: 700, color: alert ? ALERT_RED : TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+    {sub && <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{sub}</div>}
+  </div>
+);
+
+const StarRating = ({ rating, size = 14 }) => {
+  const full = Math.floor(rating);
+  const partial = rating - full;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+      {[...Array(5)].map((_, i) => (
+        <span key={i} style={{
+          fontSize: size,
+          color: i < full ? "#FFD700" : i === full && partial > 0 ? "#FFD700" : "#444",
+          opacity: i === full && partial > 0 ? 0.3 + partial * 0.7 : 1,
+        }}>★</span>
+      ))}
+    </span>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════════════════════════════
+
+function SkodaDealerDashboard() {
+  const [activeTab, setActiveTab] = useState("admin");
+  const [selectedCountries, setSelectedCountries] = useState(new Set(["CZ"]));
+  const [importedData, setImportedData] = useState({});
+  const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(null);
+  const [regionFilter, setRegionFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDealer, setSelectedDealer] = useState(null);
+  const [sortBy, setSortBy] = useState("rating");
+  const [sortDir, setSortDir] = useState("desc");
+  const [alertFilter, setAlertFilter] = useState("all");
+  const [countryFilter, setCountryFilter] = useState("all");
+
+  // All imported dealers flat
+  const allDealers = useMemo(() => {
+    return Object.values(importedData).flat();
+  }, [importedData]);
+
+  const importedCountryCodes = useMemo(() => new Set(Object.keys(importedData)), [importedData]);
+
+  // Stats
+  const stats = useMemo(() => {
+    if (!allDealers.length) return { avg: 0, total: 0, alerts: 0, neg: 0, countries: 0, dealers: 0 };
+    const avg = (allDealers.reduce((s, d) => s + d.rating, 0) / allDealers.length).toFixed(2);
+    const totalReviews = allDealers.reduce((s, d) => s + d.reviewCount, 0);
+    const alerts = allDealers.reduce((s, d) => s + d.alerts.length, 0);
+    const neg = (allDealers.reduce((s, d) => s + d.negativePercent, 0) / allDealers.length).toFixed(1);
+    return { avg, total: totalReviews, alerts, neg, countries: importedCountryCodes.size, dealers: allDealers.length };
+  }, [allDealers, importedCountryCodes]);
+
+  // Filtered dealers for overview
+  const filteredDealers = useMemo(() => {
+    let d = [...allDealers];
+    if (countryFilter !== "all") d = d.filter(dl => dl.country === countryFilter);
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      d = d.filter(dl => dl.name.toLowerCase().includes(q) || dl.city.toLowerCase().includes(q) || dl.countryName.toLowerCase().includes(q));
+    }
+    if (alertFilter === "critical") d = d.filter(dl => dl.alerts.some(a => a.severity === "critical"));
+    else if (alertFilter === "high") d = d.filter(dl => dl.alerts.some(a => a.severity === "high" || a.severity === "critical"));
+    else if (alertFilter === "any") d = d.filter(dl => dl.alerts.length > 0);
+
+    d.sort((a, b) => {
+      const mul = sortDir === "desc" ? -1 : 1;
+      if (sortBy === "rating") return mul * (a.rating - b.rating);
+      if (sortBy === "reviews") return mul * (a.reviewCount - b.reviewCount);
+      if (sortBy === "negative") return mul * (a.negativePercent - b.negativePercent);
+      if (sortBy === "trend") return mul * (a.trend - b.trend);
+      if (sortBy === "alerts") return mul * (a.alerts.length - b.alerts.length);
+      return 0;
+    });
+    return d;
+  }, [allDealers, countryFilter, searchQuery, sortBy, sortDir, alertFilter]);
+
+  // Import handler
+  const handleImport = useCallback(async () => {
+    const toImport = [...selectedCountries].filter(c => !importedCountryCodes.has(c));
+    if (!toImport.length) return;
+    setImporting(true);
+    const newData = { ...importedData };
+
+    for (let i = 0; i < toImport.length; i++) {
+      const cc = toImport[i];
+      const country = EUROPEAN_COUNTRIES.find(c => c.code === cc);
+      setImportProgress({ current: i + 1, total: toImport.length, country: country.name });
+      await new Promise(r => setTimeout(r, 300 + Math.random() * 400));
+      newData[cc] = generateDealerData(country);
+    }
+
+    setImportedData(newData);
+    setImporting(false);
+    setImportProgress(null);
+  }, [selectedCountries, importedCountryCodes, importedData]);
+
+  const handleRemoveCountry = (code) => {
+    const newData = { ...importedData };
+    delete newData[code];
+    setImportedData(newData);
+  };
+
+  const toggleCountry = (code) => {
+    const next = new Set(selectedCountries);
+    next.has(code) ? next.delete(code) : next.add(code);
+    setSelectedCountries(next);
+  };
+
+  const selectRegion = (region) => {
+    const next = new Set(selectedCountries);
+    EUROPEAN_COUNTRIES.filter(c => region === "All" || c.region === region).forEach(c => next.add(c.code));
+    setSelectedCountries(next);
+  };
+
+  const tabs = [
+    { id: "admin", label: "⚙ Admin", sub: "Import & Config" },
+    { id: "alerts", label: "🔔 Alerts", sub: `${stats.alerts} active`, alert: stats.alerts > 0 },
+    { id: "overview", label: "📊 Overview", sub: `${stats.dealers} dealers` },
+    { id: "sentiment", label: "🧠 Sentiment", sub: "AI Analysis" },
+    { id: "benchmark", label: "📈 Benchmark", sub: "Compare" },
+  ];
+
+  return (
+    <div style={{
+      background: SKODA_DARK, color: TEXT, minHeight: "100vh",
+      fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: ${SKODA_DARK}; }
+        ::-webkit-scrollbar-thumb { background: ${BORDER}; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${SKODA_GREEN}44; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .dealer-row:hover { background: ${SURFACE_3} !important; }
+        .tab-btn { transition: all 0.2s; cursor: pointer; border: none; }
+        .tab-btn:hover { background: ${SURFACE_3} !important; }
+        input, select { background: ${SURFACE}; color: ${TEXT}; border: 1px solid ${BORDER}; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-size: 13px; outline: none; }
+        input:focus, select:focus { border-color: ${SKODA_GREEN}; }
+      `}</style>
+
+      {/* ── HEADER ── */}
+      <div style={{
+        background: SURFACE, borderBottom: `1px solid ${BORDER}`,
+        padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between",
+        position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 8,
+            background: `linear-gradient(135deg, ${SKODA_GREEN}, ${SKODA_ACCENT})`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 800, fontSize: 16, color: "#fff",
+          }}>Š</div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>ŠKODA Dealer Reviews</div>
+            <div style={{ fontSize: 11, color: TEXT_DIM }}>Europe-wide monitoring dashboard · PoC</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {importedCountryCodes.size > 0 && (
+            <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <Stat label="Countries" value={stats.countries} />
+              <Stat label="Dealers" value={stats.dealers} />
+              <Stat label="Avg Rating" value={`${stats.avg}★`} />
+              <Stat label="Alerts" value={stats.alerts} alert={stats.alerts > 5} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── TABS ── */}
+      <div style={{
+        display: "flex", gap: 2, padding: "8px 24px", background: SURFACE,
+        borderBottom: `1px solid ${BORDER}`, overflowX: "auto",
+      }}>
+        {tabs.map(t => (
+          <button key={t.id} className="tab-btn" onClick={() => setActiveTab(t.id)} style={{
+            padding: "10px 20px", borderRadius: 6,
+            background: activeTab === t.id ? SKODA_GREEN + "22" : "transparent",
+            color: activeTab === t.id ? SKODA_GREEN : TEXT_DIM,
+            display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2,
+            borderLeft: activeTab === t.id ? `3px solid ${SKODA_GREEN}` : "3px solid transparent",
+          }}>
+            <span style={{ fontWeight: 600, fontSize: 13 }}>{t.label}</span>
+            <span style={{ fontSize: 10, color: t.alert ? ALERT_RED : TEXT_DIM,
+              animation: t.alert ? "pulse 2s infinite" : "none" }}>{t.sub}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ── CONTENT ── */}
+      <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
+        {activeTab === "admin" && <AdminPanel
+          countries={EUROPEAN_COUNTRIES}
+          selected={selectedCountries}
+          imported={importedCountryCodes}
+          importedData={importedData}
+          toggle={toggleCountry}
+          selectRegion={selectRegion}
+          onImport={handleImport}
+          onRemove={handleRemoveCountry}
+          importing={importing}
+          progress={importProgress}
+          regionFilter={regionFilter}
+          setRegionFilter={setRegionFilter}
+          setSelected={setSelectedCountries}
+        />}
+        {activeTab === "alerts" && <AlertsPanel dealers={allDealers} onSelectDealer={setSelectedDealer} setActiveTab={setActiveTab} />}
+        {activeTab === "overview" && <OverviewPanel
+          dealers={filteredDealers}
+          allDealers={allDealers}
+          importedData={importedData}
+          search={searchQuery}
+          setSearch={setSearchQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortDir={sortDir}
+          setSortDir={setSortDir}
+          alertFilter={alertFilter}
+          setAlertFilter={setAlertFilter}
+          countryFilter={countryFilter}
+          setCountryFilter={setCountryFilter}
+          onSelectDealer={(d) => { setSelectedDealer(d); setActiveTab("benchmark"); }}
+        />}
+        {activeTab === "sentiment" && <SentimentPanel dealers={allDealers} />}
+        {activeTab === "benchmark" && <BenchmarkPanel dealers={allDealers} selected={selectedDealer} onSelect={setSelectedDealer} />}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function AdminPanel({ countries, selected, imported, importedData, toggle, selectRegion, onImport, onRemove, importing, progress, regionFilter, setRegionFilter, setSelected }) {
+  const toImport = [...selected].filter(c => !imported.has(c));
+  const filtered = regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Import Status */}
+      {imported.size > 0 && (
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: SKODA_GREEN, marginBottom: 12 }}>
+            ✓ Imported Data ({imported.size} countries, {Object.values(importedData).flat().length} dealers)
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {[...imported].map(code => {
+              const c = countries.find(x => x.code === code);
+              const dealers = importedData[code] || [];
+              return (
+                <div key={code} style={{
+                  background: SURFACE_3, borderRadius: 6, padding: "8px 12px",
+                  border: `1px solid ${SKODA_GREEN}44`, display: "flex", alignItems: "center", gap: 8,
+                  fontSize: 12,
+                }}>
+                  <span>{c?.flag}</span>
+                  <span style={{ fontWeight: 600 }}>{c?.name}</span>
+                  <span style={{ color: TEXT_DIM }}>{dealers.length} dealers</span>
+                  <button onClick={() => onRemove(code)} style={{
+                    background: "transparent", border: "none", color: ALERT_RED,
+                    cursor: "pointer", fontSize: 14, padding: "0 4px", lineHeight: 1,
+                  }}>×</button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Region filter + batch actions */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontSize: 12, color: TEXT_DIM, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>Region:</span>
+        {REGIONS.map(r => (
+          <button key={r} onClick={() => setRegionFilter(r)} style={{
+            padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+            background: regionFilter === r ? SKODA_GREEN + "22" : SURFACE_2,
+            color: regionFilter === r ? SKODA_GREEN : TEXT_DIM,
+            border: `1px solid ${regionFilter === r ? SKODA_GREEN + "44" : BORDER}`,
+            cursor: "pointer",
+          }}>{r}</button>
+        ))}
+        <div style={{ flex: 1 }} />
+        <button onClick={() => selectRegion(regionFilter)} style={{
+          padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+          background: SURFACE_2, color: SKODA_ACCENT, border: `1px solid ${BORDER}`,
+          cursor: "pointer",
+        }}>+ Select all {regionFilter}</button>
+        <button onClick={() => setSelected(new Set())} style={{
+          padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+          background: SURFACE_2, color: TEXT_DIM, border: `1px solid ${BORDER}`,
+          cursor: "pointer",
+        }}>Clear selection</button>
+      </div>
+
+      {/* Country grid */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+        gap: 8,
+      }}>
+        {filtered.map(c => {
+          const isSelected = selected.has(c.code);
+          const isImported = imported.has(c.code);
+          return (
+            <button key={c.code} onClick={() => !isImported && toggle(c.code)} style={{
+              background: isImported ? SKODA_GREEN + "11" : isSelected ? SURFACE_3 : SURFACE_2,
+              borderRadius: 8,
+              padding: "12px 14px",
+              border: `1px solid ${isImported ? SKODA_GREEN + "44" : isSelected ? SKODA_GREEN + "66" : BORDER}`,
+              cursor: isImported ? "default" : "pointer",
+              display: "flex", alignItems: "center", gap: 10,
+              transition: "all 0.15s",
+              textAlign: "left",
+              color: TEXT,
+              fontFamily: "inherit",
+            }}>
+              <span style={{ fontSize: 22 }}>{c.flag}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
+                <div style={{ fontSize: 11, color: TEXT_DIM }}>~{c.dealers} dealers · {c.region}</div>
+              </div>
+              <div style={{ fontSize: 18 }}>
+                {isImported ? <span style={{ color: SKODA_GREEN }}>✓</span>
+                  : isSelected ? <span style={{
+                    width: 18, height: 18, borderRadius: 4,
+                    background: SKODA_GREEN, display: "inline-flex",
+                    alignItems: "center", justifyContent: "center",
+                    fontSize: 12, color: "#fff",
+                  }}>✓</span>
+                  : <span style={{
+                    width: 18, height: 18, borderRadius: 4,
+                    border: `2px solid ${BORDER}`, display: "inline-block",
+                  }} />}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Import button */}
+      <div style={{
+        position: "sticky", bottom: 0, padding: "16px 0",
+        background: `linear-gradient(transparent, ${SKODA_DARK} 30%)`,
+        display: "flex", alignItems: "center", gap: 16,
+      }}>
+        <button onClick={onImport} disabled={importing || !toImport.length} style={{
+          padding: "14px 32px", borderRadius: 8, fontSize: 14, fontWeight: 700,
+          background: toImport.length ? `linear-gradient(135deg, ${SKODA_GREEN}, ${SKODA_ACCENT})` : SURFACE_3,
+          color: toImport.length ? "#fff" : TEXT_DIM,
+          border: "none", cursor: toImport.length ? "pointer" : "default",
+          opacity: importing ? 0.7 : 1,
+          fontFamily: "inherit",
+        }}>
+          {importing
+            ? `Importing ${progress?.country}... (${progress?.current}/${progress?.total})`
+            : toImport.length
+              ? `▶ Import ${toImport.length} ${toImport.length === 1 ? "country" : "countries"}`
+              : imported.size > 0 ? "All selected countries imported ✓" : "Select countries to import"}
+        </button>
+        {importing && (
+          <div style={{ flex: 1, height: 6, background: SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
+            <div style={{
+              height: "100%", background: SKODA_GREEN, borderRadius: 3,
+              width: `${(progress?.current / progress?.total) * 100}%`,
+              transition: "width 0.3s",
+            }} />
+          </div>
+        )}
+        {toImport.length > 0 && !importing && (
+          <span style={{ fontSize: 12, color: TEXT_DIM }}>
+            Est. {toImport.length * 3}-{toImport.length * 8} API calls · ~${(toImport.length * 0.08).toFixed(2)} cost
+          </span>
+        )}
+      </div>
+
+      {/* API Config info */}
+      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>📡 Data Source Configuration</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12, color: TEXT_DIM }}>
+          <div>
+            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>Google Places API</div>
+            <div>Dealer metadata, ratings, GPS, 5 reviews</div>
+            <div style={{ color: ALERT_YELLOW }}>⚠ Max 5 reviews per place</div>
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>Reviews API (Outscraper/SerpAPI)</div>
+            <div>Full review extraction, unlimited reviews</div>
+            <div style={{ color: SKODA_GREEN }}>✓ Recommended for production</div>
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>Refresh interval</div>
+            <div>Daily scan for new reviews</div>
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>AI Sentiment Engine</div>
+            <div>Claude API for review classification</div>
+          </div>
+        </div>
+        <div style={{ marginTop: 12, padding: "8px 12px", background: SKODA_GREEN + "11", borderRadius: 6, fontSize: 11, color: SKODA_GREEN }}>
+          PoC Mode: Using simulated data based on real Google Places API structure. Production version would connect to live APIs.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ALERTS PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
+  const alertDealers = dealers
+    .filter(d => d.alerts.length > 0)
+    .sort((a, b) => {
+      const sev = { critical: 3, high: 2, medium: 1 };
+      const maxA = Math.max(...a.alerts.map(al => sev[al.severity] || 0));
+      const maxB = Math.max(...b.alerts.map(al => sev[al.severity] || 0));
+      return maxB - maxA;
+    });
+
+  const criticalCount = alertDealers.filter(d => d.alerts.some(a => a.severity === "critical")).length;
+  const highCount = alertDealers.filter(d => d.alerts.some(a => a.severity === "high")).length;
+
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", gap: 12 }}>
+        <Stat label="Critical" value={criticalCount} alert={criticalCount > 0} />
+        <Stat label="High" value={highCount} alert={highCount > 0} />
+        <Stat label="Total alerts" value={alertDealers.length} />
+        <Stat label="Clean dealers" value={dealers.length - alertDealers.length} sub={`${((1 - alertDealers.length/dealers.length)*100).toFixed(0)}% of network`} />
+      </div>
+
+      {/* Recent negative reviews */}
+      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: ALERT_RED }}>🔴 Recent Negative Reviews (last 7 days)</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
+          {dealers.flatMap(d => d.recentReviews.filter(r => r.stars <= 2 && r.daysAgo <= 7).map(r => ({ ...r, dealer: d })))
+            .sort((a, b) => a.daysAgo - b.daysAgo)
+            .slice(0, 15)
+            .map((r, i) => (
+              <div key={i} style={{
+                background: SURFACE_3, borderRadius: 6, padding: "10px 14px",
+                borderLeft: `3px solid ${r.stars === 1 ? ALERT_RED : ALERT_ORANGE}`,
+                animation: `slideIn 0.3s ease ${i * 0.05}s both`,
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <StarRating rating={r.stars} size={12} />
+                    <span style={{ fontWeight: 600, fontSize: 12 }}>{r.dealer.name}</span>
+                    <Badge color={TEXT_DIM}>{r.dealer.countryName}</Badge>
+                  </div>
+                  <span style={{ fontSize: 11, color: TEXT_DIM }}>{r.daysAgo === 0 ? "Today" : `${r.daysAgo}d ago`}</span>
+                </div>
+                <div style={{ fontSize: 12, color: TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: SKODA_GREEN + "22", color: SKODA_GREEN, border: `1px solid ${SKODA_GREEN}44`, cursor: "pointer", fontFamily: "inherit" }}>Respond</button>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: ALERT_RED + "22", color: ALERT_RED, border: `1px solid ${ALERT_RED}44`, cursor: "pointer", fontFamily: "inherit" }}>Escalate</button>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Dealers requiring attention */}
+      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>⚠ Dealers Requiring Attention</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 400, overflowY: "auto" }}>
+          {alertDealers.slice(0, 20).map((d, i) => (
+            <div key={d.id} className="dealer-row" onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }}
+              style={{
+                background: SURFACE, borderRadius: 6, padding: "10px 14px",
+                display: "flex", alignItems: "center", gap: 12, cursor: "pointer",
+                animation: `slideIn 0.3s ease ${i * 0.03}s both`,
+              }}>
+              <div style={{ fontWeight: 700, fontSize: 16, width: 50, textAlign: "center", color: d.rating < 3.5 ? ALERT_RED : d.rating < 4.0 ? ALERT_ORANGE : TEXT, fontFamily: "'JetBrains Mono', monospace" }}>
+                {d.rating}★
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
+                <div style={{ fontSize: 11, color: TEXT_DIM }}>{d.city}, {d.countryName} · {d.reviewCount} reviews</div>
+              </div>
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                {d.alerts.map((a, j) => (
+                  <Badge key={j} color={a.severity === "critical" ? ALERT_RED : a.severity === "high" ? ALERT_ORANGE : ALERT_YELLOW}>
+                    {a.text}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OVERVIEW PANEL (Enhanced)
+// ═══════════════════════════════════════════════════════════════
+
+function MiniSparkline({ data, width = 60, height = 20, color = SKODA_GREEN }) {
+  if (!data || data.length < 2) return null;
+  const values = data.map(d => parseFloat(d.avgRating));
+  const min = Math.min(...values) - 0.2;
+  const max = Math.max(...values) + 0.2;
+  const range = max - min || 1;
+  const points = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * width;
+    const y = height - ((v - min) / range) * height;
+    return `${x},${y}`;
+  }).join(" ");
+  return (
+    <svg width={width} height={height} style={{ display: "block" }}>
+      <polyline points={points} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={parseFloat(points.split(" ").pop().split(",")[0])} cy={parseFloat(points.split(" ").pop().split(",")[1])} r={2} fill={color} />
+    </svg>
+  );
+}
+
+function RatingBar({ rating, maxRating = 5, width = 80 }) {
+  const pct = (rating / maxRating) * 100;
+  const color = rating >= 4.5 ? SKODA_GREEN : rating >= 4.0 ? SKODA_ACCENT : rating >= 3.5 ? ALERT_YELLOW : rating >= 3.0 ? ALERT_ORANGE : ALERT_RED;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color, minWidth: 32 }}>
+        {rating}
+      </span>
+      <div style={{ width, height: 6, background: SURFACE, borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.5s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+function NegativeBar({ percent }) {
+  const color = percent > 20 ? ALERT_RED : percent > 12 ? ALERT_ORANGE : percent > 6 ? ALERT_YELLOW : SKODA_GREEN;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <div style={{ width: 44, height: 6, background: SURFACE, borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ width: `${Math.min(percent, 100)}%`, height: "100%", background: color, borderRadius: 3 }} />
+      </div>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color, minWidth: 28 }}>{percent}%</span>
+    </div>
+  );
+}
+
+function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, sortBy, setSortBy, sortDir, setSortDir, alertFilter, setAlertFilter, countryFilter, setCountryFilter, onSelectDealer }) {
+  const [expandedDealer, setExpandedDealer] = useState(null);
+  const [viewMode, setViewMode] = useState("table"); // table | cards
+
+  if (!allDealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+      <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
+    </div>
+  );
+
+  // ── Country aggregates ──
+  const byCountry = {};
+  allDealers.forEach(d => {
+    if (!byCountry[d.country]) {
+      const c = EUROPEAN_COUNTRIES.find(x => x.code === d.country);
+      byCountry[d.country] = { name: d.countryName, code: d.country, flag: c?.flag || "🏳", dealers: 0, totalReviews: 0, ratings: [], negatives: [], alertCount: 0 };
+    }
+    byCountry[d.country].dealers++;
+    byCountry[d.country].ratings.push(d.rating);
+    byCountry[d.country].negatives.push(d.negativePercent);
+    byCountry[d.country].totalReviews += d.reviewCount;
+    byCountry[d.country].alertCount += d.alerts.length;
+  });
+  Object.values(byCountry).forEach(c => {
+    c.avgRating = parseFloat((c.ratings.reduce((s,r)=>s+r,0)/c.ratings.length).toFixed(2));
+    c.avgNeg = parseFloat((c.negatives.reduce((s,n)=>s+n,0)/c.negatives.length).toFixed(1));
+  });
+  const countryData = Object.values(byCountry).sort((a,b) => b.avgRating - a.avgRating);
+
+  // ── Rating distribution ──
+  const ratingBuckets = [
+    { range: "4.5–5.0", min: 4.5, max: 5.01, color: SKODA_GREEN },
+    { range: "4.0–4.4", min: 4.0, max: 4.5, color: SKODA_ACCENT },
+    { range: "3.5–3.9", min: 3.5, max: 4.0, color: ALERT_YELLOW },
+    { range: "3.0–3.4", min: 3.0, max: 3.5, color: ALERT_ORANGE },
+    { range: "< 3.0", min: 0, max: 3.0, color: ALERT_RED },
+  ];
+  const distribution = ratingBuckets.map(b => ({
+    ...b,
+    count: allDealers.filter(d => d.rating >= b.min && d.rating < b.max).length,
+  }));
+
+  // ── Monthly aggregated trend ──
+  const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
+  const monthlyTrend = months.map((m, i) => {
+    const monthData = allDealers.map(d => d.monthlyData[i]);
+    const avgRating = parseFloat((monthData.reduce((s,md) => s + parseFloat(md.avgRating), 0) / monthData.length).toFixed(2));
+    const totalReviews = monthData.reduce((s,md) => s + md.reviews, 0);
+    const totalNeg = monthData.reduce((s,md) => s + md.negative, 0);
+    return { month: m, avgRating, reviews: totalReviews, negative: totalNeg, negPct: parseFloat((totalNeg / totalReviews * 100).toFixed(1)) };
+  });
+
+  // ── Filtered stats ──
+  const fStats = {
+    avg: dealers.length ? (dealers.reduce((s,d) => s+d.rating, 0) / dealers.length).toFixed(2) : "0",
+    reviews: dealers.reduce((s,d) => s+d.reviewCount, 0),
+    alerts: dealers.reduce((s,d) => s+d.alerts.length, 0),
+    multibrand: dealers.filter(d => d.isMultibrand).length,
+    negAvg: dealers.length ? (dealers.reduce((s,d) => s+d.negativePercent, 0) / dealers.length).toFixed(1) : "0",
+  };
+
+  const toggleSort = (col) => {
+    if (sortBy === col) setSortDir(sortDir === "desc" ? "asc" : "desc");
+    else { setSortBy(col); setSortDir("desc"); }
+  };
+
+  const SortHeader = ({ col, label, align = "left" }) => (
+    <th onClick={() => toggleSort(col)} style={{
+      padding: "10px 10px", textAlign: align, fontSize: 10, fontWeight: 700,
+      color: sortBy === col ? SKODA_GREEN : TEXT_DIM, cursor: "pointer",
+      textTransform: "uppercase", letterSpacing: 0.8, userSelect: "none",
+      borderBottom: `2px solid ${sortBy === col ? SKODA_GREEN : BORDER}`,
+      whiteSpace: "nowrap", transition: "all 0.15s",
+    }}>
+      {label} {sortBy === col ? (sortDir === "desc" ? "▾" : "▴") : ""}
+    </th>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {/* ── Country filter pills ── */}
+      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+        <span style={{ fontSize: 10, color: TEXT_DIM, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginRight: 4 }}>Country:</span>
+        <button onClick={() => setCountryFilter("all")} style={{
+          padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+          background: countryFilter === "all" ? SKODA_GREEN + "22" : SURFACE_2,
+          color: countryFilter === "all" ? SKODA_GREEN : TEXT_DIM,
+          border: `1px solid ${countryFilter === "all" ? SKODA_GREEN + "55" : BORDER}`,
+          cursor: "pointer", fontFamily: "inherit",
+        }}>All ({allDealers.length})</button>
+        {countryData.map(c => (
+          <button key={c.code} onClick={() => setCountryFilter(c.code)} style={{
+            padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 500,
+            background: countryFilter === c.code ? SKODA_GREEN + "22" : SURFACE_2,
+            color: countryFilter === c.code ? SKODA_GREEN : TEXT_DIM,
+            border: `1px solid ${countryFilter === c.code ? SKODA_GREEN + "55" : BORDER}`,
+            cursor: "pointer", fontFamily: "inherit",
+            display: "flex", alignItems: "center", gap: 5,
+          }}>
+            <span>{c.flag}</span>
+            <span>{c.name}</span>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>({c.dealers})</span>
+            {c.alertCount > 0 && <span style={{ width: 6, height: 6, borderRadius: 3, background: ALERT_RED, display: "inline-block" }} />}
+          </button>
+        ))}
+      </div>
+
+      {/* ── KPI Row ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Avg Rating</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.avg) >= 4.0 ? SKODA_GREEN : ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.avg}</span>
+            <span style={{ fontSize: 16, color: TEXT_DIM }}>/ 5</span>
+          </div>
+        </div>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Total Reviews</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.reviews.toLocaleString()}</div>
+        </div>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Negative Avg</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.negAvg) > 15 ? ALERT_RED : parseFloat(fStats.negAvg) > 10 ? ALERT_ORANGE : TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.negAvg}%</div>
+        </div>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Active Alerts</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: fStats.alerts > 0 ? ALERT_RED : SKODA_GREEN, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.alerts}</div>
+        </div>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Multibrand</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span style={{ fontSize: 28, fontWeight: 800, color: ALERT_YELLOW, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.multibrand}</span>
+            <span style={{ fontSize: 12, color: TEXT_DIM }}>/ {dealers.length}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Charts Row 1: Rating by Country + Distribution ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Average Rating by Country</div>
+          <div style={{ height: 220 }}>
+            <ResponsiveContainer>
+              <BarChart data={countryData} margin={{ left: 0, right: 8, bottom: 0 }}>
+                <CartesianGrid stroke={BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fill: TEXT_DIM, fontSize: 9 }} axisLine={{ stroke: BORDER }} tickLine={false} interval={0} angle={-30} textAnchor="end" height={50} />
+                <YAxis domain={[3, 5]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }}
+                  formatter={(v, name) => [parseFloat(v).toFixed(2) + "★", name]}
+                  labelFormatter={l => `${countryData.find(c=>c.name===l)?.flag || ""} ${l}`} />
+                <Bar dataKey="avgRating" radius={[4,4,0,0]} name="Avg Rating">
+                  {countryData.map((c, i) => (
+                    <Cell key={i} fill={c.avgRating >= 4.5 ? SKODA_GREEN : c.avgRating >= 4.0 ? SKODA_ACCENT : c.avgRating >= 3.5 ? ALERT_YELLOW : ALERT_ORANGE} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Distribution</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 0" }}>
+            {distribution.map(b => {
+              const pct = allDealers.length ? (b.count / allDealers.length * 100) : 0;
+              return (
+                <div key={b.range} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 11, color: TEXT_DIM, width: 54, textAlign: "right", fontFamily: "'JetBrains Mono', monospace" }}>{b.range}</span>
+                  <div style={{ flex: 1, height: 18, background: SURFACE, borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                    <div style={{
+                      width: `${pct}%`, height: "100%", background: b.color + "55",
+                      borderRadius: 4, borderRight: pct > 0 ? `2px solid ${b.color}` : "none",
+                      transition: "width 0.5s ease",
+                      display: "flex", alignItems: "center", paddingLeft: 6,
+                    }}>
+                      {pct > 12 && <span style={{ fontSize: 10, fontWeight: 700, color: b.color }}>{b.count}</span>}
+                    </div>
+                    {pct <= 12 && pct > 0 && <span style={{ position: "absolute", left: `calc(${pct}% + 6px)`, top: 2, fontSize: 10, fontWeight: 700, color: b.color }}>{b.count}</span>}
+                  </div>
+                  <span style={{ fontSize: 10, color: TEXT_DIM, width: 36, textAlign: "right", fontFamily: "'JetBrains Mono', monospace" }}>{pct.toFixed(0)}%</span>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 11, color: TEXT_DIM, textAlign: "center" }}>
+            {allDealers.length} dealers across {Object.keys(byCountry).length} countries
+          </div>
+        </div>
+      </div>
+
+      {/* ── Charts Row 2: Monthly Trend + Negative % ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Monthly Review Volume</div>
+          <div style={{ height: 180 }}>
+            <ResponsiveContainer>
+              <BarChart data={monthlyTrend} margin={{ left: 0, right: 8 }}>
+                <CartesianGrid stroke={BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} tickLine={false} />
+                <YAxis tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
+                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
+                <Bar dataKey="reviews" fill={SKODA_GREEN + "88"} radius={[3,3,0,0]} name="Reviews" />
+                <Bar dataKey="negative" fill={ALERT_RED + "88"} radius={[3,3,0,0]} name="Negative" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Avg Rating & Negative % Trend</div>
+          <div style={{ height: 180 }}>
+            <ResponsiveContainer>
+              <LineChart data={monthlyTrend} margin={{ left: 0, right: 8 }}>
+                <CartesianGrid stroke={BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} tickLine={false} />
+                <YAxis yAxisId="left" domain={[3, 5]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <YAxis yAxisId="right" orientation="right" domain={[0, 30]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
+                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={SKODA_GREEN} strokeWidth={2.5} dot={{ fill: SKODA_GREEN, r: 3 }} name="Avg Rating" />
+                <Line yAxisId="right" type="monotone" dataKey="negPct" stroke={ALERT_RED} strokeWidth={2} strokeDasharray="4 4" dot={{ fill: ALERT_RED, r: 3 }} name="Negative %" />
+                <Legend wrapperStyle={{ fontSize: 10, color: TEXT_DIM }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Filters bar ── */}
+      <div style={{
+        display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap",
+        background: SURFACE_2, borderRadius: 8, padding: "10px 14px", border: `1px solid ${BORDER}`,
+      }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEXT_DIM} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="Search dealer, city, country..." value={search} onChange={e => setSearch(e.target.value)}
+          style={{ flex: 1, minWidth: 200, border: "none", background: "transparent", padding: "4px 0" }} />
+        <div style={{ width: 1, height: 20, background: BORDER }} />
+        <select value={alertFilter} onChange={e => setAlertFilter(e.target.value)} style={{ background: "transparent", border: "none", fontSize: 12 }}>
+          <option value="all">All dealers</option>
+          <option value="any">With alerts</option>
+          <option value="high">High + Critical</option>
+          <option value="critical">Critical only</option>
+        </select>
+        <div style={{ width: 1, height: 20, background: BORDER }} />
+        <div style={{ display: "flex", gap: 2 }}>
+          {["table","cards"].map(m => (
+            <button key={m} onClick={() => setViewMode(m)} style={{
+              padding: "4px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600,
+              background: viewMode === m ? SKODA_GREEN + "22" : "transparent",
+              color: viewMode === m ? SKODA_GREEN : TEXT_DIM,
+              border: "none", cursor: "pointer", fontFamily: "inherit",
+            }}>{m === "table" ? "☰ Table" : "⊞ Cards"}</button>
+          ))}
+        </div>
+        <span style={{ fontSize: 11, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{dealers.length} results</span>
+      </div>
+
+      {/* ── Dealer Table ── */}
+      {viewMode === "table" ? (
+        <div style={{ background: SURFACE_2, borderRadius: 10, border: `1px solid ${BORDER}`, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: SURFACE }}>
+                  <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: TEXT_DIM, borderBottom: `2px solid ${BORDER}`, textTransform: "uppercase", letterSpacing: 0.8, width: 30 }}>#</th>
+                  <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: TEXT_DIM, borderBottom: `2px solid ${BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>Dealer</th>
+                  <SortHeader col="rating" label="Rating" />
+                  <SortHeader col="reviews" label="Reviews" />
+                  <SortHeader col="negative" label="Negative" />
+                  <th style={{ padding: "10px 10px", textAlign: "center", fontSize: 10, fontWeight: 700, color: TEXT_DIM, borderBottom: `2px solid ${BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>6mo Trend</th>
+                  <SortHeader col="alerts" label="Alerts" />
+                </tr>
+              </thead>
+              <tbody>
+                {dealers.slice(0, 60).map((d, i) => {
+                  const isExpanded = expandedDealer === d.id;
+                  const trendColor = d.trend > 0.1 ? SKODA_GREEN : d.trend < -0.1 ? ALERT_RED : TEXT_DIM;
+                  const flag = EUROPEAN_COUNTRIES.find(c => c.code === d.country)?.flag || "";
+                  return (
+                    <React.Fragment key={d.id}>
+                      <tr className="dealer-row"
+                        onClick={() => setExpandedDealer(isExpanded ? null : d.id)}
+                        style={{
+                          cursor: "pointer",
+                          borderBottom: `1px solid ${isExpanded ? SKODA_GREEN + "33" : BORDER + "33"}`,
+                          background: isExpanded ? SKODA_GREEN + "08" : "transparent",
+                        }}>
+                        <td style={{ padding: "12px 10px", fontSize: 11, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{i+1}</td>
+                        <td style={{ padding: "12px 10px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 16 }}>{flag}</span>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 260, display: "flex", alignItems: "center", gap: 6 }}>
+                                {d.name}
+                                {d.isMultibrand && <span style={{ fontSize: 9, padding: "1px 5px", borderRadius: 3, background: ALERT_YELLOW + "22", color: ALERT_YELLOW, border: `1px solid ${ALERT_YELLOW}33`, fontWeight: 700 }}>MULTI</span>}
+                              </div>
+                              <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 1 }}>{d.city}, {d.countryName}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: "12px 10px" }}><RatingBar rating={d.rating} /></td>
+                        <td style={{ padding: "12px 10px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: TEXT_DIM }}>
+                          {d.reviewCount.toLocaleString()}
+                        </td>
+                        <td style={{ padding: "12px 10px" }}><NegativeBar percent={d.negativePercent} /></td>
+                        <td style={{ padding: "12px 10px", textAlign: "center" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                            <MiniSparkline data={d.monthlyData} color={trendColor} />
+                            <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: trendColor }}>
+                              {d.trend > 0 ? "+" : ""}{d.trend}
+                            </span>
+                          </div>
+                        </td>
+                        <td style={{ padding: "12px 10px", textAlign: "center" }}>
+                          {d.alerts.length > 0 ? (
+                            <span style={{
+                              display: "inline-flex", alignItems: "center", justifyContent: "center",
+                              width: 24, height: 24, borderRadius: 12, fontSize: 11, fontWeight: 800,
+                              background: d.alerts.some(a=>a.severity==="critical") ? ALERT_RED + "22" : d.alerts.some(a=>a.severity==="high") ? ALERT_ORANGE + "22" : ALERT_YELLOW + "22",
+                              color: d.alerts.some(a=>a.severity==="critical") ? ALERT_RED : d.alerts.some(a=>a.severity==="high") ? ALERT_ORANGE : ALERT_YELLOW,
+                              border: `1px solid ${d.alerts.some(a=>a.severity==="critical") ? ALERT_RED + "44" : d.alerts.some(a=>a.severity==="high") ? ALERT_ORANGE + "44" : ALERT_YELLOW + "44"}`,
+                            }}>{d.alerts.length}</span>
+                          ) : <span style={{ color: SKODA_GREEN, fontSize: 13 }}>✓</span>}
+                        </td>
+                      </tr>
+                      {/* ── Expanded row ── */}
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={7} style={{ padding: 0, background: SURFACE + "88" }}>
+                            <div style={{ padding: "14px 16px 14px 48px", animation: "slideIn 0.2s ease" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 12 }}>
+                                <div>
+                                  <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Details</div>
+                                  <div style={{ fontSize: 11, color: TEXT, lineHeight: 1.8 }}>
+                                    {d.isMultibrand && <div>Brands: <span style={{ color: ALERT_YELLOW }}>{d.brands.join(", ")}</span></div>}
+                                    <div>Address: {d.address}</div>
+                                    <div>Place ID: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: TEXT_DIM }}>{d.placeId}</span></div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Alerts</div>
+                                  {d.alerts.length === 0
+                                    ? <div style={{ fontSize: 11, color: SKODA_GREEN }}>No active alerts ✓</div>
+                                    : d.alerts.map((a, j) => (
+                                      <div key={j} style={{ fontSize: 11, color: a.severity === "critical" ? ALERT_RED : a.severity === "high" ? ALERT_ORANGE : ALERT_YELLOW, marginBottom: 3 }}>
+                                        {a.severity === "critical" ? "🔴" : a.severity === "high" ? "🟠" : "🟡"} {a.text}
+                                      </div>
+                                    ))}
+                                </div>
+                                <div style={{ textAlign: "right" }}>
+                                  <button onClick={(e) => { e.stopPropagation(); onSelectDealer(d); }} style={{
+                                    padding: "8px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700,
+                                    background: SKODA_GREEN + "22", color: SKODA_GREEN, border: `1px solid ${SKODA_GREEN}44`,
+                                    cursor: "pointer", fontFamily: "inherit",
+                                  }}>Open in Benchmark →</button>
+                                </div>
+                              </div>
+                              {/* Recent reviews preview */}
+                              <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Latest Reviews</div>
+                              <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+                                {d.recentReviews.slice(0, 4).map(r => (
+                                  <div key={r.id} style={{
+                                    minWidth: 240, maxWidth: 280, background: SURFACE_2, borderRadius: 6, padding: "8px 12px",
+                                    border: `1px solid ${r.stars <= 2 ? ALERT_RED + "33" : BORDER}`,
+                                    fontSize: 11, flexShrink: 0,
+                                  }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                                      <StarRating rating={r.stars} size={10} />
+                                      <span style={{ fontSize: 10, color: TEXT_DIM }}>{r.date}</span>
+                                    </div>
+                                    <div style={{ color: TEXT_DIM, lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                                      {r.text}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {dealers.length > 60 && (
+            <div style={{ padding: 12, textAlign: "center", fontSize: 11, color: TEXT_DIM, borderTop: `1px solid ${BORDER}` }}>
+              Showing 60 of {dealers.length} dealers · Use search or country filter to narrow down
+            </div>
+          )}
+        </div>
+      ) : (
+        /* ── Card view ── */
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
+          {dealers.slice(0, 30).map((d, i) => {
+            const flag = EUROPEAN_COUNTRIES.find(c => c.code === d.country)?.flag || "";
+            const ratingColor = d.rating >= 4.5 ? SKODA_GREEN : d.rating >= 4.0 ? SKODA_ACCENT : d.rating >= 3.5 ? ALERT_YELLOW : d.rating >= 3.0 ? ALERT_ORANGE : ALERT_RED;
+            return (
+              <div key={d.id} onClick={() => onSelectDealer(d)} className="dealer-row" style={{
+                background: SURFACE_2, borderRadius: 10, padding: 16,
+                border: `1px solid ${d.alerts.length > 0 ? ALERT_RED + "33" : BORDER}`,
+                cursor: "pointer", transition: "all 0.15s",
+                animation: `slideIn 0.3s ease ${i * 0.02}s both`,
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                    <span style={{ fontSize: 20 }}>{flag}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
+                        {d.name}
+                      </div>
+                      <div style={{ fontSize: 10, color: TEXT_DIM }}>{d.city}, {d.countryName}</div>
+                    </div>
+                  </div>
+                  <div style={{
+                    fontSize: 20, fontWeight: 800, color: ratingColor, fontFamily: "'JetBrains Mono', monospace",
+                    background: ratingColor + "11", borderRadius: 6, padding: "4px 10px",
+                    border: `1px solid ${ratingColor}33`,
+                  }}>{d.rating}</div>
+                </div>
+                <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, color: TEXT_DIM }}>
+                    <span style={{ fontWeight: 700, color: TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{d.reviewCount.toLocaleString()}</span> reviews
+                  </div>
+                  <NegativeBar percent={d.negativePercent} />
+                  <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
+                    <MiniSparkline data={d.monthlyData} width={48} height={16} color={d.trend > 0 ? SKODA_GREEN : d.trend < -0.1 ? ALERT_RED : TEXT_DIM} />
+                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.trend > 0 ? SKODA_GREEN : d.trend < -0.1 ? ALERT_RED : TEXT_DIM }}>
+                      {d.trend > 0 ? "↑" : d.trend < -0.1 ? "↓" : "→"}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {d.isMultibrand && <Badge color={ALERT_YELLOW}>Multi: {d.brands.slice(0,3).join(", ")}</Badge>}
+                  {d.alerts.map((a, j) => (
+                    <Badge key={j} color={a.severity === "critical" ? ALERT_RED : a.severity === "high" ? ALERT_ORANGE : ALERT_YELLOW}>{a.text}</Badge>
+                  ))}
+                  {d.alerts.length === 0 && !d.isMultibrand && <Badge color={SKODA_GREEN}>Clean</Badge>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Country summary table ── */}
+      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Country Summary</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
+          {countryData.map(c => {
+            const rColor = c.avgRating >= 4.5 ? SKODA_GREEN : c.avgRating >= 4.0 ? SKODA_ACCENT : c.avgRating >= 3.5 ? ALERT_YELLOW : ALERT_ORANGE;
+            return (
+              <div key={c.code} onClick={() => setCountryFilter(c.code)} style={{
+                background: countryFilter === c.code ? SKODA_GREEN + "11" : SURFACE,
+                borderRadius: 8, padding: "10px 14px",
+                border: `1px solid ${countryFilter === c.code ? SKODA_GREEN + "44" : BORDER}`,
+                cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
+                transition: "all 0.15s",
+              }}>
+                <span style={{ fontSize: 22 }}>{c.flag}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 12 }}>{c.name}</div>
+                  <div style={{ fontSize: 10, color: TEXT_DIM }}>{c.dealers} dealers · {c.totalReviews.toLocaleString()} reviews</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: rColor, fontFamily: "'JetBrains Mono', monospace" }}>{c.avgRating}★</div>
+                  {c.alertCount > 0 && <div style={{ fontSize: 9, color: ALERT_RED }}>{c.alertCount} alerts</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SENTIMENT PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function SentimentPanel({ dealers }) {
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+    </div>
+  );
+
+  const categories = ["service", "sales", "parts", "communication", "value"];
+  const aggregated = categories.map(cat => {
+    const totals = { pos: 0, neu: 0, neg: 0 };
+    dealers.forEach(d => {
+      totals.pos += d.sentiments[cat].pos;
+      totals.neu += d.sentiments[cat].neu;
+      totals.neg += d.sentiments[cat].neg;
+    });
+    const sum = totals.pos + totals.neu + totals.neg;
+    return {
+      category: cat.charAt(0).toUpperCase() + cat.slice(1),
+      positive: Math.round(totals.pos / sum * 100),
+      neutral: Math.round(totals.neu / sum * 100),
+      negative: Math.round(totals.neg / sum * 100),
+    };
+  });
+
+  const overallSentiment = [
+    { name: "Positive", value: aggregated.reduce((s, a) => s + a.positive, 0), color: SKODA_GREEN },
+    { name: "Neutral", value: aggregated.reduce((s, a) => s + a.neutral, 0), color: "#888" },
+    { name: "Negative", value: aggregated.reduce((s, a) => s + a.negative, 0), color: ALERT_RED },
+  ];
+  const total = overallSentiment.reduce((s, o) => s + o.value, 0);
+
+  const keywords = [
+    { word: "professional", count: 342, sentiment: "pos" },
+    { word: "friendly", count: 289, sentiment: "pos" },
+    { word: "waiting time", count: 187, sentiment: "neg" },
+    { word: "helpful", count: 256, sentiment: "pos" },
+    { word: "expensive", count: 165, sentiment: "neg" },
+    { word: "clean", count: 134, sentiment: "pos" },
+    { word: "rude", count: 78, sentiment: "neg" },
+    { word: "English", count: 145, sentiment: "neu" },
+    { word: "recommended", count: 198, sentiment: "pos" },
+    { word: "slow", count: 92, sentiment: "neg" },
+    { word: "Enyaq", count: 167, sentiment: "pos" },
+    { word: "warranty", count: 88, sentiment: "neg" },
+  ].sort((a, b) => b.count - a.count);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
+        {/* Category breakdown */}
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Sentiment by Category (all countries)</div>
+          <div style={{ height: 250 }}>
+            <ResponsiveContainer>
+              <BarChart data={aggregated} layout="vertical" margin={{ left: 80 }}>
+                <XAxis type="number" domain={[0, 100]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} />
+                <YAxis type="category" dataKey="category" tick={{ fill: TEXT, fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
+                <Bar dataKey="positive" stackId="a" fill={SKODA_GREEN} name="Positive %" />
+                <Bar dataKey="neutral" stackId="a" fill="#555" name="Neutral %" />
+                <Bar dataKey="negative" stackId="a" fill={ALERT_RED} name="Negative %" radius={[0,4,4,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Overall pie */}
+        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Overall Sentiment</div>
+          <div style={{ height: 200 }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={overallSentiment} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value">
+                  {overallSentiment.map((e, i) => <Cell key={i} fill={e.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", gap: 16, fontSize: 11 }}>
+            {overallSentiment.map(s => (
+              <div key={s.name} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />
+                <span style={{ color: TEXT_DIM }}>{s.name}: {Math.round(s.value/total*100)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Keywords */}
+      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🔑 AI-Extracted Keywords</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {keywords.map(kw => (
+            <div key={kw.word} style={{
+              padding: "6px 12px", borderRadius: 20,
+              background: kw.sentiment === "pos" ? SKODA_GREEN + "15" : kw.sentiment === "neg" ? ALERT_RED + "15" : SURFACE_3,
+              border: `1px solid ${kw.sentiment === "pos" ? SKODA_GREEN + "33" : kw.sentiment === "neg" ? ALERT_RED + "33" : BORDER}`,
+              fontSize: 12, display: "flex", alignItems: "center", gap: 6,
+            }}>
+              <span style={{ color: kw.sentiment === "pos" ? SKODA_GREEN : kw.sentiment === "neg" ? ALERT_RED : TEXT_DIM }}>{kw.word}</span>
+              <span style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{kw.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI Insight */}
+      <div style={{
+        background: `linear-gradient(135deg, ${SKODA_GREEN}11, ${SKODA_GREEN}05)`,
+        borderRadius: 10, padding: 16, border: `1px solid ${SKODA_GREEN}33`,
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: SKODA_GREEN, marginBottom: 8 }}>🤖 AI Insight Summary</div>
+        <div style={{ fontSize: 12, color: TEXT, lineHeight: 1.7 }}>
+          Across {dealers.length} dealers in {new Set(dealers.map(d=>d.country)).size} countries, the primary positive drivers
+          are <strong>professional staff</strong> and <strong>helpful service</strong>. The most common complaints involve <strong>waiting
+          times</strong> for service appointments and <strong>pricing transparency</strong>. Language barriers (particularly lack
+          of English) appear frequently in international markets (DE, PL, FR). Multibrand dealers show slightly lower
+          ŠKODA-specific satisfaction scores, likely due to diluted brand focus. Recommendation: prioritize
+          service appointment scheduling optimization and multilingual training programs.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BENCHMARK PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function BenchmarkPanel({ dealers, selected, onSelect }) {
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
+    </div>
+  );
+
+  const dealer = selected || dealers[0];
+  const countryDealers = dealers.filter(d => d.country === dealer?.country);
+  const avgNetwork = (dealers.reduce((s,d) => s+d.rating, 0) / dealers.length).toFixed(2);
+  const avgCountry = countryDealers.length ? (countryDealers.reduce((s,d) => s+d.rating, 0) / countryDealers.length).toFixed(2) : 0;
+
+  const radarData = dealer ? ["service","sales","parts","communication","value"].map(cat => {
+    const s = dealer.sentiments[cat];
+    const total = s.pos + s.neu + s.neg;
+    const dealerScore = Math.round(s.pos / total * 100);
+
+    const avgScores = dealers.map(d => {
+      const ds = d.sentiments[cat];
+      const dt = ds.pos + ds.neu + ds.neg;
+      return ds.pos / dt * 100;
+    });
+    const networkAvg = Math.round(avgScores.reduce((s,v)=>s+v,0) / avgScores.length);
+
+    return {
+      category: cat.charAt(0).toUpperCase() + cat.slice(1),
+      dealer: dealerScore,
+      network: networkAvg,
+    };
+  }) : [];
+
+  // Top & bottom by country
+  const topDealers = [...countryDealers].sort((a,b) => b.rating - a.rating).slice(0, 5);
+  const bottomDealers = [...countryDealers].sort((a,b) => a.rating - b.rating).slice(0, 5);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Dealer selector */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: TEXT_DIM }}>Select dealer:</span>
+        <select value={dealer?.id || ""} onChange={e => onSelect(dealers.find(d => d.id === e.target.value))}
+          style={{ flex: 1, maxWidth: 500 }}>
+          {dealers.map(d => <option key={d.id} value={d.id}>{d.name} ({d.city}, {d.countryName}) – {d.rating}★</option>)}
+        </select>
+      </div>
+
+      {dealer && (
+        <>
+          {/* Selected dealer info */}
+          <div style={{
+            background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}`,
+            display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap",
+          }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700 }}>{dealer.name}</div>
+              <div style={{ fontSize: 12, color: TEXT_DIM, marginTop: 2 }}>{dealer.city}, {dealer.countryName}</div>
+              {dealer.isMultibrand && <Badge color={ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <Stat label="Rating" value={`${dealer.rating}★`} />
+              <Stat label="Reviews" value={dealer.reviewCount} />
+              <Stat label="Negative" value={`${dealer.negativePercent}%`} alert={dealer.negativePercent > 20} />
+              <Stat label="Trend (6mo)" value={`${dealer.trend > 0 ? "+" : ""}${dealer.trend}`} />
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <Badge color={SKODA_GREEN}>Network avg: {avgNetwork}★</Badge>
+              <Badge color={TEXT_DIM}>Country avg: {avgCountry}★</Badge>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {/* Radar */}
+            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Dealer vs Network Average</div>
+              <div style={{ height: 280 }}>
+                <ResponsiveContainer>
+                  <RadarChart data={radarData}>
+                    <PolarGrid stroke={BORDER} />
+                    <PolarAngleAxis dataKey="category" tick={{ fill: TEXT, fontSize: 11 }} />
+                    <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: TEXT_DIM, fontSize: 9 }} />
+                    <Radar name="This dealer" dataKey="dealer" stroke={SKODA_GREEN} fill={SKODA_GREEN} fillOpacity={0.3} />
+                    <Radar name="Network avg" dataKey="network" stroke="#888" fill="#888" fillOpacity={0.1} />
+                    <Legend wrapperStyle={{ fontSize: 11, color: TEXT_DIM }} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Rating trend */}
+            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend (6 months)</div>
+              <div style={{ height: 280 }}>
+                <ResponsiveContainer>
+                  <LineChart data={dealer.monthlyData}>
+                    <CartesianGrid stroke={BORDER} strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} />
+                    <YAxis domain={[2.5, 5]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} />
+                    <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
+                    <Line type="monotone" dataKey="avgRating" stroke={SKODA_GREEN} strokeWidth={2} dot={{ fill: SKODA_GREEN }} name="Avg Rating" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Country ranking */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {dealer.countryName}</div>
+              {topDealers.map((d, i) => (
+                <div key={d.id} onClick={() => onSelect(d)} style={{
+                  display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
+                  borderBottom: i < 4 ? `1px solid ${BORDER}22` : "none",
+                  cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7,
+                }}>
+                  <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : TEXT_DIM }}>{i+1}.</span>
+                  <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: TEXT_DIM }}>({d.city})</span></div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: SKODA_GREEN }}>{d.rating}★</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 in {dealer.countryName}</div>
+              {bottomDealers.map((d, i) => (
+                <div key={d.id} onClick={() => onSelect(d)} style={{
+                  display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
+                  borderBottom: i < 4 ? `1px solid ${BORDER}22` : "none",
+                  cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7,
+                }}>
+                  <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: ALERT_RED }}>{i+1}.</span>
+                  <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: TEXT_DIM }}>({d.city})</span></div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: d.rating < 3.5 ? ALERT_RED : ALERT_ORANGE }}>{d.rating}★</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent reviews */}
+          <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Recent Reviews</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {dealer.recentReviews.slice(0, 5).map(r => (
+                <div key={r.id} style={{
+                  background: SURFACE, borderRadius: 6, padding: "10px 14px",
+                  borderLeft: `3px solid ${r.stars >= 4 ? SKODA_GREEN : r.stars >= 3 ? ALERT_YELLOW : ALERT_RED}`,
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <StarRating rating={r.stars} size={12} />
+                    <span style={{ fontSize: 11, color: TEXT_DIM }}>{r.date}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+    // ── Mount ──
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(SkodaDealerDashboard));
+  </script>
+</body>
+</html>
