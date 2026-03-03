@@ -27,18 +27,38 @@
 // ŠKODA DEALER REVIEWS DASHBOARD – PoC (All Europe)
 // ═══════════════════════════════════════════════════════════════
 
-const SKODA_GREEN = "#31694B";
-const SKODA_DARK = "#161718";
-const SKODA_ACCENT = "#78FAAE";
-const SURFACE = "#1A1B1C";
-const SURFACE_2 = "#222324";
-const SURFACE_3 = "#2C2D2E";
-const BORDER = "#3A3B3C";
-const TEXT = "#F1F1F1";
-const TEXT_DIM = "#7C7D7E";
-const ALERT_RED = "#FF4444";
-const ALERT_ORANGE = "#FF8C00";
-const ALERT_YELLOW = "#FFD700";
+const THEMES = {
+  dark: {
+    SKODA_GREEN: "#31694B",
+    SKODA_DARK: "#161718",
+    SKODA_ACCENT: "#78FAAE",
+    SURFACE: "#1A1B1C",
+    SURFACE_2: "#222324",
+    SURFACE_3: "#2C2D2E",
+    BORDER: "#3A3B3C",
+    TEXT: "#F1F1F1",
+    TEXT_DIM: "#7C7D7E",
+    ALERT_RED: "#FF4444",
+    ALERT_ORANGE: "#FF8C00",
+    ALERT_YELLOW: "#FFD700",
+  },
+  light: {
+    SKODA_GREEN: "#31694B",
+    SKODA_DARK: "#F5F5F5",
+    SKODA_ACCENT: "#31694B",
+    SURFACE: "#FFFFFF",
+    SURFACE_2: "#F0F0F0",
+    SURFACE_3: "#E4E4E4",
+    BORDER: "#D0D0D0",
+    TEXT: "#161718",
+    TEXT_DIM: "#5A5B5C",
+    ALERT_RED: "#D32F2F",
+    ALERT_ORANGE: "#E65100",
+    ALERT_YELLOW: "#F9A825",
+  },
+};
+
+const ThemeContext = React.createContext(THEMES.dark);
 
 // ── European countries with ŠKODA presence ──
 const EUROPEAN_COUNTRIES = [
@@ -294,26 +314,33 @@ EUROPEAN_COUNTRIES.forEach(c => {
 // COMPONENTS
 // ═══════════════════════════════════════════════════════════════
 
-const Badge = ({ children, color = SKODA_GREEN, style = {} }) => (
-  <span style={{
-    display: "inline-flex", alignItems: "center", gap: 4,
-    padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600,
-    background: color + "22", color, border: `1px solid ${color}44`,
-    ...style,
-  }}>{children}</span>
-);
+const Badge = ({ children, color, style = {} }) => {
+  const T = useTheme();
+  const c = color || T.SKODA_GREEN;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600,
+      background: c + "22", color: c, border: `1px solid ${c}44`,
+      ...style,
+    }}>{children}</span>
+  );
+};
 
-const Stat = ({ label, value, sub, alert }) => (
-  <div style={{
-    background: SURFACE_2, borderRadius: 8, padding: "14px 16px",
-    border: `1px solid ${alert ? ALERT_RED + "44" : BORDER}`,
-    minWidth: 140, flex: 1,
-  }}>
-    <div style={{ fontSize: 11, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 26, fontWeight: 700, color: alert ? ALERT_RED : TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
-    {sub && <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{sub}</div>}
-  </div>
-);
+const Stat = ({ label, value, sub, alert }) => {
+  const T = useTheme();
+  return (
+    <div style={{
+      background: T.SURFACE_2, borderRadius: 8, padding: "14px 16px",
+      border: `1px solid ${alert ? T.ALERT_RED + "44" : T.BORDER}`,
+      minWidth: 140, flex: 1,
+    }}>
+      <div style={{ fontSize: 11, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: alert ? T.ALERT_RED : T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+      {sub && <div style={{ fontSize: 11, color: T.TEXT_DIM, marginTop: 2 }}>{sub}</div>}
+    </div>
+  );
+};
 
 const StarRating = ({ rating, size = 14 }) => {
   const full = Math.floor(rating);
@@ -335,7 +362,11 @@ const StarRating = ({ rating, size = 14 }) => {
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════
 
+function useTheme() { return React.useContext(ThemeContext); }
+
 function SkodaDealerDashboard() {
+  const [darkMode, setDarkMode] = useState(true);
+  const T = darkMode ? THEMES.dark : THEMES.light;
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCountries, setSelectedCountries] = useState(new Set(["CZ"]));
   const [importedData, setImportedData] = useState({});
@@ -437,45 +468,47 @@ function SkodaDealerDashboard() {
   ];
 
   return (
+    <ThemeContext.Provider value={T}>
     <div style={{
-      background: SKODA_DARK, color: TEXT, minHeight: "100vh",
+      background: T.SKODA_DARK, color: T.TEXT, minHeight: "100vh",
       fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+      transition: "background 0.3s, color 0.3s",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: ${SKODA_DARK}; }
-        ::-webkit-scrollbar-thumb { background: ${BORDER}; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: ${SKODA_GREEN}44; }
+        ::-webkit-scrollbar-track { background: ${T.SKODA_DARK}; }
+        ::-webkit-scrollbar-thumb { background: ${T.BORDER}; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: ${T.SKODA_GREEN}44; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .dealer-row:hover { background: ${SURFACE_3} !important; }
+        .dealer-row:hover { background: ${T.SURFACE_3} !important; }
         .tab-btn { transition: all 0.2s; cursor: pointer; border: none; }
-        .tab-btn:hover { background: ${SURFACE_3} !important; }
-        input, select { background: ${SURFACE}; color: ${TEXT}; border: 1px solid ${BORDER}; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-size: 13px; outline: none; }
-        input:focus, select:focus { border-color: ${SKODA_GREEN}; }
+        .tab-btn:hover { background: ${T.SURFACE_3} !important; }
+        input, select { background: ${T.SURFACE}; color: ${T.TEXT}; border: 1px solid ${T.BORDER}; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-size: 13px; outline: none; }
+        input:focus, select:focus { border-color: ${T.SKODA_GREEN}; }
       `}</style>
 
       {/* ── HEADER ── */}
       <div style={{
-        background: SURFACE, borderBottom: `1px solid ${BORDER}`,
+        background: T.SURFACE, borderBottom: `1px solid ${T.BORDER}`,
         padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 100,
+        position: "sticky", top: 0, zIndex: 100, transition: "background 0.3s",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 8,
-            background: `linear-gradient(135deg, ${SKODA_GREEN}, ${SKODA_ACCENT})`,
+            background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontWeight: 800, fontSize: 16, color: "#fff",
           }}>Š</div>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>ŠKODA Dealer Reviews</div>
-            <div style={{ fontSize: 11, color: TEXT_DIM }}>Europe-wide monitoring dashboard · PoC</div>
+            <div style={{ fontSize: 11, color: T.TEXT_DIM }}>Europe-wide monitoring dashboard · PoC</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {importedCountryCodes.size > 0 && (
             <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
               <Stat label="Countries" value={stats.countries} />
@@ -484,24 +517,32 @@ function SkodaDealerDashboard() {
               <Stat label="Alerts" value={stats.alerts} alert={stats.alerts > 5} />
             </div>
           )}
+          <button onClick={() => setDarkMode(!darkMode)} style={{
+            width: 40, height: 40, borderRadius: 8, border: `1px solid ${T.BORDER}`,
+            background: T.SURFACE_2, color: T.TEXT, fontSize: 18,
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.3s", flexShrink: 0,
+          }} title={darkMode ? "Light mode" : "Dark mode"}>
+            {darkMode ? "\u2600" : "\u263D"}
+          </button>
         </div>
       </div>
 
       {/* ── TABS ── */}
       <div style={{
-        display: "flex", gap: 2, padding: "8px 24px", background: SURFACE,
-        borderBottom: `1px solid ${BORDER}`, overflowX: "auto",
+        display: "flex", gap: 2, padding: "8px 24px", background: T.SURFACE,
+        borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", transition: "background 0.3s",
       }}>
         {tabs.map(t => (
           <button key={t.id} className="tab-btn" onClick={() => setActiveTab(t.id)} style={{
             padding: "10px 20px", borderRadius: 6,
-            background: activeTab === t.id ? SKODA_GREEN + "22" : "transparent",
-            color: activeTab === t.id ? SKODA_GREEN : TEXT_DIM,
+            background: activeTab === t.id ? T.SKODA_GREEN + "22" : "transparent",
+            color: activeTab === t.id ? T.SKODA_GREEN : T.TEXT_DIM,
             display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2,
-            borderLeft: activeTab === t.id ? `3px solid ${SKODA_GREEN}` : "3px solid transparent",
+            borderLeft: activeTab === t.id ? `3px solid ${T.SKODA_GREEN}` : "3px solid transparent",
           }}>
             <span style={{ fontWeight: 600, fontSize: 13 }}>{t.label}</span>
-            <span style={{ fontSize: 10, color: t.alert ? ALERT_RED : TEXT_DIM,
+            <span style={{ fontSize: 10, color: t.alert ? T.ALERT_RED : T.TEXT_DIM,
               animation: t.alert ? "pulse 2s infinite" : "none" }}>{t.sub}</span>
           </button>
         ))}
@@ -545,6 +586,7 @@ function SkodaDealerDashboard() {
         {activeTab === "benchmark" && <BenchmarkPanel dealers={allDealers} selected={selectedDealer} onSelect={setSelectedDealer} />}
       </div>
     </div>
+    </ThemeContext.Provider>
   );
 }
 
@@ -553,6 +595,7 @@ function SkodaDealerDashboard() {
 // ═══════════════════════════════════════════════════════════════
 
 function AdminPanel({ countries, selected, imported, importedData, toggle, selectRegion, onImport, onRemove, importing, progress, regionFilter, setRegionFilter, setSelected }) {
+  const T = useTheme();
   const toImport = [...selected].filter(c => !imported.has(c));
   const filtered = regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter);
 
@@ -560,8 +603,8 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Import Status */}
       {imported.size > 0 && (
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: SKODA_GREEN, marginBottom: 12 }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>
             ✓ Imported Data ({imported.size} countries, {Object.values(importedData).flat().length} dealers)
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -570,15 +613,15 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
               const dealers = importedData[code] || [];
               return (
                 <div key={code} style={{
-                  background: SURFACE_3, borderRadius: 6, padding: "8px 12px",
-                  border: `1px solid ${SKODA_GREEN}44`, display: "flex", alignItems: "center", gap: 8,
+                  background: T.SURFACE_3, borderRadius: 6, padding: "8px 12px",
+                  border: `1px solid ${T.SKODA_GREEN}44`, display: "flex", alignItems: "center", gap: 8,
                   fontSize: 12,
                 }}>
                   <span>{c?.flag}</span>
                   <span style={{ fontWeight: 600 }}>{c?.name}</span>
-                  <span style={{ color: TEXT_DIM }}>{dealers.length} dealers</span>
+                  <span style={{ color: T.TEXT_DIM }}>{dealers.length} dealers</span>
                   <button onClick={() => onRemove(code)} style={{
-                    background: "transparent", border: "none", color: ALERT_RED,
+                    background: "transparent", border: "none", color: T.ALERT_RED,
                     cursor: "pointer", fontSize: 14, padding: "0 4px", lineHeight: 1,
                   }}>×</button>
                 </div>
@@ -590,25 +633,25 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
 
       {/* Region filter + batch actions */}
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontSize: 12, color: TEXT_DIM, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>Region:</span>
+        <span style={{ fontSize: 12, color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>Region:</span>
         {REGIONS.map(r => (
           <button key={r} onClick={() => setRegionFilter(r)} style={{
             padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-            background: regionFilter === r ? SKODA_GREEN + "22" : SURFACE_2,
-            color: regionFilter === r ? SKODA_GREEN : TEXT_DIM,
-            border: `1px solid ${regionFilter === r ? SKODA_GREEN + "44" : BORDER}`,
+            background: regionFilter === r ? T.SKODA_GREEN + "22" : T.SURFACE_2,
+            color: regionFilter === r ? T.SKODA_GREEN : T.TEXT_DIM,
+            border: `1px solid ${regionFilter === r ? T.SKODA_GREEN + "44" : T.BORDER}`,
             cursor: "pointer",
           }}>{r}</button>
         ))}
         <div style={{ flex: 1 }} />
         <button onClick={() => selectRegion(regionFilter)} style={{
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-          background: SURFACE_2, color: SKODA_ACCENT, border: `1px solid ${BORDER}`,
+          background: T.SURFACE_2, color: T.SKODA_ACCENT, border: `1px solid ${T.BORDER}`,
           cursor: "pointer",
         }}>+ Select all {regionFilter}</button>
         <button onClick={() => setSelected(new Set())} style={{
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-          background: SURFACE_2, color: TEXT_DIM, border: `1px solid ${BORDER}`,
+          background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`,
           cursor: "pointer",
         }}>Clear selection</button>
       </div>
@@ -623,33 +666,33 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
           const isImported = imported.has(c.code);
           return (
             <button key={c.code} onClick={() => !isImported && toggle(c.code)} style={{
-              background: isImported ? SKODA_GREEN + "11" : isSelected ? SURFACE_3 : SURFACE_2,
+              background: isImported ? T.SKODA_GREEN + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
               borderRadius: 8,
               padding: "12px 14px",
-              border: `1px solid ${isImported ? SKODA_GREEN + "44" : isSelected ? SKODA_GREEN + "66" : BORDER}`,
+              border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
               transition: "all 0.15s",
               textAlign: "left",
-              color: TEXT,
+              color: T.TEXT,
               fontFamily: "inherit",
             }}>
               <span style={{ fontSize: 22 }}>{c.flag}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
-                <div style={{ fontSize: 11, color: TEXT_DIM }}>~{c.dealers} dealers · {c.region}</div>
+                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} dealers · {c.region}</div>
               </div>
               <div style={{ fontSize: 18 }}>
-                {isImported ? <span style={{ color: SKODA_GREEN }}>✓</span>
+                {isImported ? <span style={{ color: T.SKODA_GREEN }}>✓</span>
                   : isSelected ? <span style={{
                     width: 18, height: 18, borderRadius: 4,
-                    background: SKODA_GREEN, display: "inline-flex",
+                    background: T.SKODA_GREEN, display: "inline-flex",
                     alignItems: "center", justifyContent: "center",
                     fontSize: 12, color: "#fff",
                   }}>✓</span>
                   : <span style={{
                     width: 18, height: 18, borderRadius: 4,
-                    border: `2px solid ${BORDER}`, display: "inline-block",
+                    border: `2px solid ${T.BORDER}`, display: "inline-block",
                   }} />}
               </div>
             </button>
@@ -660,13 +703,13 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
       {/* Import button */}
       <div style={{
         position: "sticky", bottom: 0, padding: "16px 0",
-        background: `linear-gradient(transparent, ${SKODA_DARK} 30%)`,
+        background: `linear-gradient(transparent, ${T.SKODA_DARK} 30%)`,
         display: "flex", alignItems: "center", gap: 16,
       }}>
         <button onClick={onImport} disabled={importing || !toImport.length} style={{
           padding: "14px 32px", borderRadius: 8, fontSize: 14, fontWeight: 700,
-          background: toImport.length ? `linear-gradient(135deg, ${SKODA_GREEN}, ${SKODA_ACCENT})` : SURFACE_3,
-          color: toImport.length ? "#fff" : TEXT_DIM,
+          background: toImport.length ? `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})` : T.SURFACE_3,
+          color: toImport.length ? "#fff" : T.TEXT_DIM,
           border: "none", cursor: toImport.length ? "pointer" : "default",
           opacity: importing ? 0.7 : 1,
           fontFamily: "inherit",
@@ -678,45 +721,45 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
               : imported.size > 0 ? "All selected countries imported ✓" : "Select countries to import"}
         </button>
         {importing && (
-          <div style={{ flex: 1, height: 6, background: SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
+          <div style={{ flex: 1, height: 6, background: T.SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
             <div style={{
-              height: "100%", background: SKODA_GREEN, borderRadius: 3,
+              height: "100%", background: T.SKODA_GREEN, borderRadius: 3,
               width: `${(progress?.current / progress?.total) * 100}%`,
               transition: "width 0.3s",
             }} />
           </div>
         )}
         {toImport.length > 0 && !importing && (
-          <span style={{ fontSize: 12, color: TEXT_DIM }}>
+          <span style={{ fontSize: 12, color: T.TEXT_DIM }}>
             Est. {toImport.length * 3}-{toImport.length * 8} API calls · ~${(toImport.length * 0.08).toFixed(2)} cost
           </span>
         )}
       </div>
 
       {/* API Config info */}
-      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>📡 Data Source Configuration</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12, color: TEXT_DIM }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12, color: T.TEXT_DIM }}>
           <div>
-            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>Google Places API</div>
+            <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Google Places API</div>
             <div>Dealer metadata, ratings, GPS, 5 reviews</div>
-            <div style={{ color: ALERT_YELLOW }}>⚠ Max 5 reviews per place</div>
+            <div style={{ color: T.ALERT_YELLOW }}>⚠ Max 5 reviews per place</div>
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>Reviews API (Outscraper/SerpAPI)</div>
+            <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Reviews API (Outscraper/SerpAPI)</div>
             <div>Full review extraction, unlimited reviews</div>
-            <div style={{ color: SKODA_GREEN }}>✓ Recommended for production</div>
+            <div style={{ color: T.SKODA_GREEN }}>✓ Recommended for production</div>
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>Refresh interval</div>
+            <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Refresh interval</div>
             <div>Daily scan for new reviews</div>
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>AI Sentiment Engine</div>
+            <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>AI Sentiment Engine</div>
             <div>Claude API for review classification</div>
           </div>
         </div>
-        <div style={{ marginTop: 12, padding: "8px 12px", background: SKODA_GREEN + "11", borderRadius: 6, fontSize: 11, color: SKODA_GREEN }}>
+        <div style={{ marginTop: 12, padding: "8px 12px", background: T.SKODA_GREEN + "11", borderRadius: 6, fontSize: 11, color: T.SKODA_GREEN }}>
           PoC Mode: Using simulated data based on real Google Places API structure. Production version would connect to live APIs.
         </div>
       </div>
@@ -729,6 +772,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
 // ═══════════════════════════════════════════════════════════════
 
 function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
+  const T = useTheme();
   const alertDealers = dealers
     .filter(d => d.alerts.length > 0)
     .sort((a, b) => {
@@ -742,7 +786,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
   const highCount = alertDealers.filter(d => d.alerts.some(a => a.severity === "high")).length;
 
   if (!dealers.length) return (
-    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
       <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
       <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
@@ -759,30 +803,30 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
       </div>
 
       {/* Recent negative reviews */}
-      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: ALERT_RED }}>🔴 Recent Negative Reviews (last 7 days)</div>
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.ALERT_RED }}>🔴 Recent Negative Reviews (last 7 days)</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
           {dealers.flatMap(d => d.recentReviews.filter(r => r.stars <= 2 && r.daysAgo <= 7).map(r => ({ ...r, dealer: d })))
             .sort((a, b) => a.daysAgo - b.daysAgo)
             .slice(0, 15)
             .map((r, i) => (
               <div key={i} style={{
-                background: SURFACE_3, borderRadius: 6, padding: "10px 14px",
-                borderLeft: `3px solid ${r.stars === 1 ? ALERT_RED : ALERT_ORANGE}`,
+                background: T.SURFACE_3, borderRadius: 6, padding: "10px 14px",
+                borderLeft: `3px solid ${r.stars === 1 ? T.ALERT_RED : T.ALERT_ORANGE}`,
                 animation: `slideIn 0.3s ease ${i * 0.05}s both`,
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <StarRating rating={r.stars} size={12} />
                     <span style={{ fontWeight: 600, fontSize: 12 }}>{r.dealer.name}</span>
-                    <Badge color={TEXT_DIM}>{r.dealer.countryName}</Badge>
+                    <Badge color={T.TEXT_DIM}>{r.dealer.countryName}</Badge>
                   </div>
-                  <span style={{ fontSize: 11, color: TEXT_DIM }}>{r.daysAgo === 0 ? "Today" : `${r.daysAgo}d ago`}</span>
+                  <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.daysAgo === 0 ? "Today" : `${r.daysAgo}d ago`}</span>
                 </div>
-                <div style={{ fontSize: 12, color: TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
+                <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: SKODA_GREEN + "22", color: SKODA_GREEN, border: `1px solid ${SKODA_GREEN}44`, cursor: "pointer", fontFamily: "inherit" }}>Respond</button>
-                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: ALERT_RED + "22", color: ALERT_RED, border: `1px solid ${ALERT_RED}44`, cursor: "pointer", fontFamily: "inherit" }}>Escalate</button>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`, cursor: "pointer", fontFamily: "inherit" }}>Respond</button>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.ALERT_RED + "22", color: T.ALERT_RED, border: `1px solid ${T.ALERT_RED}44`, cursor: "pointer", fontFamily: "inherit" }}>Escalate</button>
                 </div>
               </div>
             ))}
@@ -790,26 +834,26 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
       </div>
 
       {/* Dealers requiring attention */}
-      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>⚠ Dealers Requiring Attention</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 400, overflowY: "auto" }}>
           {alertDealers.slice(0, 20).map((d, i) => (
             <div key={d.id} className="dealer-row" onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }}
               style={{
-                background: SURFACE, borderRadius: 6, padding: "10px 14px",
+                background: T.SURFACE, borderRadius: 6, padding: "10px 14px",
                 display: "flex", alignItems: "center", gap: 12, cursor: "pointer",
                 animation: `slideIn 0.3s ease ${i * 0.03}s both`,
               }}>
-              <div style={{ fontWeight: 700, fontSize: 16, width: 50, textAlign: "center", color: d.rating < 3.5 ? ALERT_RED : d.rating < 4.0 ? ALERT_ORANGE : TEXT, fontFamily: "'JetBrains Mono', monospace" }}>
+              <div style={{ fontWeight: 700, fontSize: 16, width: 50, textAlign: "center", color: d.rating < 3.5 ? T.ALERT_RED : d.rating < 4.0 ? T.ALERT_ORANGE : T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>
                 {d.rating}★
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: TEXT_DIM }}>{d.city}, {d.countryName} · {d.reviewCount} reviews</div>
+                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.city}, {d.countryName} · {d.reviewCount} reviews</div>
               </div>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 {d.alerts.map((a, j) => (
-                  <Badge key={j} color={a.severity === "critical" ? ALERT_RED : a.severity === "high" ? ALERT_ORANGE : ALERT_YELLOW}>
+                  <Badge key={j} color={a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW}>
                     {a.text}
                   </Badge>
                 ))}
@@ -826,7 +870,9 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
 // OVERVIEW PANEL (Enhanced)
 // ═══════════════════════════════════════════════════════════════
 
-function MiniSparkline({ data, width = 60, height = 20, color = SKODA_GREEN }) {
+function MiniSparkline({ data, width = 60, height = 20, color }) {
+  const T = useTheme();
+  color = color || T.SKODA_GREEN;
   if (!data || data.length < 2) return null;
   const values = data.map(d => parseFloat(d.avgRating));
   const min = Math.min(...values) - 0.2;
@@ -846,14 +892,15 @@ function MiniSparkline({ data, width = 60, height = 20, color = SKODA_GREEN }) {
 }
 
 function RatingBar({ rating, maxRating = 5, width = 80 }) {
+  const T = useTheme();
   const pct = (rating / maxRating) * 100;
-  const color = rating >= 4.5 ? SKODA_GREEN : rating >= 4.0 ? SKODA_ACCENT : rating >= 3.5 ? ALERT_YELLOW : rating >= 3.0 ? ALERT_ORANGE : ALERT_RED;
+  const color = rating >= 4.5 ? T.SKODA_GREEN : rating >= 4.0 ? T.SKODA_ACCENT : rating >= 3.5 ? T.ALERT_YELLOW : rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color, minWidth: 32 }}>
         {rating}
       </span>
-      <div style={{ width, height: 6, background: SURFACE, borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ width, height: 6, background: T.SURFACE, borderRadius: 3, overflow: "hidden" }}>
         <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.5s ease" }} />
       </div>
     </div>
@@ -861,10 +908,11 @@ function RatingBar({ rating, maxRating = 5, width = 80 }) {
 }
 
 function NegativeBar({ percent }) {
-  const color = percent > 20 ? ALERT_RED : percent > 12 ? ALERT_ORANGE : percent > 6 ? ALERT_YELLOW : SKODA_GREEN;
+  const T = useTheme();
+  const color = percent > 20 ? T.ALERT_RED : percent > 12 ? T.ALERT_ORANGE : percent > 6 ? T.ALERT_YELLOW : T.SKODA_GREEN;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <div style={{ width: 44, height: 6, background: SURFACE, borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ width: 44, height: 6, background: T.SURFACE, borderRadius: 3, overflow: "hidden" }}>
         <div style={{ width: `${Math.min(percent, 100)}%`, height: "100%", background: color, borderRadius: 3 }} />
       </div>
       <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color, minWidth: 28 }}>{percent}%</span>
@@ -873,11 +921,12 @@ function NegativeBar({ percent }) {
 }
 
 function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, sortBy, setSortBy, sortDir, setSortDir, alertFilter, setAlertFilter, countryFilter, setCountryFilter, onSelectDealer }) {
+  const T = useTheme();
   const [expandedDealer, setExpandedDealer] = useState(null);
   const [viewMode, setViewMode] = useState("table"); // table | cards
 
   if (!allDealers.length) return (
-    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
       <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
       <div style={{ fontSize: 13, marginTop: 8 }}>Go to Admin tab to select and import countries</div>
@@ -905,11 +954,11 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
   // ── Rating distribution ──
   const ratingBuckets = [
-    { range: "4.5–5.0", min: 4.5, max: 5.01, color: SKODA_GREEN },
-    { range: "4.0–4.4", min: 4.0, max: 4.5, color: SKODA_ACCENT },
-    { range: "3.5–3.9", min: 3.5, max: 4.0, color: ALERT_YELLOW },
-    { range: "3.0–3.4", min: 3.0, max: 3.5, color: ALERT_ORANGE },
-    { range: "< 3.0", min: 0, max: 3.0, color: ALERT_RED },
+    { range: "4.5–5.0", min: 4.5, max: 5.01, color: T.SKODA_GREEN },
+    { range: "4.0–4.4", min: 4.0, max: 4.5, color: T.SKODA_ACCENT },
+    { range: "3.5–3.9", min: 3.5, max: 4.0, color: T.ALERT_YELLOW },
+    { range: "3.0–3.4", min: 3.0, max: 3.5, color: T.ALERT_ORANGE },
+    { range: "< 3.0", min: 0, max: 3.0, color: T.ALERT_RED },
   ];
   const distribution = ratingBuckets.map(b => ({
     ...b,
@@ -943,9 +992,9 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
   const SortHeader = ({ col, label, align = "left" }) => (
     <th onClick={() => toggleSort(col)} style={{
       padding: "10px 10px", textAlign: align, fontSize: 10, fontWeight: 700,
-      color: sortBy === col ? SKODA_GREEN : TEXT_DIM, cursor: "pointer",
+      color: sortBy === col ? T.SKODA_GREEN : T.TEXT_DIM, cursor: "pointer",
       textTransform: "uppercase", letterSpacing: 0.8, userSelect: "none",
-      borderBottom: `2px solid ${sortBy === col ? SKODA_GREEN : BORDER}`,
+      borderBottom: `2px solid ${sortBy === col ? T.SKODA_GREEN : T.BORDER}`,
       whiteSpace: "nowrap", transition: "all 0.15s",
     }}>
       {label} {sortBy === col ? (sortDir === "desc" ? "▾" : "▴") : ""}
@@ -957,77 +1006,77 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
       {/* ── Country filter pills ── */}
       <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontSize: 10, color: TEXT_DIM, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginRight: 4 }}>Country:</span>
+        <span style={{ fontSize: 10, color: T.TEXT_DIM, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginRight: 4 }}>Country:</span>
         <button onClick={() => setCountryFilter("all")} style={{
           padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
-          background: countryFilter === "all" ? SKODA_GREEN + "22" : SURFACE_2,
-          color: countryFilter === "all" ? SKODA_GREEN : TEXT_DIM,
-          border: `1px solid ${countryFilter === "all" ? SKODA_GREEN + "55" : BORDER}`,
+          background: countryFilter === "all" ? T.SKODA_GREEN + "22" : T.SURFACE_2,
+          color: countryFilter === "all" ? T.SKODA_GREEN : T.TEXT_DIM,
+          border: `1px solid ${countryFilter === "all" ? T.SKODA_GREEN + "55" : T.BORDER}`,
           cursor: "pointer", fontFamily: "inherit",
         }}>All ({allDealers.length})</button>
         {countryData.map(c => (
           <button key={c.code} onClick={() => setCountryFilter(c.code)} style={{
             padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 500,
-            background: countryFilter === c.code ? SKODA_GREEN + "22" : SURFACE_2,
-            color: countryFilter === c.code ? SKODA_GREEN : TEXT_DIM,
-            border: `1px solid ${countryFilter === c.code ? SKODA_GREEN + "55" : BORDER}`,
+            background: countryFilter === c.code ? T.SKODA_GREEN + "22" : T.SURFACE_2,
+            color: countryFilter === c.code ? T.SKODA_GREEN : T.TEXT_DIM,
+            border: `1px solid ${countryFilter === c.code ? T.SKODA_GREEN + "55" : T.BORDER}`,
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", alignItems: "center", gap: 5,
           }}>
             <span>{c.flag}</span>
             <span>{c.name}</span>
             <span style={{ fontSize: 10, opacity: 0.6 }}>({c.dealers})</span>
-            {c.alertCount > 0 && <span style={{ width: 6, height: 6, borderRadius: 3, background: ALERT_RED, display: "inline-block" }} />}
+            {c.alertCount > 0 && <span style={{ width: 6, height: 6, borderRadius: 3, background: T.ALERT_RED, display: "inline-block" }} />}
           </button>
         ))}
       </div>
 
       {/* ── KPI Row ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Avg Rating</div>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Avg Rating</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.avg) >= 4.0 ? SKODA_GREEN : ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.avg}</span>
-            <span style={{ fontSize: 16, color: TEXT_DIM }}>/ 5</span>
+            <span style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.avg) >= 4.0 ? T.SKODA_GREEN : T.ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.avg}</span>
+            <span style={{ fontSize: 16, color: T.TEXT_DIM }}>/ 5</span>
           </div>
         </div>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Total Reviews</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.reviews.toLocaleString()}</div>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Total Reviews</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.reviews.toLocaleString()}</div>
         </div>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Negative Avg</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.negAvg) > 15 ? ALERT_RED : parseFloat(fStats.negAvg) > 10 ? ALERT_ORANGE : TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.negAvg}%</div>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Negative Avg</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.negAvg) > 15 ? T.ALERT_RED : parseFloat(fStats.negAvg) > 10 ? T.ALERT_ORANGE : T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.negAvg}%</div>
         </div>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Active Alerts</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: fStats.alerts > 0 ? ALERT_RED : SKODA_GREEN, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.alerts}</div>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Active Alerts</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: fStats.alerts > 0 ? T.ALERT_RED : T.SKODA_GREEN, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.alerts}</div>
         </div>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Multibrand</div>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Multibrand</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ fontSize: 28, fontWeight: 800, color: ALERT_YELLOW, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.multibrand}</span>
-            <span style={{ fontSize: 12, color: TEXT_DIM }}>/ {dealers.length}</span>
+            <span style={{ fontSize: 28, fontWeight: 800, color: T.ALERT_YELLOW, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.multibrand}</span>
+            <span style={{ fontSize: 12, color: T.TEXT_DIM }}>/ {dealers.length}</span>
           </div>
         </div>
       </div>
 
       {/* ── Charts Row 1: Rating by Country + Distribution ── */}
       <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Average Rating by Country</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={countryData} margin={{ left: 0, right: 8, bottom: 0 }}>
-                <CartesianGrid stroke={BORDER} strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tick={{ fill: TEXT_DIM, fontSize: 9 }} axisLine={{ stroke: BORDER }} tickLine={false} interval={0} angle={-30} textAnchor="end" height={50} />
-                <YAxis domain={[3, 5]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }}
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" tick={{ fill: T.TEXT_DIM, fontSize: 9 }} axisLine={{ stroke: T.BORDER }} tickLine={false} interval={0} angle={-30} textAnchor="end" height={50} />
+                <YAxis domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }}
                   formatter={(v, name) => [parseFloat(v).toFixed(2) + "★", name]}
                   labelFormatter={l => `${countryData.find(c=>c.name===l)?.flag || ""} ${l}`} />
                 <Bar dataKey="avgRating" radius={[4,4,0,0]} name="Avg Rating">
                   {countryData.map((c, i) => (
-                    <Cell key={i} fill={c.avgRating >= 4.5 ? SKODA_GREEN : c.avgRating >= 4.0 ? SKODA_ACCENT : c.avgRating >= 3.5 ? ALERT_YELLOW : ALERT_ORANGE} />
+                    <Cell key={i} fill={c.avgRating >= 4.5 ? T.SKODA_GREEN : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE} />
                   ))}
                 </Bar>
               </BarChart>
@@ -1035,15 +1084,15 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
           </div>
         </div>
 
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Distribution</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 0" }}>
             {distribution.map(b => {
               const pct = allDealers.length ? (b.count / allDealers.length * 100) : 0;
               return (
                 <div key={b.range} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: 11, color: TEXT_DIM, width: 54, textAlign: "right", fontFamily: "'JetBrains Mono', monospace" }}>{b.range}</span>
-                  <div style={{ flex: 1, height: 18, background: SURFACE, borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                  <span style={{ fontSize: 11, color: T.TEXT_DIM, width: 54, textAlign: "right", fontFamily: "'JetBrains Mono', monospace" }}>{b.range}</span>
+                  <div style={{ flex: 1, height: 18, background: T.SURFACE, borderRadius: 4, overflow: "hidden", position: "relative" }}>
                     <div style={{
                       width: `${pct}%`, height: "100%", background: b.color + "55",
                       borderRadius: 4, borderRight: pct > 0 ? `2px solid ${b.color}` : "none",
@@ -1054,12 +1103,12 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                     </div>
                     {pct <= 12 && pct > 0 && <span style={{ position: "absolute", left: `calc(${pct}% + 6px)`, top: 2, fontSize: 10, fontWeight: 700, color: b.color }}>{b.count}</span>}
                   </div>
-                  <span style={{ fontSize: 10, color: TEXT_DIM, width: 36, textAlign: "right", fontFamily: "'JetBrains Mono', monospace" }}>{pct.toFixed(0)}%</span>
+                  <span style={{ fontSize: 10, color: T.TEXT_DIM, width: 36, textAlign: "right", fontFamily: "'JetBrains Mono', monospace" }}>{pct.toFixed(0)}%</span>
                 </div>
               );
             })}
           </div>
-          <div style={{ borderTop: `1px solid ${BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 11, color: TEXT_DIM, textAlign: "center" }}>
+          <div style={{ borderTop: `1px solid ${T.BORDER}`, marginTop: 8, paddingTop: 8, fontSize: 11, color: T.TEXT_DIM, textAlign: "center" }}>
             {allDealers.length} dealers across {Object.keys(byCountry).length} countries
           </div>
         </div>
@@ -1067,35 +1116,35 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
       {/* ── Charts Row 2: Monthly Trend + Negative % ── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Monthly Review Volume</div>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
               <BarChart data={monthlyTrend} margin={{ left: 0, right: 8 }}>
-                <CartesianGrid stroke={BORDER} strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} tickLine={false} />
-                <YAxis tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
-                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
-                <Bar dataKey="reviews" fill={SKODA_GREEN + "88"} radius={[3,3,0,0]} name="Reviews" />
-                <Bar dataKey="negative" fill={ALERT_RED + "88"} radius={[3,3,0,0]} name="Negative" />
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} tickLine={false} />
+                <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Bar dataKey="reviews" fill={T.SKODA_GREEN + "88"} radius={[3,3,0,0]} name="Reviews" />
+                <Bar dataKey="negative" fill={T.ALERT_RED + "88"} radius={[3,3,0,0]} name="Negative" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Avg Rating & Negative % Trend</div>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
               <LineChart data={monthlyTrend} margin={{ left: 0, right: 8 }}>
-                <CartesianGrid stroke={BORDER} strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} tickLine={false} />
-                <YAxis yAxisId="left" domain={[3, 5]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
-                <YAxis yAxisId="right" orientation="right" domain={[0, 30]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
-                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={SKODA_GREEN} strokeWidth={2.5} dot={{ fill: SKODA_GREEN, r: 3 }} name="Avg Rating" />
-                <Line yAxisId="right" type="monotone" dataKey="negPct" stroke={ALERT_RED} strokeWidth={2} strokeDasharray="4 4" dot={{ fill: ALERT_RED, r: 3 }} name="Negative %" />
-                <Legend wrapperStyle={{ fontSize: 10, color: TEXT_DIM }} />
+                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} tickLine={false} />
+                <YAxis yAxisId="left" domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <YAxis yAxisId="right" orientation="right" domain={[0, 30]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 3 }} name="Avg Rating" />
+                <Line yAxisId="right" type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} strokeDasharray="4 4" dot={{ fill: T.ALERT_RED, r: 3 }} name="Negative %" />
+                <Legend wrapperStyle={{ fontSize: 10, color: T.TEXT_DIM }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1105,52 +1154,52 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       {/* ── Filters bar ── */}
       <div style={{
         display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap",
-        background: SURFACE_2, borderRadius: 8, padding: "10px 14px", border: `1px solid ${BORDER}`,
+        background: T.SURFACE_2, borderRadius: 8, padding: "10px 14px", border: `1px solid ${T.BORDER}`,
       }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={TEXT_DIM} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={T.TEXT_DIM} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <input placeholder="Search dealer, city, country..." value={search} onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: 200, border: "none", background: "transparent", padding: "4px 0" }} />
-        <div style={{ width: 1, height: 20, background: BORDER }} />
+        <div style={{ width: 1, height: 20, background: T.BORDER }} />
         <select value={alertFilter} onChange={e => setAlertFilter(e.target.value)} style={{ background: "transparent", border: "none", fontSize: 12 }}>
           <option value="all">All dealers</option>
           <option value="any">With alerts</option>
           <option value="high">High + Critical</option>
           <option value="critical">Critical only</option>
         </select>
-        <div style={{ width: 1, height: 20, background: BORDER }} />
+        <div style={{ width: 1, height: 20, background: T.BORDER }} />
         <div style={{ display: "flex", gap: 2 }}>
           {["table","cards"].map(m => (
             <button key={m} onClick={() => setViewMode(m)} style={{
               padding: "4px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600,
-              background: viewMode === m ? SKODA_GREEN + "22" : "transparent",
-              color: viewMode === m ? SKODA_GREEN : TEXT_DIM,
+              background: viewMode === m ? T.SKODA_GREEN + "22" : "transparent",
+              color: viewMode === m ? T.SKODA_GREEN : T.TEXT_DIM,
               border: "none", cursor: "pointer", fontFamily: "inherit",
             }}>{m === "table" ? "☰ Table" : "⊞ Cards"}</button>
           ))}
         </div>
-        <span style={{ fontSize: 11, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{dealers.length} results</span>
+        <span style={{ fontSize: 11, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{dealers.length} results</span>
       </div>
 
       {/* ── Dealer Table ── */}
       {viewMode === "table" ? (
-        <div style={{ background: SURFACE_2, borderRadius: 10, border: `1px solid ${BORDER}`, overflow: "hidden" }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, border: `1px solid ${T.BORDER}`, overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <thead>
-                <tr style={{ background: SURFACE }}>
-                  <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: TEXT_DIM, borderBottom: `2px solid ${BORDER}`, textTransform: "uppercase", letterSpacing: 0.8, width: 30 }}>#</th>
-                  <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: TEXT_DIM, borderBottom: `2px solid ${BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>Dealer</th>
+                <tr style={{ background: T.SURFACE }}>
+                  <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: T.TEXT_DIM, borderBottom: `2px solid ${T.BORDER}`, textTransform: "uppercase", letterSpacing: 0.8, width: 30 }}>#</th>
+                  <th style={{ padding: "10px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: T.TEXT_DIM, borderBottom: `2px solid ${T.BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>Dealer</th>
                   <SortHeader col="rating" label="Rating" />
                   <SortHeader col="reviews" label="Reviews" />
                   <SortHeader col="negative" label="Negative" />
-                  <th style={{ padding: "10px 10px", textAlign: "center", fontSize: 10, fontWeight: 700, color: TEXT_DIM, borderBottom: `2px solid ${BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>6mo Trend</th>
+                  <th style={{ padding: "10px 10px", textAlign: "center", fontSize: 10, fontWeight: 700, color: T.TEXT_DIM, borderBottom: `2px solid ${T.BORDER}`, textTransform: "uppercase", letterSpacing: 0.8 }}>6mo Trend</th>
                   <SortHeader col="alerts" label="Alerts" />
                 </tr>
               </thead>
               <tbody>
                 {dealers.slice(0, 60).map((d, i) => {
                   const isExpanded = expandedDealer === d.id;
-                  const trendColor = d.trend > 0.1 ? SKODA_GREEN : d.trend < -0.1 ? ALERT_RED : TEXT_DIM;
+                  const trendColor = d.trend > 0.1 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM;
                   const flag = EUROPEAN_COUNTRIES.find(c => c.code === d.country)?.flag || "";
                   return (
                     <React.Fragment key={d.id}>
@@ -1158,24 +1207,24 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                         onClick={() => setExpandedDealer(isExpanded ? null : d.id)}
                         style={{
                           cursor: "pointer",
-                          borderBottom: `1px solid ${isExpanded ? SKODA_GREEN + "33" : BORDER + "33"}`,
-                          background: isExpanded ? SKODA_GREEN + "08" : "transparent",
+                          borderBottom: `1px solid ${isExpanded ? T.SKODA_GREEN + "33" : T.BORDER + "33"}`,
+                          background: isExpanded ? T.SKODA_GREEN + "08" : "transparent",
                         }}>
-                        <td style={{ padding: "12px 10px", fontSize: 11, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{i+1}</td>
+                        <td style={{ padding: "12px 10px", fontSize: 11, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{i+1}</td>
                         <td style={{ padding: "12px 10px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={{ fontSize: 16 }}>{flag}</span>
                             <div style={{ minWidth: 0 }}>
                               <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 260, display: "flex", alignItems: "center", gap: 6 }}>
                                 {d.name}
-                                {d.isMultibrand && <span style={{ fontSize: 9, padding: "1px 5px", borderRadius: 3, background: ALERT_YELLOW + "22", color: ALERT_YELLOW, border: `1px solid ${ALERT_YELLOW}33`, fontWeight: 700 }}>MULTI</span>}
+                                {d.isMultibrand && <span style={{ fontSize: 9, padding: "1px 5px", borderRadius: 3, background: T.ALERT_YELLOW + "22", color: T.ALERT_YELLOW, border: `1px solid ${T.ALERT_YELLOW}33`, fontWeight: 700 }}>MULTI</span>}
                               </div>
-                              <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 1 }}>{d.city}, {d.countryName}</div>
+                              <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 1 }}>{d.city}, {d.countryName}</div>
                             </div>
                           </div>
                         </td>
                         <td style={{ padding: "12px 10px" }}><RatingBar rating={d.rating} /></td>
-                        <td style={{ padding: "12px 10px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: TEXT_DIM }}>
+                        <td style={{ padding: "12px 10px", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: T.TEXT_DIM }}>
                           {d.reviewCount.toLocaleString()}
                         </td>
                         <td style={{ padding: "12px 10px" }}><NegativeBar percent={d.negativePercent} /></td>
@@ -1192,33 +1241,33 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                             <span style={{
                               display: "inline-flex", alignItems: "center", justifyContent: "center",
                               width: 24, height: 24, borderRadius: 12, fontSize: 11, fontWeight: 800,
-                              background: d.alerts.some(a=>a.severity==="critical") ? ALERT_RED + "22" : d.alerts.some(a=>a.severity==="high") ? ALERT_ORANGE + "22" : ALERT_YELLOW + "22",
-                              color: d.alerts.some(a=>a.severity==="critical") ? ALERT_RED : d.alerts.some(a=>a.severity==="high") ? ALERT_ORANGE : ALERT_YELLOW,
-                              border: `1px solid ${d.alerts.some(a=>a.severity==="critical") ? ALERT_RED + "44" : d.alerts.some(a=>a.severity==="high") ? ALERT_ORANGE + "44" : ALERT_YELLOW + "44"}`,
+                              background: d.alerts.some(a=>a.severity==="critical") ? T.ALERT_RED + "22" : d.alerts.some(a=>a.severity==="high") ? T.ALERT_ORANGE + "22" : T.ALERT_YELLOW + "22",
+                              color: d.alerts.some(a=>a.severity==="critical") ? T.ALERT_RED : d.alerts.some(a=>a.severity==="high") ? T.ALERT_ORANGE : T.ALERT_YELLOW,
+                              border: `1px solid ${d.alerts.some(a=>a.severity==="critical") ? T.ALERT_RED + "44" : d.alerts.some(a=>a.severity==="high") ? T.ALERT_ORANGE + "44" : T.ALERT_YELLOW + "44"}`,
                             }}>{d.alerts.length}</span>
-                          ) : <span style={{ color: SKODA_GREEN, fontSize: 13 }}>✓</span>}
+                          ) : <span style={{ color: T.SKODA_GREEN, fontSize: 13 }}>✓</span>}
                         </td>
                       </tr>
                       {/* ── Expanded row ── */}
                       {isExpanded && (
                         <tr>
-                          <td colSpan={7} style={{ padding: 0, background: SURFACE + "88" }}>
+                          <td colSpan={7} style={{ padding: 0, background: T.SURFACE + "88" }}>
                             <div style={{ padding: "14px 16px 14px 48px", animation: "slideIn 0.2s ease" }}>
                               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 12 }}>
                                 <div>
-                                  <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Details</div>
-                                  <div style={{ fontSize: 11, color: TEXT, lineHeight: 1.8 }}>
-                                    {d.isMultibrand && <div>Brands: <span style={{ color: ALERT_YELLOW }}>{d.brands.join(", ")}</span></div>}
+                                  <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Details</div>
+                                  <div style={{ fontSize: 11, color: T.TEXT, lineHeight: 1.8 }}>
+                                    {d.isMultibrand && <div>Brands: <span style={{ color: T.ALERT_YELLOW }}>{d.brands.join(", ")}</span></div>}
                                     <div>Address: {d.address}</div>
-                                    <div>Place ID: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: TEXT_DIM }}>{d.placeId}</span></div>
+                                    <div>Place ID: <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.TEXT_DIM }}>{d.placeId}</span></div>
                                   </div>
                                 </div>
                                 <div>
-                                  <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Alerts</div>
+                                  <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Alerts</div>
                                   {d.alerts.length === 0
-                                    ? <div style={{ fontSize: 11, color: SKODA_GREEN }}>No active alerts ✓</div>
+                                    ? <div style={{ fontSize: 11, color: T.SKODA_GREEN }}>No active alerts ✓</div>
                                     : d.alerts.map((a, j) => (
-                                      <div key={j} style={{ fontSize: 11, color: a.severity === "critical" ? ALERT_RED : a.severity === "high" ? ALERT_ORANGE : ALERT_YELLOW, marginBottom: 3 }}>
+                                      <div key={j} style={{ fontSize: 11, color: a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW, marginBottom: 3 }}>
                                         {a.severity === "critical" ? "🔴" : a.severity === "high" ? "🟠" : "🟡"} {a.text}
                                       </div>
                                     ))}
@@ -1226,25 +1275,25 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                                 <div style={{ textAlign: "right" }}>
                                   <button onClick={(e) => { e.stopPropagation(); onSelectDealer(d); }} style={{
                                     padding: "8px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700,
-                                    background: SKODA_GREEN + "22", color: SKODA_GREEN, border: `1px solid ${SKODA_GREEN}44`,
+                                    background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`,
                                     cursor: "pointer", fontFamily: "inherit",
                                   }}>Open in Benchmark →</button>
                                 </div>
                               </div>
                               {/* Recent reviews preview */}
-                              <div style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Latest Reviews</div>
+                              <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Latest Reviews</div>
                               <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
                                 {d.recentReviews.slice(0, 4).map(r => (
                                   <div key={r.id} style={{
-                                    minWidth: 240, maxWidth: 280, background: SURFACE_2, borderRadius: 6, padding: "8px 12px",
-                                    border: `1px solid ${r.stars <= 2 ? ALERT_RED + "33" : BORDER}`,
+                                    minWidth: 240, maxWidth: 280, background: T.SURFACE_2, borderRadius: 6, padding: "8px 12px",
+                                    border: `1px solid ${r.stars <= 2 ? T.ALERT_RED + "33" : T.BORDER}`,
                                     fontSize: 11, flexShrink: 0,
                                   }}>
                                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                                       <StarRating rating={r.stars} size={10} />
-                                      <span style={{ fontSize: 10, color: TEXT_DIM }}>{r.date}</span>
+                                      <span style={{ fontSize: 10, color: T.TEXT_DIM }}>{r.date}</span>
                                     </div>
-                                    <div style={{ color: TEXT_DIM, lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                                    <div style={{ color: T.TEXT_DIM, lineHeight: 1.5, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                                       {r.text}
                                     </div>
                                   </div>
@@ -1261,7 +1310,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
             </table>
           </div>
           {dealers.length > 60 && (
-            <div style={{ padding: 12, textAlign: "center", fontSize: 11, color: TEXT_DIM, borderTop: `1px solid ${BORDER}` }}>
+            <div style={{ padding: 12, textAlign: "center", fontSize: 11, color: T.TEXT_DIM, borderTop: `1px solid ${T.BORDER}` }}>
               Showing 60 of {dealers.length} dealers · Use search or country filter to narrow down
             </div>
           )}
@@ -1271,11 +1320,11 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
           {dealers.slice(0, 30).map((d, i) => {
             const flag = EUROPEAN_COUNTRIES.find(c => c.code === d.country)?.flag || "";
-            const ratingColor = d.rating >= 4.5 ? SKODA_GREEN : d.rating >= 4.0 ? SKODA_ACCENT : d.rating >= 3.5 ? ALERT_YELLOW : d.rating >= 3.0 ? ALERT_ORANGE : ALERT_RED;
+            const ratingColor = d.rating >= 4.5 ? T.SKODA_GREEN : d.rating >= 4.0 ? T.SKODA_ACCENT : d.rating >= 3.5 ? T.ALERT_YELLOW : d.rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
             return (
               <div key={d.id} onClick={() => onSelectDealer(d)} className="dealer-row" style={{
-                background: SURFACE_2, borderRadius: 10, padding: 16,
-                border: `1px solid ${d.alerts.length > 0 ? ALERT_RED + "33" : BORDER}`,
+                background: T.SURFACE_2, borderRadius: 10, padding: 16,
+                border: `1px solid ${d.alerts.length > 0 ? T.ALERT_RED + "33" : T.BORDER}`,
                 cursor: "pointer", transition: "all 0.15s",
                 animation: `slideIn 0.3s ease ${i * 0.02}s both`,
               }}>
@@ -1286,7 +1335,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                       <div style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
                         {d.name}
                       </div>
-                      <div style={{ fontSize: 10, color: TEXT_DIM }}>{d.city}, {d.countryName}</div>
+                      <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{d.city}, {d.countryName}</div>
                     </div>
                   </div>
                   <div style={{
@@ -1296,23 +1345,23 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                   }}>{d.rating}</div>
                 </div>
                 <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: TEXT_DIM }}>
-                    <span style={{ fontWeight: 700, color: TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{d.reviewCount.toLocaleString()}</span> reviews
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>
+                    <span style={{ fontWeight: 700, color: T.TEXT, fontFamily: "'JetBrains Mono', monospace" }}>{d.reviewCount.toLocaleString()}</span> reviews
                   </div>
                   <NegativeBar percent={d.negativePercent} />
                   <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
-                    <MiniSparkline data={d.monthlyData} width={48} height={16} color={d.trend > 0 ? SKODA_GREEN : d.trend < -0.1 ? ALERT_RED : TEXT_DIM} />
-                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.trend > 0 ? SKODA_GREEN : d.trend < -0.1 ? ALERT_RED : TEXT_DIM }}>
+                    <MiniSparkline data={d.monthlyData} width={48} height={16} color={d.trend > 0 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM} />
+                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.trend > 0 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM }}>
                       {d.trend > 0 ? "↑" : d.trend < -0.1 ? "↓" : "→"}
                     </span>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  {d.isMultibrand && <Badge color={ALERT_YELLOW}>Multi: {d.brands.slice(0,3).join(", ")}</Badge>}
+                  {d.isMultibrand && <Badge color={T.ALERT_YELLOW}>Multi: {d.brands.slice(0,3).join(", ")}</Badge>}
                   {d.alerts.map((a, j) => (
-                    <Badge key={j} color={a.severity === "critical" ? ALERT_RED : a.severity === "high" ? ALERT_ORANGE : ALERT_YELLOW}>{a.text}</Badge>
+                    <Badge key={j} color={a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW}>{a.text}</Badge>
                   ))}
-                  {d.alerts.length === 0 && !d.isMultibrand && <Badge color={SKODA_GREEN}>Clean</Badge>}
+                  {d.alerts.length === 0 && !d.isMultibrand && <Badge color={T.SKODA_GREEN}>Clean</Badge>}
                 </div>
               </div>
             );
@@ -1321,27 +1370,27 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       )}
 
       {/* ── Country summary table ── */}
-      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Country Summary</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {countryData.map(c => {
-            const rColor = c.avgRating >= 4.5 ? SKODA_GREEN : c.avgRating >= 4.0 ? SKODA_ACCENT : c.avgRating >= 3.5 ? ALERT_YELLOW : ALERT_ORANGE;
+            const rColor = c.avgRating >= 4.5 ? T.SKODA_GREEN : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
             return (
               <div key={c.code} onClick={() => setCountryFilter(c.code)} style={{
-                background: countryFilter === c.code ? SKODA_GREEN + "11" : SURFACE,
+                background: countryFilter === c.code ? T.SKODA_GREEN + "11" : T.SURFACE,
                 borderRadius: 8, padding: "10px 14px",
-                border: `1px solid ${countryFilter === c.code ? SKODA_GREEN + "44" : BORDER}`,
+                border: `1px solid ${countryFilter === c.code ? T.SKODA_GREEN + "44" : T.BORDER}`,
                 cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
                 transition: "all 0.15s",
               }}>
                 <span style={{ fontSize: 22 }}>{c.flag}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 12 }}>{c.name}</div>
-                  <div style={{ fontSize: 10, color: TEXT_DIM }}>{c.dealers} dealers · {c.totalReviews.toLocaleString()} reviews</div>
+                  <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{c.dealers} dealers · {c.totalReviews.toLocaleString()} reviews</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontWeight: 800, fontSize: 15, color: rColor, fontFamily: "'JetBrains Mono', monospace" }}>{c.avgRating}★</div>
-                  {c.alertCount > 0 && <div style={{ fontSize: 9, color: ALERT_RED }}>{c.alertCount} alerts</div>}
+                  {c.alertCount > 0 && <div style={{ fontSize: 9, color: T.ALERT_RED }}>{c.alertCount} alerts</div>}
                 </div>
               </div>
             );
@@ -1357,8 +1406,9 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 // ═══════════════════════════════════════════════════════════════
 
 function SentimentPanel({ dealers }) {
+  const T = useTheme();
   if (!dealers.length) return (
-    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
       <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
     </div>
@@ -1382,9 +1432,9 @@ function SentimentPanel({ dealers }) {
   });
 
   const overallSentiment = [
-    { name: "Positive", value: aggregated.reduce((s, a) => s + a.positive, 0), color: SKODA_GREEN },
+    { name: "Positive", value: aggregated.reduce((s, a) => s + a.positive, 0), color: T.SKODA_GREEN },
     { name: "Neutral", value: aggregated.reduce((s, a) => s + a.neutral, 0), color: "#888" },
-    { name: "Negative", value: aggregated.reduce((s, a) => s + a.negative, 0), color: ALERT_RED },
+    { name: "Negative", value: aggregated.reduce((s, a) => s + a.negative, 0), color: T.ALERT_RED },
   ];
   const total = overallSentiment.reduce((s, o) => s + o.value, 0);
 
@@ -1407,24 +1457,24 @@ function SentimentPanel({ dealers }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
         {/* Category breakdown */}
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Sentiment by Category (all countries)</div>
           <div style={{ height: 250 }}>
             <ResponsiveContainer>
               <BarChart data={aggregated} layout="vertical" margin={{ left: 80 }}>
-                <XAxis type="number" domain={[0, 100]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} />
-                <YAxis type="category" dataKey="category" tick={{ fill: TEXT, fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
-                <Bar dataKey="positive" stackId="a" fill={SKODA_GREEN} name="Positive %" />
+                <XAxis type="number" domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
+                <YAxis type="category" dataKey="category" tick={{ fill: T.TEXT, fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                <Bar dataKey="positive" stackId="a" fill={T.SKODA_GREEN} name="Positive %" />
                 <Bar dataKey="neutral" stackId="a" fill="#555" name="Neutral %" />
-                <Bar dataKey="negative" stackId="a" fill={ALERT_RED} name="Negative %" radius={[0,4,4,0]} />
+                <Bar dataKey="negative" stackId="a" fill={T.ALERT_RED} name="Negative %" radius={[0,4,4,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Overall pie */}
-        <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Overall Sentiment</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer>
@@ -1432,7 +1482,7 @@ function SentimentPanel({ dealers }) {
                 <Pie data={overallSentiment} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value">
                   {overallSentiment.map((e, i) => <Cell key={i} fill={e.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
+                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -1440,7 +1490,7 @@ function SentimentPanel({ dealers }) {
             {overallSentiment.map(s => (
               <div key={s.name} style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />
-                <span style={{ color: TEXT_DIM }}>{s.name}: {Math.round(s.value/total*100)}%</span>
+                <span style={{ color: T.TEXT_DIM }}>{s.name}: {Math.round(s.value/total*100)}%</span>
               </div>
             ))}
           </div>
@@ -1448,18 +1498,18 @@ function SentimentPanel({ dealers }) {
       </div>
 
       {/* Keywords */}
-      <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🔑 AI-Extracted Keywords</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {keywords.map(kw => (
             <div key={kw.word} style={{
               padding: "6px 12px", borderRadius: 20,
-              background: kw.sentiment === "pos" ? SKODA_GREEN + "15" : kw.sentiment === "neg" ? ALERT_RED + "15" : SURFACE_3,
-              border: `1px solid ${kw.sentiment === "pos" ? SKODA_GREEN + "33" : kw.sentiment === "neg" ? ALERT_RED + "33" : BORDER}`,
+              background: kw.sentiment === "pos" ? T.SKODA_GREEN + "15" : kw.sentiment === "neg" ? T.ALERT_RED + "15" : T.SURFACE_3,
+              border: `1px solid ${kw.sentiment === "pos" ? T.SKODA_GREEN + "33" : kw.sentiment === "neg" ? T.ALERT_RED + "33" : T.BORDER}`,
               fontSize: 12, display: "flex", alignItems: "center", gap: 6,
             }}>
-              <span style={{ color: kw.sentiment === "pos" ? SKODA_GREEN : kw.sentiment === "neg" ? ALERT_RED : TEXT_DIM }}>{kw.word}</span>
-              <span style={{ fontSize: 10, color: TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{kw.count}</span>
+              <span style={{ color: kw.sentiment === "pos" ? T.SKODA_GREEN : kw.sentiment === "neg" ? T.ALERT_RED : T.TEXT_DIM }}>{kw.word}</span>
+              <span style={{ fontSize: 10, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{kw.count}</span>
             </div>
           ))}
         </div>
@@ -1467,11 +1517,11 @@ function SentimentPanel({ dealers }) {
 
       {/* AI Insight */}
       <div style={{
-        background: `linear-gradient(135deg, ${SKODA_GREEN}11, ${SKODA_GREEN}05)`,
-        borderRadius: 10, padding: 16, border: `1px solid ${SKODA_GREEN}33`,
+        background: `linear-gradient(135deg, ${T.SKODA_GREEN}11, ${T.SKODA_GREEN}05)`,
+        borderRadius: 10, padding: 16, border: `1px solid ${T.SKODA_GREEN}33`,
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: SKODA_GREEN, marginBottom: 8 }}>🤖 AI Insight Summary</div>
-        <div style={{ fontSize: 12, color: TEXT, lineHeight: 1.7 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 8 }}>🤖 AI Insight Summary</div>
+        <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.7 }}>
           Across {dealers.length} dealers in {new Set(dealers.map(d=>d.country)).size} countries, the primary positive drivers
           are <strong>professional staff</strong> and <strong>helpful service</strong>. The most common complaints involve <strong>waiting
           times</strong> for service appointments and <strong>pricing transparency</strong>. Language barriers (particularly lack
@@ -1489,8 +1539,9 @@ function SentimentPanel({ dealers }) {
 // ═══════════════════════════════════════════════════════════════
 
 function BenchmarkPanel({ dealers, selected, onSelect }) {
+  const T = useTheme();
   if (!dealers.length) return (
-    <div style={{ textAlign: "center", padding: 60, color: TEXT_DIM }}>
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
       <div style={{ fontSize: 16, fontWeight: 600 }}>No data imported yet</div>
     </div>
@@ -1528,7 +1579,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Dealer selector */}
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: TEXT_DIM }}>Select dealer:</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: T.TEXT_DIM }}>Select dealer:</span>
         <select value={dealer?.id || ""} onChange={e => onSelect(dealers.find(d => d.id === e.target.value))}
           style={{ flex: 1, maxWidth: 500 }}>
           {dealers.map(d => <option key={d.id} value={d.id}>{d.name} ({d.city}, {d.countryName}) – {d.rating}★</option>)}
@@ -1539,13 +1590,13 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
         <>
           {/* Selected dealer info */}
           <div style={{
-            background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}`,
+            background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}`,
             display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap",
           }}>
             <div>
               <div style={{ fontSize: 18, fontWeight: 700 }}>{dealer.name}</div>
-              <div style={{ fontSize: 12, color: TEXT_DIM, marginTop: 2 }}>{dealer.city}, {dealer.countryName}</div>
-              {dealer.isMultibrand && <Badge color={ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
+              <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 2 }}>{dealer.city}, {dealer.countryName}</div>
+              {dealer.isMultibrand && <Badge color={T.ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
             </div>
             <div style={{ display: "flex", gap: 12 }}>
               <Stat label="Rating" value={`${dealer.rating}★`} />
@@ -1554,40 +1605,40 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               <Stat label="Trend (6mo)" value={`${dealer.trend > 0 ? "+" : ""}${dealer.trend}`} />
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <Badge color={SKODA_GREEN}>Network avg: {avgNetwork}★</Badge>
-              <Badge color={TEXT_DIM}>Country avg: {avgCountry}★</Badge>
+              <Badge color={T.SKODA_GREEN}>Network avg: {avgNetwork}★</Badge>
+              <Badge color={T.TEXT_DIM}>Country avg: {avgCountry}★</Badge>
             </div>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {/* Radar */}
-            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Dealer vs Network Average</div>
               <div style={{ height: 280 }}>
                 <ResponsiveContainer>
                   <RadarChart data={radarData}>
-                    <PolarGrid stroke={BORDER} />
-                    <PolarAngleAxis dataKey="category" tick={{ fill: TEXT, fontSize: 11 }} />
-                    <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: TEXT_DIM, fontSize: 9 }} />
-                    <Radar name="This dealer" dataKey="dealer" stroke={SKODA_GREEN} fill={SKODA_GREEN} fillOpacity={0.3} />
+                    <PolarGrid stroke={T.BORDER} />
+                    <PolarAngleAxis dataKey="category" tick={{ fill: T.TEXT, fontSize: 11 }} />
+                    <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 9 }} />
+                    <Radar name="This dealer" dataKey="dealer" stroke={T.SKODA_GREEN} fill={T.SKODA_GREEN} fillOpacity={0.3} />
                     <Radar name="Network avg" dataKey="network" stroke="#888" fill="#888" fillOpacity={0.1} />
-                    <Legend wrapperStyle={{ fontSize: 11, color: TEXT_DIM }} />
+                    <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
             {/* Rating trend */}
-            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend (6 months)</div>
               <div style={{ height: 280 }}>
                 <ResponsiveContainer>
                   <LineChart data={dealer.monthlyData}>
-                    <CartesianGrid stroke={BORDER} strokeDasharray="3 3" />
-                    <XAxis dataKey="month" tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} />
-                    <YAxis domain={[2.5, 5]} tick={{ fill: TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: BORDER }} />
-                    <Tooltip contentStyle={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 6, fontSize: 12, color: TEXT }} />
-                    <Line type="monotone" dataKey="avgRating" stroke={SKODA_GREEN} strokeWidth={2} dot={{ fill: SKODA_GREEN }} name="Avg Rating" />
+                    <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
+                    <YAxis domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
+                    <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                    <Line type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2} dot={{ fill: T.SKODA_GREEN }} name="Avg Rating" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -1596,50 +1647,50 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
           {/* Country ranking */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {dealer.countryName}</div>
+            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>🏆 Top 5 in {dealer.countryName}</div>
               {topDealers.map((d, i) => (
                 <div key={d.id} onClick={() => onSelect(d)} style={{
                   display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
-                  borderBottom: i < 4 ? `1px solid ${BORDER}22` : "none",
+                  borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none",
                   cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7,
                 }}>
-                  <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : TEXT_DIM }}>{i+1}.</span>
-                  <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: TEXT_DIM }}>({d.city})</span></div>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: SKODA_GREEN }}>{d.rating}★</span>
+                  <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : T.TEXT_DIM }}>{i+1}.</span>
+                  <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: T.TEXT_DIM }}>({d.city})</span></div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: T.SKODA_GREEN }}>{d.rating}★</span>
                 </div>
               ))}
             </div>
-            <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 in {dealer.countryName}</div>
+            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>⚠ Bottom 5 in {dealer.countryName}</div>
               {bottomDealers.map((d, i) => (
                 <div key={d.id} onClick={() => onSelect(d)} style={{
                   display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
-                  borderBottom: i < 4 ? `1px solid ${BORDER}22` : "none",
+                  borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none",
                   cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7,
                 }}>
-                  <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: ALERT_RED }}>{i+1}.</span>
-                  <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: TEXT_DIM }}>({d.city})</span></div>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: d.rating < 3.5 ? ALERT_RED : ALERT_ORANGE }}>{d.rating}★</span>
+                  <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: T.ALERT_RED }}>{i+1}.</span>
+                  <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: T.TEXT_DIM }}>({d.city})</span></div>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: d.rating < 3.5 ? T.ALERT_RED : T.ALERT_ORANGE }}>{d.rating}★</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Recent reviews */}
-          <div style={{ background: SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${BORDER}` }}>
+          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Recent Reviews</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {dealer.recentReviews.slice(0, 5).map(r => (
                 <div key={r.id} style={{
-                  background: SURFACE, borderRadius: 6, padding: "10px 14px",
-                  borderLeft: `3px solid ${r.stars >= 4 ? SKODA_GREEN : r.stars >= 3 ? ALERT_YELLOW : ALERT_RED}`,
+                  background: T.SURFACE, borderRadius: 6, padding: "10px 14px",
+                  borderLeft: `3px solid ${r.stars >= 4 ? T.SKODA_GREEN : r.stars >= 3 ? T.ALERT_YELLOW : T.ALERT_RED}`,
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                     <StarRating rating={r.stars} size={12} />
-                    <span style={{ fontSize: 11, color: TEXT_DIM }}>{r.date}</span>
+                    <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.date}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
+                  <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
                 </div>
               ))}
             </div>
