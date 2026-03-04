@@ -1501,91 +1501,11 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
   const criticalCount = alertDealers.filter(d => d.alerts.some(a => a.severity === "critical")).length;
   const highCount = alertDealers.filter(d => d.alerts.some(a => a.severity === "high")).length;
 
-  const toImport = countries ? [...(selectedCountries || new Set())].filter(c => !(importedCountryCodes || new Set()).has(c)) : [];
-  const filtered = countries ? (regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter)) : [];
-  const imported = importedCountryCodes || new Set();
-
-  if (!dealers.length && countries) return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, animation: "slideIn 0.4s ease" }}>
-      {/* Welcome header */}
-      <div style={{ textAlign: "center", padding: "32px 16px 0" }}>
-        <div style={{ width: 56, height: 56, borderRadius: 12, background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 16 }}>Š</div>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>{t("app.title")}</div>
-        <div style={{ fontSize: 14, color: T.TEXT_DIM }}>{t("alerts.goToAdmin")}</div>
-      </div>
-
-      {/* Region filter */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-        {REGIONS.map(r => (
-          <button key={r} onClick={() => setRegionFilter(r)} style={{
-            padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-            background: regionFilter === r ? T.SKODA_GREEN + "22" : T.SURFACE_2,
-            color: regionFilter === r ? T.SKODA_GREEN : T.TEXT_DIM,
-            border: `1px solid ${regionFilter === r ? T.SKODA_GREEN + "44" : T.BORDER}`,
-            cursor: "pointer",
-          }}>{r}</button>
-        ))}
-        <button onClick={() => selectRegion(regionFilter)} style={{
-          padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-          background: T.SURFACE_2, color: T.SKODA_ACCENT, border: `1px solid ${T.BORDER}`, cursor: "pointer",
-        }}>{t("btn.selectAll")} {regionFilter}</button>
-        <button onClick={() => setSelected(new Set())} style={{
-          padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-          background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`, cursor: "pointer",
-        }}>{t("btn.clearSelection")}</button>
-      </div>
-
-      {/* Country grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
-        {filtered.map(c => {
-          const isSelected = selectedCountries?.has(c.code);
-          const isImported = imported.has(c.code);
-          return (
-            <button key={c.code} onClick={() => !isImported && toggleCountry(c.code)} style={{
-              background: isImported ? T.SKODA_GREEN + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
-              borderRadius: 8, padding: "12px 14px",
-              border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
-              cursor: isImported ? "default" : "pointer",
-              display: "flex", alignItems: "center", gap: 10,
-              transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
-            }}>
-              <span style={{ fontSize: 22 }}>{c.flag}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
-                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} {t("label.dealers")} · {c.region}</div>
-              </div>
-              <div style={{ fontSize: 18 }}>
-                {isImported ? <span style={{ color: T.SKODA_GREEN }}>✓</span>
-                  : isSelected ? <span style={{ width: 18, height: 18, borderRadius: 4, background: T.SKODA_GREEN, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff" }}>✓</span>
-                  : <span style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${T.BORDER}`, display: "inline-block" }} />}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Import button */}
-      <div style={{ position: "sticky", bottom: 0, padding: "16px 0", background: `linear-gradient(transparent, ${T.SKODA_DARK} 30%)`, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-        <button onClick={onImport} disabled={importing || !toImport.length} style={{
-          padding: "16px 48px", borderRadius: 10, fontSize: 16, fontWeight: 700,
-          background: toImport.length ? `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})` : T.SURFACE_3,
-          color: toImport.length ? "#fff" : T.TEXT_DIM,
-          border: "none", cursor: toImport.length ? "pointer" : "default",
-          opacity: importing ? 0.7 : 1, fontFamily: "inherit",
-          boxShadow: toImport.length ? `0 4px 20px ${T.SKODA_GREEN}44` : "none",
-        }}>
-          {importing
-            ? `${t("admin.importing")} ${importProgress?.country}... (${importProgress?.current}/${importProgress?.total})`
-            : toImport.length
-              ? `${t("btn.startMonitoring")} ${toImport.length} ${toImport.length === 1 ? t("admin.country") : t("admin.countries")}`
-              : t("admin.selectToImport")}
-        </button>
-        {importing && (
-          <div style={{ width: 200, height: 6, background: T.SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: T.SKODA_GREEN, borderRadius: 3, width: `${(importProgress?.current / importProgress?.total) * 100}%`, transition: "width 0.3s" }} />
-          </div>
-        )}
-      </div>
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM, animation: "fadeIn 0.4s ease" }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>🔔</div>
+      <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: T.TEXT }}>{t("alerts.goToAdmin")}</div>
+      <div style={{ fontSize: 13 }}>{t("admin.selectToImport")}</div>
     </div>
   );
 
@@ -2853,91 +2773,11 @@ function LiveReviewsPanel({ dealers }) {
     return () => clearInterval(interval);
   }, [dealers, paused]);
 
-  const toImport = countries ? [...(selectedCountries || new Set())].filter(c => !(importedCountryCodes || new Set()).has(c)) : [];
-  const filtered = countries ? (regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter)) : [];
-  const imported = importedCountryCodes || new Set();
-
-  if (!dealers.length && countries) return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, animation: "slideIn 0.4s ease" }}>
-      {/* Welcome header */}
-      <div style={{ textAlign: "center", padding: "32px 16px 0" }}>
-        <div style={{ width: 56, height: 56, borderRadius: 12, background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 16 }}>Š</div>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>{t("app.title")}</div>
-        <div style={{ fontSize: 14, color: T.TEXT_DIM }}>{t("alerts.goToAdmin")}</div>
-      </div>
-
-      {/* Region filter */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-        {REGIONS.map(r => (
-          <button key={r} onClick={() => setRegionFilter(r)} style={{
-            padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-            background: regionFilter === r ? T.SKODA_GREEN + "22" : T.SURFACE_2,
-            color: regionFilter === r ? T.SKODA_GREEN : T.TEXT_DIM,
-            border: `1px solid ${regionFilter === r ? T.SKODA_GREEN + "44" : T.BORDER}`,
-            cursor: "pointer",
-          }}>{r}</button>
-        ))}
-        <button onClick={() => selectRegion(regionFilter)} style={{
-          padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-          background: T.SURFACE_2, color: T.SKODA_ACCENT, border: `1px solid ${T.BORDER}`, cursor: "pointer",
-        }}>{t("btn.selectAll")} {regionFilter}</button>
-        <button onClick={() => setSelected(new Set())} style={{
-          padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-          background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`, cursor: "pointer",
-        }}>{t("btn.clearSelection")}</button>
-      </div>
-
-      {/* Country grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
-        {filtered.map(c => {
-          const isSelected = selectedCountries?.has(c.code);
-          const isImported = imported.has(c.code);
-          return (
-            <button key={c.code} onClick={() => !isImported && toggleCountry(c.code)} style={{
-              background: isImported ? T.SKODA_GREEN + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
-              borderRadius: 8, padding: "12px 14px",
-              border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
-              cursor: isImported ? "default" : "pointer",
-              display: "flex", alignItems: "center", gap: 10,
-              transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
-            }}>
-              <span style={{ fontSize: 22 }}>{c.flag}</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
-                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} {t("label.dealers")} · {c.region}</div>
-              </div>
-              <div style={{ fontSize: 18 }}>
-                {isImported ? <span style={{ color: T.SKODA_GREEN }}>✓</span>
-                  : isSelected ? <span style={{ width: 18, height: 18, borderRadius: 4, background: T.SKODA_GREEN, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff" }}>✓</span>
-                  : <span style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${T.BORDER}`, display: "inline-block" }} />}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Import button */}
-      <div style={{ position: "sticky", bottom: 0, padding: "16px 0", background: `linear-gradient(transparent, ${T.SKODA_DARK} 30%)`, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-        <button onClick={onImport} disabled={importing || !toImport.length} style={{
-          padding: "16px 48px", borderRadius: 10, fontSize: 16, fontWeight: 700,
-          background: toImport.length ? `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})` : T.SURFACE_3,
-          color: toImport.length ? "#fff" : T.TEXT_DIM,
-          border: "none", cursor: toImport.length ? "pointer" : "default",
-          opacity: importing ? 0.7 : 1, fontFamily: "inherit",
-          boxShadow: toImport.length ? `0 4px 20px ${T.SKODA_GREEN}44` : "none",
-        }}>
-          {importing
-            ? `${t("admin.importing")} ${importProgress?.country}... (${importProgress?.current}/${importProgress?.total})`
-            : toImport.length
-              ? `${t("btn.startMonitoring")} ${toImport.length} ${toImport.length === 1 ? t("admin.country") : t("admin.countries")}`
-              : t("admin.selectToImport")}
-        </button>
-        {importing && (
-          <div style={{ width: 200, height: 6, background: T.SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: T.SKODA_GREEN, borderRadius: 3, width: `${(importProgress?.current / importProgress?.total) * 100}%`, transition: "width 0.3s" }} />
-          </div>
-        )}
-      </div>
+  if (!dealers.length) return (
+    <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM, animation: "fadeIn 0.4s ease" }}>
+      <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
+      <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: T.TEXT }}>{t("alerts.goToAdmin")}</div>
+      <div style={{ fontSize: 13 }}>{t("admin.selectToImport")}</div>
     </div>
   );
 
