@@ -1361,19 +1361,23 @@ function SkodaDealerDashboard() {
         borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", WebkitOverflowScrolling: "touch",
         boxShadow: T.SHADOW_SM, transition: "background 0.3s",
       }}>
-        {tabs.map(t => (
+        {tabs.map(t => {
+          const isActive = activeTab === t.id;
+          return (
           <button key={t.id} className="tab-btn" onClick={() => setActiveTab(t.id)} style={{
             padding: "10px 14px", borderRadius: 6, flexShrink: 0, whiteSpace: "nowrap",
-            background: activeTab === t.id ? T.SKODA_GREEN + "22" : "transparent",
-            color: activeTab === t.id ? T.SKODA_GREEN : T.TEXT_DIM,
+            background: isActive ? T.SKODA_ACCENT + "18" : "transparent",
+            color: isActive ? T.SKODA_ACCENT : T.TEXT_DIM,
             display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2,
-            borderLeft: activeTab === t.id ? `3px solid ${T.SKODA_GREEN}` : "3px solid transparent",
+            borderLeft: isActive ? `3px solid ${T.SKODA_ACCENT}` : "3px solid transparent",
+            boxShadow: isActive ? `inset 0 0 12px ${T.SKODA_ACCENT}08` : "none",
           }}>
-            <span className="tab-label" style={{ fontWeight: 600, fontSize: 13 }}>{t.label}</span>
-            <span className="tab-sub" style={{ fontSize: 10, color: t.alert ? T.ALERT_RED : T.TEXT_DIM,
+            <span className="tab-label" style={{ fontWeight: isActive ? 700 : 600, fontSize: 13 }}>{t.label}</span>
+            <span className="tab-sub" style={{ fontSize: 10, color: t.alert ? T.ALERT_RED : isActive ? T.SKODA_ACCENT + "99" : T.TEXT_DIM,
               animation: t.alert ? "pulse 2s infinite" : "none" }}>{t.sub}</span>
           </button>
-        ))}
+          );
+        })}
       </div>
 
       {/* ── CONTENT ── */}
