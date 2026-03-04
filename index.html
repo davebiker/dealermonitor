@@ -30,14 +30,21 @@
 const THEMES = {
   dark: {
     SKODA_GREEN: "#0E3A2F",
-    SKODA_DARK: "#0A0A0A",
+    SKODA_DARK: "#08080F",
     SKODA_ACCENT: "#78FAAE",
-    SURFACE: "#111111",
-    SURFACE_2: "#1A1A1A",
-    SURFACE_3: "#242424",
-    BORDER: "#2E2E2E",
-    TEXT: "#F1F1F1",
-    TEXT_DIM: "#8A8A8A",
+    SURFACE: "#0F0F18",
+    SURFACE_2: "#161622",
+    SURFACE_3: "#1E1E2C",
+    BORDER: "#2A2A3A",
+    TEXT: "#E8E8ED",
+    TEXT_DIM: "#8888A0",
+    SURFACE_GLASS: "rgba(22,22,34,0.6)",
+    SHADOW_SM: "0 1px 3px rgba(0,0,0,0.2)",
+    SHADOW_MD: "0 4px 12px rgba(0,0,0,0.25)",
+    SHADOW_LG: "0 8px 30px rgba(0,0,0,0.3)",
+    RADIUS_SM: 6,
+    RADIUS_MD: 10,
+    RADIUS_LG: 14,
     ALERT_RED: "#FF4D4D",
     ALERT_ORANGE: "#FF8C00",
     ALERT_YELLOW: "#FFCC00",
@@ -45,13 +52,20 @@ const THEMES = {
   light: {
     SKODA_GREEN: "#0E3A2F",
     SKODA_DARK: "#F5F5F5",
-    SKODA_ACCENT: "#0E3A2F",
+    SKODA_ACCENT: "#2D8C5A",
     SURFACE: "#FFFFFF",
     SURFACE_2: "#F2F2F2",
     SURFACE_3: "#E6E6E6",
     BORDER: "#D4D4D4",
     TEXT: "#0A0A0A",
     TEXT_DIM: "#6B6B6B",
+    SURFACE_GLASS: "rgba(255,255,255,0.7)",
+    SHADOW_SM: "0 1px 3px rgba(0,0,0,0.08)",
+    SHADOW_MD: "0 4px 12px rgba(0,0,0,0.12)",
+    SHADOW_LG: "0 8px 30px rgba(0,0,0,0.16)",
+    RADIUS_SM: 6,
+    RADIUS_MD: 10,
+    RADIUS_LG: 14,
     ALERT_RED: "#D32F2F",
     ALERT_ORANGE: "#E65100",
     ALERT_YELLOW: "#F9A825",
@@ -908,7 +922,7 @@ const Badge = ({ children, color, style = {} }) => {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 4,
-      padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600,
+      padding: "2px 8px", borderRadius: T.RADIUS_SM, fontSize: 11, fontWeight: 600,
       background: c + "22", color: c, border: `1px solid ${c}44`,
       ...style,
     }}>{children}</span>
@@ -920,8 +934,10 @@ const Stat = ({ label, value, sub, alert }) => {
   const t = useLang();
   return (
     <div style={{
-      background: T.SURFACE_2, borderRadius: 8, padding: "14px 16px",
+      background: T.SURFACE_GLASS, borderRadius: T.RADIUS_MD, padding: "14px 16px",
       border: `1px solid ${alert ? T.ALERT_RED + "44" : T.BORDER}`,
+      backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+      boxShadow: T.SHADOW_SM,
       minWidth: 100, flex: 1,
     }}>
       <div style={{ fontSize: 11, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{label}</div>
@@ -1119,10 +1135,22 @@ function SkodaDealerDashboard() {
         ::-webkit-scrollbar-thumb { background: ${T.BORDER}; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: ${T.SKODA_GREEN}44; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .dealer-row:hover { background: ${T.SURFACE_3} !important; }
-        .tab-btn { transition: all 0.2s; cursor: pointer; border: none; }
+        .tab-btn { transition: background 0.2s, color 0.2s, border-color 0.2s; cursor: pointer; border: none; }
         .tab-btn:hover { background: ${T.SURFACE_3} !important; }
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: ${T.SHADOW_MD}; }
+        .panel-card { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .panel-card:hover { border-color: ${T.SKODA_GREEN}44 !important; box-shadow: ${T.SHADOW_SM}; }
+        .stat-glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .skeleton-shimmer { background: linear-gradient(90deg, transparent 25%, ${T.SURFACE_3}44 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
         input, select { background: ${T.SURFACE}; color: ${T.TEXT}; border: 1px solid ${T.BORDER}; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-size: 13px; outline: none; }
         input:focus, select:focus { border-color: ${T.SKODA_GREEN}; }
         /* Responsive — all panels */
@@ -1162,9 +1190,11 @@ function SkodaDealerDashboard() {
 
       {/* ── HEADER ── */}
       <div className="app-header" style={{
-        background: T.SURFACE, borderBottom: `1px solid ${T.BORDER}`,
+        background: T.SURFACE_GLASS, borderBottom: `1px solid ${T.BORDER}`,
         padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between",
-        position: "sticky", top: 0, zIndex: 100, flexWrap: "wrap", gap: 8, transition: "background 0.3s",
+        position: "sticky", top: 0, zIndex: 100, flexWrap: "wrap", gap: 8,
+        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+        boxShadow: T.SHADOW_SM, transition: "background 0.3s",
       }}>
         <div onClick={() => setActiveTab("summary")} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
           <div className="app-header-logo" style={{
@@ -1192,7 +1222,7 @@ function SkodaDealerDashboard() {
               <button key={x.c} onClick={() => setLang(x.c)} style={{
                 padding: "4px 8px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer",
                 background: lang === x.c ? T.SKODA_GREEN : T.SURFACE_2, color: lang === x.c ? "#fff" : T.TEXT_DIM,
-                transition: "all 0.2s",
+                transition: "background 0.2s, color 0.2s",
               }}>{x.l}</button>
             ))}
           </div>
@@ -1210,7 +1240,8 @@ function SkodaDealerDashboard() {
       {/* ── TABS ── */}
       <div className="app-tabs" style={{
         display: "flex", gap: 2, padding: "8px 12px", background: T.SURFACE,
-        borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", WebkitOverflowScrolling: "touch", transition: "background 0.3s",
+        borderBottom: `1px solid ${T.BORDER}`, overflowX: "auto", WebkitOverflowScrolling: "touch",
+        boxShadow: T.SHADOW_SM, transition: "background 0.3s",
       }}>
         {tabs.map(t => (
           <button key={t.id} className="tab-btn" onClick={() => setActiveTab(t.id)} style={{
@@ -1287,7 +1318,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Import Status */}
       {imported.size > 0 && (
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>
             {t("section.importedData")} ({imported.size} countries, {Object.values(importedData).flat().length} dealers)
           </div>
@@ -1356,7 +1387,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
               border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
-              transition: "all 0.15s",
+              transition: "background 0.15s, border-color 0.15s, color 0.15s",
               textAlign: "left",
               color: T.TEXT,
               fontFamily: "inherit",
@@ -1421,7 +1452,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
       </div>
 
       {/* API Config info */}
-      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+      <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t("section.dataSource")}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12, color: T.TEXT_DIM }}>
           <div>
@@ -1516,7 +1547,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
               border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
-              transition: "all 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
+              transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
             }}>
               <span style={{ fontSize: 22 }}>{c.flag}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1568,7 +1599,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
       </div>
 
       {/* Recent negative reviews */}
-      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+      <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.ALERT_RED }}>{t("alerts.recentNegative")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
           {dealers.flatMap(d => d.recentReviews.filter(r => r.stars <= 2 && r.daysAgo <= 7).map(r => ({ ...r, dealer: d })))
@@ -1600,7 +1631,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
       </div>
 
       {/* Dealers requiring attention */}
-      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+      <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("alerts.dealersAttention")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 400, overflowY: "auto" }}>
           {alertDealers.slice(0, 20).map((d, i) => (
@@ -1686,7 +1717,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
               border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
-              transition: "all 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
+              transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
             }}>
               <span style={{ fontSize: 22 }}>{c.flag}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -1828,7 +1859,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       {/* ── Row 1: Hero KPI cards ── */}
       <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
         {/* Network Rating */}
-        <div style={{ background: `linear-gradient(135deg, ${T.SKODA_GREEN}22, ${T.SKODA_GREEN}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_GREEN}44` }}>
+        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SKODA_GREEN}22, ${T.SKODA_GREEN}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_GREEN}44`, boxShadow: `0 0 20px ${T.SKODA_GREEN}15, ${T.SHADOW_SM}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.networkRating")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <span style={{ fontSize: 36, fontWeight: 800, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{avgRating}</span>
@@ -1838,28 +1869,28 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         </div>
 
         {/* NPS */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
+        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SURFACE_2}, ${T.SURFACE_3}66)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>NPS Score</div>
           <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: nps >= 50 ? T.SKODA_ACCENT : nps >= 0 ? T.ALERT_YELLOW : T.ALERT_RED }}>{nps > 0 ? "+" : ""}{nps}</div>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>{promoters} promoters · {detractors} detractors</div>
         </div>
 
         {/* Response Rate */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
+        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SURFACE_2}, ${T.SURFACE_3}66)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.responseRate")}</div>
           <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: avgResponseRate >= 70 ? T.SKODA_ACCENT : avgResponseRate >= 40 ? T.ALERT_YELLOW : T.ALERT_RED }}>{avgResponseRate}%</div>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>avg review response</div>
         </div>
 
         {/* Negative trend */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
+        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SURFACE_2}, ${T.SURFACE_3}66)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Negative Reviews</div>
           <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: negAvg > 15 ? T.ALERT_RED : negAvg > 10 ? T.ALERT_ORANGE : T.TEXT }}>{negAvg}%</div>
           <div style={{ marginTop: 6 }}><WowBadge value={wowNeg} suffix="% MoM" invert /></div>
         </div>
 
         {/* Alerts */}
-        <div style={{ background: totalAlerts > 0 ? T.ALERT_RED + "08" : T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${totalAlerts > 0 ? T.ALERT_RED + "33" : T.BORDER}` }}>
+        <div className="card-hover" style={{ background: totalAlerts > 0 ? T.ALERT_RED + "08" : T.SURFACE_2, borderRadius: 12, padding: "18px 16px", border: `1px solid ${totalAlerts > 0 ? T.ALERT_RED + "33" : T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Active Alerts</div>
           <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: totalAlerts > 0 ? T.ALERT_RED : T.SKODA_ACCENT }}>{totalAlerts}</div>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>{criticalAlerts} critical</div>
@@ -1869,7 +1900,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       {/* ── Row 2: Sparkline metrics ── */}
       <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         {/* Rating trend sparkline */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend (6 months)</div>
           <div style={{ height: 160 }}>
             <ResponsiveContainer>
@@ -1885,7 +1916,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         </div>
 
         {/* Review volume trend */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Review Volume</div>
           <div style={{ height: 160 }}>
             <ResponsiveContainer>
@@ -1901,7 +1932,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         </div>
 
         {/* Negative % trend */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Negative % Trend</div>
           <div style={{ height: 160 }}>
             <ResponsiveContainer>
@@ -1920,7 +1951,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       {/* ── Row 3: Country Heatmap + Top Alerts ── */}
       <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
         {/* Country heatmap */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, fontWeight: 600 }}>Country Performance Map</span>
             <span style={{ fontSize: 10, color: T.TEXT_DIM }}>{countryList.length} countries</span>
@@ -1944,7 +1975,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
         {/* Top alerts */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED }}>{t("section.criticalIssues")}</span>
               <button onClick={() => setActiveTab("alerts")} style={{
@@ -1975,7 +2006,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
           </div>
 
           {/* Network health */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>{t("section.networkHealth")}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
@@ -2016,7 +2047,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {/* Top 5 */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 12 }}>{t("section.top5")}</div>
             {topDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
@@ -2034,7 +2065,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
           </div>
 
           {/* Bottom 5 */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>{t("section.bottom5")}</div>
             {bottomDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
@@ -2054,7 +2085,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
         <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {/* Rising */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: "#4ADE80", marginBottom: 12 }}>{t("section.risingStars")}</div>
             {risingDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
@@ -2072,7 +2103,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
           </div>
 
           {/* Declining */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_ORANGE, marginBottom: 12 }}>{t("section.declining")}</div>
             {decliningDealers.map((d, i) => (
               <div key={d.id} onClick={() => { onSelectDealer(d); setActiveTab("benchmark"); }} style={{
@@ -2101,7 +2132,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         ].map(nav => (
           <div key={nav.tab} onClick={() => setActiveTab(nav.tab)} style={{
             background: T.SURFACE_2, borderRadius: 10, padding: "16px 14px",
-            border: `1px solid ${T.BORDER}`, cursor: "pointer", transition: "all 0.15s",
+            border: `1px solid ${T.BORDER}`, cursor: "pointer", transition: "background 0.15s, border-color 0.15s, color 0.15s",
             display: "flex", alignItems: "center", gap: 12,
           }} className="dealer-row">
             <span style={{ fontSize: 24 }}>{nav.icon}</span>
@@ -2250,7 +2281,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       color: sortBy === col ? T.SKODA_GREEN : T.TEXT_DIM, cursor: "pointer",
       textTransform: "uppercase", letterSpacing: 0.8, userSelect: "none",
       borderBottom: `2px solid ${sortBy === col ? T.SKODA_GREEN : T.BORDER}`,
-      whiteSpace: "nowrap", transition: "all 0.15s",
+      whiteSpace: "nowrap", transition: "background 0.15s, border-color 0.15s, color 0.15s",
     }}>
       {label} {sortBy === col ? (sortDir === "desc" ? "▾" : "▴") : ""}
     </th>
@@ -2318,7 +2349,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
       {/* ── Charts Row 1: Rating by Country + Distribution ── */}
       <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.avgRatingByCountry")}</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
@@ -2339,7 +2370,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
           </div>
         </div>
 
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingDistribution")}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "8px 0" }}>
             {distribution.map(b => {
@@ -2371,7 +2402,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
       {/* ── Charts Row 2: Monthly Trend + Negative % ── */}
       <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
@@ -2387,7 +2418,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
           </div>
         </div>
 
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrend")}</div>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
@@ -2580,7 +2611,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
               <div key={d.id} onClick={() => onSelectDealer(d)} className="dealer-row" style={{
                 background: T.SURFACE_2, borderRadius: 10, padding: 16,
                 border: `1px solid ${d.alerts.length > 0 ? T.ALERT_RED + "33" : T.BORDER}`,
-                cursor: "pointer", transition: "all 0.15s",
+                cursor: "pointer", transition: "background 0.15s, border-color 0.15s, color 0.15s",
                 animation: `slideIn 0.3s ease ${i * 0.02}s both`,
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
@@ -2625,7 +2656,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       )}
 
       {/* ── Country summary table ── */}
-      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+      <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.countrySummary")}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {countryData.map(c => {
@@ -2636,7 +2667,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 borderRadius: 8, padding: "10px 14px",
                 border: `1px solid ${countryFilter === c.code ? T.SKODA_GREEN + "44" : T.BORDER}`,
                 cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
-                transition: "all 0.15s",
+                transition: "background 0.15s, border-color 0.15s, color 0.15s",
               }}>
                 <span style={{ fontSize: 22 }}>{c.flag}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -2868,7 +2899,7 @@ function LiveReviewsPanel({ dealers }) {
               border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
-              transition: "all 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
+              transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
             }}>
               <span style={{ fontSize: 22 }}>{c.flag}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -2977,7 +3008,7 @@ function LiveReviewsPanel({ dealers }) {
       {/* Live Star Distribution + Sentiment */}
       <div className="live-dist-row resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         {/* Star Distribution Gauge */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, fontWeight: 600 }}>{t("section.liveRatingDist")}</span>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{totalStars > 1 ? totalStars : 0} total</span>
@@ -3019,7 +3050,7 @@ function LiveReviewsPanel({ dealers }) {
         </div>
 
         {/* Live Sentiment Breakdown */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span style={{ fontSize: 13, fontWeight: 600 }}>{t("section.liveSentiment")}</span>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{sentTotal > 1 ? sentTotal : 0} analyzed</span>
@@ -3066,7 +3097,7 @@ function LiveReviewsPanel({ dealers }) {
       <div className="live-main-grid" style={{ display: "grid", gridTemplateColumns: "5fr 3fr 3fr", gap: 16, alignItems: "start" }}>
 
         {/* Left — Live Review Feed */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{
@@ -3117,7 +3148,7 @@ function LiveReviewsPanel({ dealers }) {
 
         {/* Middle — Live Country Stats */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14 }}>{t("section.liveCountryRatings")}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 440, overflowY: "auto" }}>
               {sortedCountries.map(c => {
@@ -3154,7 +3185,7 @@ function LiveReviewsPanel({ dealers }) {
         {/* Right — Hot & Cold dealers + Activity */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* Hot dealers */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.SKODA_ACCENT }}>🔥 Top Dealers (live session)</div>
             {hotDealers.length === 0 ? (
               <div style={{ fontSize: 12, color: T.TEXT_DIM, padding: 8 }}>Collecting data...</div>
@@ -3171,7 +3202,7 @@ function LiveReviewsPanel({ dealers }) {
           </div>
 
           {/* Cold dealers */}
-          <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: T.ALERT_RED }}>❄ Worst Dealers (live session)</div>
             {coldDealers.length === 0 ? (
               <div style={{ fontSize: 12, color: T.TEXT_DIM, padding: 8 }}>Collecting data...</div>
@@ -3267,7 +3298,7 @@ function SentimentPanel({ dealers }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
         {/* Category breakdown */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentByCategory")}</div>
           <div style={{ height: 250 }}>
             <ResponsiveContainer>
@@ -3284,7 +3315,7 @@ function SentimentPanel({ dealers }) {
         </div>
 
         {/* Overall pie */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.overallSentiment")}</div>
           <div style={{ height: 200 }}>
             <ResponsiveContainer>
@@ -3308,7 +3339,7 @@ function SentimentPanel({ dealers }) {
       </div>
 
       {/* Keywords */}
-      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+      <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.aiKeywords")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {keywords.map(kw => (
@@ -3456,7 +3487,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
     const cats = pq.categories;
 
     const CategorySection = ({ title, icon, data, items }) => (
-      <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+      <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <div style={{ fontSize: 14, fontWeight: 600 }}>{icon} {title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -3544,7 +3575,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         </div>
 
         {/* Comparison with country avg */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("pq.vsCountryAvg")} ({d.flag} {d.countryName})</div>
           <div style={{ height: 250 }}>
             <ResponsiveContainer>
@@ -3586,7 +3617,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
       <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         {/* Score Distribution Pie */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.scoreDistribution")}</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
@@ -3602,7 +3633,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         </div>
 
         {/* Category Averages */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.categoryAverages")}</div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer>
@@ -3618,7 +3649,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         </div>
 
         {/* Country Heatmap */}
-        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.countryRanking")}</div>
           <div style={{ maxHeight: 240, overflowY: "auto" }}>
             {countryStats.map((c, i) => (
@@ -3883,7 +3914,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
         {dealer && (
           <>
             {/* ── Contact Info & Quick Actions ── */}
-            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div className="resp-flex-wrap" style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
                 <div style={{ flex: "1 1 300px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -3915,7 +3946,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             </div>
 
             {/* ── Photo Gallery (mock) ── */}
-            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.photoGallery")} ({pq ? pq.categories.basic.photos : 0} {t("label.photos")})</div>
               <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
                 {mockPhotos.slice(0, pq ? Math.max(1, Math.min(6, pq.categories.basic.photos)) : 2).map((p, i) => (
@@ -3935,7 +3966,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* ── Rating Timeline & Radar ── */}
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTimeline")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
@@ -3953,7 +3984,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                   </ResponsiveContainer>
                 </div>
               </div>
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.dealerVsNetwork")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
@@ -3972,7 +4003,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* ── AI Improvement Plan ── */}
             {improvementPlan.length > 0 && (
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{t("section.aiPlan")}</div>
                   <Badge color={T.TEXT_DIM}>{improvementPlan.length} {t("bench.recommendations")}</Badge>
@@ -3995,7 +4026,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             )}
 
             {/* ── Review Highlights ── */}
-            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.reviewHighlights")}</div>
               <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                 {[{ label: t("bench.bestReview"), review: bestReview, accent: T.SKODA_GREEN },
@@ -4013,7 +4044,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             </div>
 
             {/* ── All Recent Reviews ── */}
-            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.recentReviews")}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {dealer.recentReviews.slice(0, 5).map(r => (
@@ -4024,7 +4055,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             {/* ── Top / Bottom 5 ── */}
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>{t("section.top5in")} {flag} {dealer.countryName}</div>
                 {topDealers.map((d, i) => (
                   <div key={d.id} onClick={() => onSelect(d)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none", cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7 }}>
@@ -4034,7 +4065,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                   </div>
                 ))}
               </div>
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: T.ALERT_RED, marginBottom: 12 }}>{t("section.bottom5in")} {flag} {dealer.countryName}</div>
                 {bottomDealers.map((d, i) => (
                   <div key={d.id} onClick={() => onSelect(d)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none", cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7 }}>
@@ -4111,7 +4142,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {/* Rating trend */}
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
@@ -4129,7 +4160,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               </div>
 
               {/* Radar sentiment */}
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentComparison")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
@@ -4147,7 +4178,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             </div>
 
             {/* Volume bar chart */}
-            <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
               <div style={{ height: 250 }}>
                 <ResponsiveContainer>
@@ -4242,7 +4273,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {/* Radar */}
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentComparison")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
@@ -4259,7 +4290,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               </div>
 
               {/* Trend */}
-              <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
                 <div style={{ height: 280 }}>
                   <ResponsiveContainer>
