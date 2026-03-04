@@ -3579,8 +3579,8 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
       <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
         <Stat label={t("pq.networkAvgScore")} value={`${avgScore}%`} />
         <Stat label={t("pq.grade")} value={getGrade(avgScore)} />
-        <Stat label=t("pq.criticalBelow50") value={criticalCount} alert={criticalCount > 0} />
-        <Stat label=t("pq.warningBelow70") value={warningCount} />
+        <Stat label={t("pq.criticalBelow50")} value={criticalCount} alert={criticalCount > 0} />
+        <Stat label={t("pq.warningBelow70")} value={warningCount} />
         <Stat label={t("pq.totalAlerts")} value={totalAlerts} alert={totalAlerts > 10} />
       </div>
 
