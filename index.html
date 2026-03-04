@@ -918,7 +918,7 @@ EUROPEAN_COUNTRIES.forEach(c => {
 const Badge = ({ children, color, style = {} }) => {
   const T = useTheme();
   const t = useLang();
-  const c = color || T.SKODA_GREEN;
+  const c = color || T.SKODA_ACCENT;
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 4,
@@ -970,7 +970,7 @@ const ReviewItem = ({ review, compact }) => {
   const t = useLang();
   const [showOriginal, setShowOriginal] = React.useState(false);
   const hasLocal = review.localText && review.langCode !== "en";
-  const borderColor = review.stars >= 4 ? T.SKODA_GREEN : review.stars >= 3 ? T.ALERT_YELLOW : T.ALERT_RED;
+  const borderColor = review.stars >= 4 ? T.SKODA_ACCENT : review.stars >= 3 ? T.ALERT_YELLOW : T.ALERT_RED;
   return (
     <div style={{ background: T.SURFACE, borderRadius: 6, padding: compact ? "8px 12px" : "10px 14px", borderLeft: `3px solid ${borderColor}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
@@ -983,7 +983,7 @@ const ReviewItem = ({ review, compact }) => {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {hasLocal && (
-            <button onClick={() => setShowOriginal(!showOriginal)} style={{ fontSize: 10, padding: "1px 8px", borderRadius: 4, border: `1px solid ${T.BORDER}`, background: showOriginal ? T.SKODA_GREEN + "22" : "transparent", color: showOriginal ? T.SKODA_GREEN : T.TEXT_DIM, cursor: "pointer", fontWeight: 600 }}>
+            <button onClick={() => setShowOriginal(!showOriginal)} style={{ fontSize: 10, padding: "1px 8px", borderRadius: 4, border: `1px solid ${T.BORDER}`, background: showOriginal ? T.SKODA_ACCENT + "22" : "transparent", color: showOriginal ? T.SKODA_ACCENT : T.TEXT_DIM, cursor: "pointer", fontWeight: 600 }}>
               {showOriginal ? t("review.original") : "🌐"}
             </button>
           )}
@@ -992,7 +992,7 @@ const ReviewItem = ({ review, compact }) => {
       </div>
       {hasLocal && showOriginal ? (
         <div>
-          <div style={{ fontSize: 11, color: T.SKODA_GREEN, fontWeight: 600, marginBottom: 2 }}>{t("review.original")} ({review.langName}):</div>
+          <div style={{ fontSize: 11, color: T.SKODA_ACCENT, fontWeight: 600, marginBottom: 2 }}>{t("review.original")} ({review.langName}):</div>
           <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.5, fontStyle: "italic" }}>{review.localText}</div>
           <div style={{ fontSize: 11, color: T.TEXT_DIM, fontWeight: 600, marginTop: 6, marginBottom: 2 }}>{t("review.translated")} (EN):</div>
           <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{review.text}</div>
@@ -1040,13 +1040,13 @@ function LoginPage({ onLogin }) {
         @keyframes loginShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         @keyframes loginPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
-        .login-input:focus { border-color: ${T.SKODA_ACCENT} !important; box-shadow: 0 0 0 3px ${T.SKODA_GREEN}33 !important; }
-        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px ${T.SKODA_GREEN}44 !important; }
+        .login-input:focus { border-color: ${T.SKODA_ACCENT} !important; box-shadow: 0 0 0 3px ${T.SKODA_ACCENT}33 !important; }
+        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px ${T.SKODA_ACCENT}44 !important; }
       `}</style>
 
       {/* Background decorations */}
       <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-        <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, ${T.SKODA_GREEN}08, transparent 70%)` }} />
+        <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, ${T.SKODA_ACCENT}08, transparent 70%)` }} />
         <div style={{ position: "absolute", bottom: "-15%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: `radial-gradient(circle, ${T.SKODA_ACCENT}06, transparent 70%)` }} />
       </div>
 
@@ -1065,7 +1065,7 @@ function LoginPage({ onLogin }) {
               background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 36, fontWeight: 800, color: "#fff",
-              boxShadow: `0 4px 20px ${T.SKODA_GREEN}33`,
+              boxShadow: `0 4px 20px ${T.SKODA_ACCENT}33`,
             }}>S</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: T.TEXT, letterSpacing: "-0.02em" }}>
               Dealer Reviews Monitor
@@ -1109,7 +1109,7 @@ function LoginPage({ onLogin }) {
             background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
             color: "#fff", fontSize: 15, fontWeight: 700, border: "none",
             cursor: "pointer", fontFamily: "inherit",
-            boxShadow: `0 4px 16px ${T.SKODA_GREEN}33`,
+            boxShadow: `0 4px 16px ${T.SKODA_ACCENT}33`,
             transition: "transform 0.2s, box-shadow 0.2s",
           }}>
             Sign In
@@ -1251,7 +1251,7 @@ function SkodaDealerDashboard() {
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: ${T.SKODA_DARK}; }
         ::-webkit-scrollbar-thumb { background: ${T.BORDER}; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: ${T.SKODA_GREEN}44; }
+        ::-webkit-scrollbar-thumb:hover { background: ${T.SKODA_ACCENT}44; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1263,14 +1263,14 @@ function SkodaDealerDashboard() {
         .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: ${T.SHADOW_MD}; }
         .panel-card { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .panel-card:hover { border-color: ${T.SKODA_GREEN}44 !important; box-shadow: ${T.SHADOW_SM}; }
+        .panel-card:hover { border-color: ${T.SKODA_ACCENT}44 !important; box-shadow: ${T.SHADOW_SM}; }
         .stat-glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .skeleton-shimmer { background: linear-gradient(90deg, transparent 25%, ${T.SURFACE_3}44 50%, transparent 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
         input, select { background: ${T.SURFACE}; color: ${T.TEXT}; border: 1px solid ${T.BORDER}; border-radius: 6px; padding: 8px 12px; font-family: inherit; font-size: 13px; outline: none; }
-        input:focus, select:focus { border-color: ${T.SKODA_GREEN}; }
+        input:focus, select:focus { border-color: ${T.SKODA_ACCENT}; }
         /* Responsive — all panels */
         @media (max-width: 1024px) {
           .live-main-grid { grid-template-columns: 1fr 1fr !important; }
@@ -1339,7 +1339,7 @@ function SkodaDealerDashboard() {
             {[{c:"en",l:"EN"},{c:"cs",l:"CZ"},{c:"de",l:"DE"},{c:"pl",l:"PL"}].map(x => (
               <button key={x.c} onClick={() => setLang(x.c)} style={{
                 padding: "4px 8px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer",
-                background: lang === x.c ? T.SKODA_GREEN : T.SURFACE_2, color: lang === x.c ? "#fff" : T.TEXT_DIM,
+                background: lang === x.c ? T.SKODA_ACCENT : T.SURFACE_2, color: lang === x.c ? "#fff" : T.TEXT_DIM,
                 transition: "background 0.2s, color 0.2s",
               }}>{x.l}</button>
             ))}
@@ -1441,7 +1441,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
       {/* Import Status */}
       {imported.size > 0 && (
         <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 12 }}>
             {t("section.importedData")} ({imported.size} countries, {Object.values(importedData).flat().length} dealers)
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -1451,7 +1451,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
               return (
                 <div key={code} style={{
                   background: T.SURFACE_3, borderRadius: 6, padding: "8px 12px",
-                  border: `1px solid ${T.SKODA_GREEN}44`, display: "flex", alignItems: "center", gap: 8,
+                  border: `1px solid ${T.SKODA_ACCENT}44`, display: "flex", alignItems: "center", gap: 8,
                   fontSize: 12,
                 }}>
                   <span>{c?.flag}</span>
@@ -1474,9 +1474,9 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
         {REGIONS.map(r => (
           <button key={r} onClick={() => setRegionFilter(r)} style={{
             padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-            background: regionFilter === r ? T.SKODA_GREEN + "22" : T.SURFACE_2,
-            color: regionFilter === r ? T.SKODA_GREEN : T.TEXT_DIM,
-            border: `1px solid ${regionFilter === r ? T.SKODA_GREEN + "44" : T.BORDER}`,
+            background: regionFilter === r ? T.SKODA_ACCENT + "22" : T.SURFACE_2,
+            color: regionFilter === r ? T.SKODA_ACCENT : T.TEXT_DIM,
+            border: `1px solid ${regionFilter === r ? T.SKODA_ACCENT + "44" : T.BORDER}`,
             cursor: "pointer",
           }}>{r}</button>
         ))}
@@ -1503,10 +1503,10 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
           const isImported = imported.has(c.code);
           return (
             <button key={c.code} onClick={() => !isImported && toggle(c.code)} style={{
-              background: isImported ? T.SKODA_GREEN + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
+              background: isImported ? T.SKODA_ACCENT + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
               borderRadius: 8,
               padding: "12px 14px",
-              border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
+              border: `1px solid ${isImported ? T.SKODA_ACCENT + "44" : isSelected ? T.SKODA_ACCENT + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
               transition: "background 0.15s, border-color 0.15s, color 0.15s",
@@ -1520,10 +1520,10 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
                 <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} dealers · {c.region}</div>
               </div>
               <div style={{ fontSize: 18 }}>
-                {isImported ? <span style={{ color: T.SKODA_GREEN }}>✓</span>
+                {isImported ? <span style={{ color: T.SKODA_ACCENT }}>✓</span>
                   : isSelected ? <span style={{
                     width: 18, height: 18, borderRadius: 4,
-                    background: T.SKODA_GREEN, display: "inline-flex",
+                    background: T.SKODA_ACCENT, display: "inline-flex",
                     alignItems: "center", justifyContent: "center",
                     fontSize: 12, color: "#fff",
                   }}>✓</span>
@@ -1560,7 +1560,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
         {importing && (
           <div style={{ flex: 1, height: 6, background: T.SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
             <div style={{
-              height: "100%", background: T.SKODA_GREEN, borderRadius: 3,
+              height: "100%", background: T.SKODA_ACCENT, borderRadius: 3,
               width: `${(progress?.current / progress?.total) * 100}%`,
               transition: "width 0.3s",
             }} />
@@ -1585,7 +1585,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
           <div>
             <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Reviews API (Outscraper/SerpAPI)</div>
             <div>Full review extraction, unlimited reviews</div>
-            <div style={{ color: T.SKODA_GREEN }}>✓ Recommended for production</div>
+            <div style={{ color: T.SKODA_ACCENT }}>✓ Recommended for production</div>
           </div>
           <div>
             <div style={{ fontWeight: 600, color: T.TEXT, marginBottom: 4 }}>Refresh interval</div>
@@ -1596,7 +1596,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
             <div>Claude API for review classification</div>
           </div>
         </div>
-        <div style={{ marginTop: 12, padding: "8px 12px", background: T.SKODA_GREEN + "11", borderRadius: 6, fontSize: 11, color: T.SKODA_GREEN }}>
+        <div style={{ marginTop: 12, padding: "8px 12px", background: T.SKODA_ACCENT + "11", borderRadius: 6, fontSize: 11, color: T.SKODA_ACCENT }}>
           PoC Mode: Using simulated data based on real {t("admin.googlePlaces")} structure. Production version would connect to live APIs.
         </div>
       </div>
@@ -1664,7 +1664,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
                 </div>
                 <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`, cursor: "pointer", fontFamily: "inherit" }}>{t("btn.respond")}</button>
+                  <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.SKODA_ACCENT + "22", color: T.SKODA_ACCENT, border: `1px solid ${T.SKODA_ACCENT}44`, cursor: "pointer", fontFamily: "inherit" }}>{t("btn.respond")}</button>
                   <button style={{ fontSize: 10, padding: "3px 10px", borderRadius: 4, background: T.ALERT_RED + "22", color: T.ALERT_RED, border: `1px solid ${T.ALERT_RED}44`, cursor: "pointer", fontFamily: "inherit" }}>{t("btn.escalate")}</button>
                 </div>
               </div>
@@ -1731,9 +1731,9 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         {REGIONS.map(r => (
           <button key={r} onClick={() => setRegionFilter(r)} style={{
             padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-            background: regionFilter === r ? T.SKODA_GREEN + "22" : T.SURFACE_2,
-            color: regionFilter === r ? T.SKODA_GREEN : T.TEXT_DIM,
-            border: `1px solid ${regionFilter === r ? T.SKODA_GREEN + "44" : T.BORDER}`,
+            background: regionFilter === r ? T.SKODA_ACCENT + "22" : T.SURFACE_2,
+            color: regionFilter === r ? T.SKODA_ACCENT : T.TEXT_DIM,
+            border: `1px solid ${regionFilter === r ? T.SKODA_ACCENT + "44" : T.BORDER}`,
             cursor: "pointer",
           }}>{r}</button>
         ))}
@@ -1754,9 +1754,9 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
           const isImported = imported.has(c.code);
           return (
             <button key={c.code} onClick={() => !isImported && toggleCountry(c.code)} style={{
-              background: isImported ? T.SKODA_GREEN + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
+              background: isImported ? T.SKODA_ACCENT + "11" : isSelected ? T.SURFACE_3 : T.SURFACE_2,
               borderRadius: 8, padding: "12px 14px",
-              border: `1px solid ${isImported ? T.SKODA_GREEN + "44" : isSelected ? T.SKODA_GREEN + "66" : T.BORDER}`,
+              border: `1px solid ${isImported ? T.SKODA_ACCENT + "44" : isSelected ? T.SKODA_ACCENT + "66" : T.BORDER}`,
               cursor: isImported ? "default" : "pointer",
               display: "flex", alignItems: "center", gap: 10,
               transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
@@ -1767,8 +1767,8 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} {t("label.dealers")} · {c.region}</div>
               </div>
               <div style={{ fontSize: 18 }}>
-                {isImported ? <span style={{ color: T.SKODA_GREEN }}>✓</span>
-                  : isSelected ? <span style={{ width: 18, height: 18, borderRadius: 4, background: T.SKODA_GREEN, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff" }}>✓</span>
+                {isImported ? <span style={{ color: T.SKODA_ACCENT }}>✓</span>
+                  : isSelected ? <span style={{ width: 18, height: 18, borderRadius: 4, background: T.SKODA_ACCENT, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff" }}>✓</span>
                   : <span style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${T.BORDER}`, display: "inline-block" }} />}
               </div>
             </button>
@@ -1784,7 +1784,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
           color: toImport.length ? "#fff" : T.TEXT_DIM,
           border: "none", cursor: toImport.length ? "pointer" : "default",
           opacity: importing ? 0.7 : 1, fontFamily: "inherit",
-          boxShadow: toImport.length ? `0 4px 20px ${T.SKODA_GREEN}44` : "none",
+          boxShadow: toImport.length ? `0 4px 20px ${T.SKODA_ACCENT}44` : "none",
         }}>
           {importing
             ? `${t("admin.importing")} ${importProgress?.country}... (${importProgress?.current}/${importProgress?.total})`
@@ -1794,7 +1794,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
         </button>
         {importing && (
           <div style={{ width: 200, height: 6, background: T.SURFACE_3, borderRadius: 3, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: T.SKODA_GREEN, borderRadius: 3, width: `${(importProgress?.current / importProgress?.total) * 100}%`, transition: "width 0.3s" }} />
+            <div style={{ height: "100%", background: T.SKODA_ACCENT, borderRadius: 3, width: `${(importProgress?.current / importProgress?.total) * 100}%`, transition: "width 0.3s" }} />
           </div>
         )}
       </div>
@@ -1888,7 +1888,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
   // Heatmap color
   const heatColor = (rating) => {
     if (rating >= 4.5) return T.SKODA_ACCENT;
-    if (rating >= 4.2) return T.SKODA_GREEN;
+    if (rating >= 4.2) return T.SKODA_ACCENT;
     if (rating >= 4.0) return "#4ADE80";
     if (rating >= 3.8) return T.ALERT_YELLOW;
     if (rating >= 3.5) return T.ALERT_ORANGE;
@@ -1901,7 +1901,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       {/* ── Row 1: Hero KPI cards ── */}
       <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
         {/* Network Rating */}
-        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SKODA_GREEN}22, ${T.SKODA_GREEN}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_GREEN}44`, boxShadow: `0 0 20px ${T.SKODA_GREEN}15, ${T.SHADOW_SM}` }}>
+        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SKODA_ACCENT}22, ${T.SKODA_ACCENT}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_ACCENT}44`, boxShadow: `0 0 20px ${T.SKODA_ACCENT}15, ${T.SHADOW_SM}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.networkRating")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <span style={{ fontSize: 36, fontWeight: 800, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{avgRating}</span>
@@ -2197,7 +2197,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 function MiniSparkline({ data, width = 60, height = 20, color }) {
   const T = useTheme();
   const t = useLang();
-  color = color || T.SKODA_GREEN;
+  color = color || T.SKODA_ACCENT;
   if (!data || data.length < 2) return null;
   const values = data.map(d => parseFloat(d.avgRating));
   const min = Math.min(...values) - 0.2;
@@ -2220,7 +2220,7 @@ function RatingBar({ rating, maxRating = 5, width = 80 }) {
   const T = useTheme();
   const t = useLang();
   const pct = (rating / maxRating) * 100;
-  const color = rating >= 4.5 ? T.SKODA_GREEN : rating >= 4.0 ? T.SKODA_ACCENT : rating >= 3.5 ? T.ALERT_YELLOW : rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
+  const color = rating >= 4.5 ? T.SKODA_ACCENT : rating >= 4.0 ? T.SKODA_ACCENT : rating >= 3.5 ? T.ALERT_YELLOW : rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color, minWidth: 32 }}>
@@ -2236,7 +2236,7 @@ function RatingBar({ rating, maxRating = 5, width = 80 }) {
 function NegativeBar({ percent }) {
   const T = useTheme();
   const t = useLang();
-  const color = percent > 20 ? T.ALERT_RED : percent > 12 ? T.ALERT_ORANGE : percent > 6 ? T.ALERT_YELLOW : T.SKODA_GREEN;
+  const color = percent > 20 ? T.ALERT_RED : percent > 12 ? T.ALERT_ORANGE : percent > 6 ? T.ALERT_YELLOW : T.SKODA_ACCENT;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <div style={{ width: 44, height: 6, background: T.SURFACE, borderRadius: 3, overflow: "hidden" }}>
@@ -2282,7 +2282,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
 
   // ── Rating distribution ──
   const ratingBuckets = [
-    { range: "4.5–5.0", min: 4.5, max: 5.01, color: T.SKODA_GREEN },
+    { range: "4.5–5.0", min: 4.5, max: 5.01, color: T.SKODA_ACCENT },
     { range: "4.0–4.4", min: 4.0, max: 4.5, color: T.SKODA_ACCENT },
     { range: "3.5–3.9", min: 3.5, max: 4.0, color: T.ALERT_YELLOW },
     { range: "3.0–3.4", min: 3.0, max: 3.5, color: T.ALERT_ORANGE },
@@ -2320,9 +2320,9 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
   const SortHeader = ({ col, label, align = "left" }) => (
     <th onClick={() => toggleSort(col)} style={{
       padding: "10px 10px", textAlign: align, fontSize: 10, fontWeight: 700,
-      color: sortBy === col ? T.SKODA_GREEN : T.TEXT_DIM, cursor: "pointer",
+      color: sortBy === col ? T.SKODA_ACCENT : T.TEXT_DIM, cursor: "pointer",
       textTransform: "uppercase", letterSpacing: 0.8, userSelect: "none",
-      borderBottom: `2px solid ${sortBy === col ? T.SKODA_GREEN : T.BORDER}`,
+      borderBottom: `2px solid ${sortBy === col ? T.SKODA_ACCENT : T.BORDER}`,
       whiteSpace: "nowrap", transition: "background 0.15s, border-color 0.15s, color 0.15s",
     }}>
       {label} {sortBy === col ? (sortDir === "desc" ? "▾" : "▴") : ""}
@@ -2337,17 +2337,17 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         <span style={{ fontSize: 10, color: T.TEXT_DIM, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginRight: 4 }}>{t("label.country")}:</span>
         <button onClick={() => setCountryFilter("all")} style={{
           padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
-          background: countryFilter === "all" ? T.SKODA_GREEN + "22" : T.SURFACE_2,
-          color: countryFilter === "all" ? T.SKODA_GREEN : T.TEXT_DIM,
-          border: `1px solid ${countryFilter === "all" ? T.SKODA_GREEN + "55" : T.BORDER}`,
+          background: countryFilter === "all" ? T.SKODA_ACCENT + "22" : T.SURFACE_2,
+          color: countryFilter === "all" ? T.SKODA_ACCENT : T.TEXT_DIM,
+          border: `1px solid ${countryFilter === "all" ? T.SKODA_ACCENT + "55" : T.BORDER}`,
           cursor: "pointer", fontFamily: "inherit",
         }}>All ({allDealers.length})</button>
         {countryData.map(c => (
           <button key={c.code} onClick={() => setCountryFilter(c.code)} style={{
             padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 500,
-            background: countryFilter === c.code ? T.SKODA_GREEN + "22" : T.SURFACE_2,
-            color: countryFilter === c.code ? T.SKODA_GREEN : T.TEXT_DIM,
-            border: `1px solid ${countryFilter === c.code ? T.SKODA_GREEN + "55" : T.BORDER}`,
+            background: countryFilter === c.code ? T.SKODA_ACCENT + "22" : T.SURFACE_2,
+            color: countryFilter === c.code ? T.SKODA_ACCENT : T.TEXT_DIM,
+            border: `1px solid ${countryFilter === c.code ? T.SKODA_ACCENT + "55" : T.BORDER}`,
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", alignItems: "center", gap: 5,
           }}>
@@ -2364,7 +2364,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.avgRating")}</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.avg) >= 4.0 ? T.SKODA_GREEN : T.ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.avg}</span>
+            <span style={{ fontSize: 28, fontWeight: 800, color: parseFloat(fStats.avg) >= 4.0 ? T.SKODA_ACCENT : T.ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.avg}</span>
             <span style={{ fontSize: 16, color: T.TEXT_DIM }}>/ 5</span>
           </div>
         </div>
@@ -2378,7 +2378,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         </div>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.activeAlerts")}</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: fStats.alerts > 0 ? T.ALERT_RED : T.SKODA_GREEN, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.alerts}</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: fStats.alerts > 0 ? T.ALERT_RED : T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{fStats.alerts}</div>
         </div>
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: "14px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{t("stat.multibrand")}</div>
@@ -2404,7 +2404,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                   labelFormatter={l => `${countryData.find(c=>c.name===l)?.flag || ""} ${l}`} />
                 <Bar dataKey="avgRating" radius={[4,4,0,0]} name={t("chart.avgRating")}>
                   {countryData.map((c, i) => (
-                    <Cell key={i} fill={c.avgRating >= 4.5 ? T.SKODA_GREEN : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE} />
+                    <Cell key={i} fill={c.avgRating >= 4.5 ? T.SKODA_ACCENT : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE} />
                   ))}
                 </Bar>
               </BarChart>
@@ -2453,7 +2453,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} tickLine={false} />
                 <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="reviews" fill={T.SKODA_GREEN + "88"} radius={[3,3,0,0]} name={t("chart.reviews")} />
+                <Bar dataKey="reviews" fill={T.SKODA_ACCENT + "88"} radius={[3,3,0,0]} name={t("chart.reviews")} />
                 <Bar dataKey="negative" fill={T.ALERT_RED + "88"} radius={[3,3,0,0]} name={t("chart.negative")} />
               </BarChart>
             </ResponsiveContainer>
@@ -2470,7 +2470,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 <YAxis yAxisId="left" domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
                 <YAxis yAxisId="right" orientation="right" domain={[0, 30]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 3 }} name={t("chart.avgRating")} />
+                <Line yAxisId="left" type="monotone" dataKey="avgRating" stroke={T.SKODA_ACCENT} strokeWidth={2.5} dot={{ fill: T.SKODA_ACCENT, r: 3 }} name={t("chart.avgRating")} />
                 <Line yAxisId="right" type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} strokeDasharray="4 4" dot={{ fill: T.ALERT_RED, r: 3 }} name={t("chart.negativePercent")} />
                 <Legend wrapperStyle={{ fontSize: 10, color: T.TEXT_DIM }} />
               </LineChart>
@@ -2499,8 +2499,8 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
           {["table","cards"].map(m => (
             <button key={m} onClick={() => setViewMode(m)} style={{
               padding: "4px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600,
-              background: viewMode === m ? T.SKODA_GREEN + "22" : "transparent",
-              color: viewMode === m ? T.SKODA_GREEN : T.TEXT_DIM,
+              background: viewMode === m ? T.SKODA_ACCENT + "22" : "transparent",
+              color: viewMode === m ? T.SKODA_ACCENT : T.TEXT_DIM,
               border: "none", cursor: "pointer", fontFamily: "inherit",
             }}>{m === "table" ? t("label.table") : t("label.cards")}</button>
           ))}
@@ -2527,7 +2527,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
               <tbody>
                 {dealers.slice(0, 60).map((d, i) => {
                   const isExpanded = expandedDealer === d.id;
-                  const trendColor = d.trend > 0.1 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM;
+                  const trendColor = d.trend > 0.1 ? T.SKODA_ACCENT : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM;
                   const flag = d.flag || "";
                   return (
                     <React.Fragment key={d.id}>
@@ -2535,8 +2535,8 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                         onClick={() => setExpandedDealer(isExpanded ? null : d.id)}
                         style={{
                           cursor: "pointer",
-                          borderBottom: `1px solid ${isExpanded ? T.SKODA_GREEN + "33" : T.BORDER + "33"}`,
-                          background: isExpanded ? T.SKODA_GREEN + "08" : "transparent",
+                          borderBottom: `1px solid ${isExpanded ? T.SKODA_ACCENT + "33" : T.BORDER + "33"}`,
+                          background: isExpanded ? T.SKODA_ACCENT + "08" : "transparent",
                         }}>
                         <td style={{ padding: "12px 10px", fontSize: 11, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{i+1}</td>
                         <td style={{ padding: "12px 10px" }}>
@@ -2573,7 +2573,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                               color: d.alerts.some(a=>a.severity==="critical") ? T.ALERT_RED : d.alerts.some(a=>a.severity==="high") ? T.ALERT_ORANGE : T.ALERT_YELLOW,
                               border: `1px solid ${d.alerts.some(a=>a.severity==="critical") ? T.ALERT_RED + "44" : d.alerts.some(a=>a.severity==="high") ? T.ALERT_ORANGE + "44" : T.ALERT_YELLOW + "44"}`,
                             }}>{d.alerts.length}</span>
-                          ) : <span style={{ color: T.SKODA_GREEN, fontSize: 13 }}>✓</span>}
+                          ) : <span style={{ color: T.SKODA_ACCENT, fontSize: 13 }}>✓</span>}
                         </td>
                       </tr>
                       {/* ── Expanded row ── */}
@@ -2593,7 +2593,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                                 <div>
                                   <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Alerts</div>
                                   {d.alerts.length === 0
-                                    ? <div style={{ fontSize: 11, color: T.SKODA_GREEN }}>{t("misc.noActiveAlerts")}</div>
+                                    ? <div style={{ fontSize: 11, color: T.SKODA_ACCENT }}>{t("misc.noActiveAlerts")}</div>
                                     : d.alerts.map((a, j) => (
                                       <div key={j} style={{ fontSize: 11, color: a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW, marginBottom: 3 }}>
                                         {a.severity === "critical" ? "🔴" : a.severity === "high" ? "🟠" : "🟡"} {a.text}
@@ -2603,7 +2603,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                                 <div style={{ textAlign: "right" }}>
                                   <button onClick={(e) => { e.stopPropagation(); onSelectDealer(d); }} style={{
                                     padding: "8px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700,
-                                    background: T.SKODA_GREEN + "22", color: T.SKODA_GREEN, border: `1px solid ${T.SKODA_GREEN}44`,
+                                    background: T.SKODA_ACCENT + "22", color: T.SKODA_ACCENT, border: `1px solid ${T.SKODA_ACCENT}44`,
                                     cursor: "pointer", fontFamily: "inherit",
                                   }}>{t("btn.openBenchmark")}</button>
                                 </div>
@@ -2648,7 +2648,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
           {dealers.slice(0, 30).map((d, i) => {
             const flag = d.flag || "";
-            const ratingColor = d.rating >= 4.5 ? T.SKODA_GREEN : d.rating >= 4.0 ? T.SKODA_ACCENT : d.rating >= 3.5 ? T.ALERT_YELLOW : d.rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
+            const ratingColor = d.rating >= 4.5 ? T.SKODA_ACCENT : d.rating >= 4.0 ? T.SKODA_ACCENT : d.rating >= 3.5 ? T.ALERT_YELLOW : d.rating >= 3.0 ? T.ALERT_ORANGE : T.ALERT_RED;
             return (
               <div key={d.id} onClick={() => onSelectDealer(d)} className="dealer-row" style={{
                 background: T.SURFACE_2, borderRadius: 10, padding: 16,
@@ -2678,8 +2678,8 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                   </div>
                   <NegativeBar percent={d.negativePercent} />
                   <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
-                    <MiniSparkline data={d.monthlyData} width={48} height={16} color={d.trend > 0 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM} />
-                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.trend > 0 ? T.SKODA_GREEN : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM }}>
+                    <MiniSparkline data={d.monthlyData} width={48} height={16} color={d.trend > 0 ? T.SKODA_ACCENT : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM} />
+                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.trend > 0 ? T.SKODA_ACCENT : d.trend < -0.1 ? T.ALERT_RED : T.TEXT_DIM }}>
                       {d.trend > 0 ? "↑" : d.trend < -0.1 ? "↓" : "→"}
                     </span>
                   </div>
@@ -2689,7 +2689,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                   {d.alerts.map((a, j) => (
                     <Badge key={j} color={a.severity === "critical" ? T.ALERT_RED : a.severity === "high" ? T.ALERT_ORANGE : T.ALERT_YELLOW}>{a.text}</Badge>
                   ))}
-                  {d.alerts.length === 0 && !d.isMultibrand && <Badge color={T.SKODA_GREEN}>Clean</Badge>}
+                  {d.alerts.length === 0 && !d.isMultibrand && <Badge color={T.SKODA_ACCENT}>Clean</Badge>}
                 </div>
               </div>
             );
@@ -2702,12 +2702,12 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.countrySummary")}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {countryData.map(c => {
-            const rColor = c.avgRating >= 4.5 ? T.SKODA_GREEN : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
+            const rColor = c.avgRating >= 4.5 ? T.SKODA_ACCENT : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
             return (
               <div key={c.code} onClick={() => setCountryFilter(c.code)} style={{
-                background: countryFilter === c.code ? T.SKODA_GREEN + "11" : T.SURFACE,
+                background: countryFilter === c.code ? T.SKODA_ACCENT + "11" : T.SURFACE,
                 borderRadius: 8, padding: "10px 14px",
-                border: `1px solid ${countryFilter === c.code ? T.SKODA_GREEN + "44" : T.BORDER}`,
+                border: `1px solid ${countryFilter === c.code ? T.SKODA_ACCENT + "44" : T.BORDER}`,
                 cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
                 transition: "background 0.15s, border-color 0.15s, color 0.15s",
               }}>
@@ -2959,9 +2959,9 @@ function LiveReviewsPanel({ dealers }) {
         <div style={{ marginLeft: "auto" }}>
           <button onClick={() => setPaused(!paused)} style={{
             padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-            background: paused ? T.SKODA_GREEN + "22" : T.SURFACE_3,
+            background: paused ? T.SKODA_ACCENT + "22" : T.SURFACE_3,
             color: paused ? T.SKODA_ACCENT : T.TEXT_DIM,
-            border: `1px solid ${paused ? T.SKODA_GREEN + "44" : T.BORDER}`,
+            border: `1px solid ${paused ? T.SKODA_ACCENT + "44" : T.BORDER}`,
             cursor: "pointer", fontFamily: "inherit",
           }}>{paused ? t("btn.resume") : t("btn.pause")}</button>
         </div>
@@ -3115,7 +3115,7 @@ function LiveReviewsPanel({ dealers }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 440, overflowY: "auto" }}>
               {sortedCountries.map(c => {
                 const isChanged = changedCountries.has(c.code);
-                const ratingColor = c.avgRating >= 4.5 ? T.SKODA_ACCENT : c.avgRating >= 4.0 ? T.SKODA_GREEN : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
+                const ratingColor = c.avgRating >= 4.5 ? T.SKODA_ACCENT : c.avgRating >= 4.0 ? T.SKODA_ACCENT : c.avgRating >= 3.5 ? T.ALERT_YELLOW : T.ALERT_ORANGE;
                 const trendIcon = c.trend > 0.001 ? "▲" : c.trend < -0.001 ? "▼" : "–";
                 const trendColor = c.trend > 0.001 ? T.SKODA_ACCENT : c.trend < -0.001 ? T.ALERT_RED : T.TEXT_DIM;
                 const isSelected = feedCountry === c.code;
@@ -3123,8 +3123,8 @@ function LiveReviewsPanel({ dealers }) {
                   <div key={c.code} onClick={() => setFeedCountry(isSelected ? "all" : c.code)} style={{
                     display: "flex", alignItems: "center", gap: 8, padding: "7px 8px",
                     borderRadius: 6, cursor: "pointer",
-                    background: isSelected ? T.SKODA_GREEN + "22" : isChanged ? (c.trend > 0 ? T.SKODA_GREEN + "15" : c.trend < 0 ? T.ALERT_RED + "10" : "transparent") : "transparent",
-                    border: isSelected ? `1px solid ${T.SKODA_GREEN}44` : "1px solid transparent",
+                    background: isSelected ? T.SKODA_ACCENT + "22" : isChanged ? (c.trend > 0 ? T.SKODA_ACCENT + "15" : c.trend < 0 ? T.ALERT_RED + "10" : "transparent") : "transparent",
+                    border: isSelected ? `1px solid ${T.SKODA_ACCENT}44` : "1px solid transparent",
                     transition: "background 0.5s",
                   }}>
                     <span style={{ fontSize: 16 }}>{c.flag}</span>
@@ -3182,8 +3182,8 @@ function LiveReviewsPanel({ dealers }) {
 
           {/* Live activity indicator */}
           <div style={{
-            background: `linear-gradient(135deg, ${T.SKODA_GREEN}15, ${T.SKODA_GREEN}05)`,
-            borderRadius: 10, padding: 14, border: `1px solid ${T.SKODA_GREEN}33`,
+            background: `linear-gradient(135deg, ${T.SKODA_ACCENT}15, ${T.SKODA_ACCENT}05)`,
+            borderRadius: 10, padding: 14, border: `1px solid ${T.SKODA_ACCENT}33`,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <div style={{
@@ -3235,7 +3235,7 @@ function SentimentPanel({ dealers }) {
   });
 
   const overallSentiment = [
-    { name: "Positive", value: aggregated.reduce((s, a) => s + a.positive, 0), color: T.SKODA_GREEN },
+    { name: "Positive", value: aggregated.reduce((s, a) => s + a.positive, 0), color: T.SKODA_ACCENT },
     { name: "Neutral", value: aggregated.reduce((s, a) => s + a.neutral, 0), color: "#888" },
     { name: "Negative", value: aggregated.reduce((s, a) => s + a.negative, 0), color: T.ALERT_RED },
   ];
@@ -3268,7 +3268,7 @@ function SentimentPanel({ dealers }) {
                 <XAxis type="number" domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
                 <YAxis type="category" dataKey="category" tick={{ fill: T.TEXT, fontSize: 12 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="positive" stackId="a" fill={T.SKODA_GREEN} name={t("chart.positivePercent")} />
+                <Bar dataKey="positive" stackId="a" fill={T.SKODA_ACCENT} name={t("chart.positivePercent")} />
                 <Bar dataKey="neutral" stackId="a" fill="#555" name={t("chart.neutralPercent")} />
                 <Bar dataKey="negative" stackId="a" fill={T.ALERT_RED} name={t("chart.negativePercent")} radius={[0,4,4,0]} />
               </BarChart>
@@ -3307,11 +3307,11 @@ function SentimentPanel({ dealers }) {
           {keywords.map(kw => (
             <div key={kw.word} style={{
               padding: "6px 12px", borderRadius: 20,
-              background: kw.sentiment === "pos" ? T.SKODA_GREEN + "15" : kw.sentiment === "neg" ? T.ALERT_RED + "15" : T.SURFACE_3,
-              border: `1px solid ${kw.sentiment === "pos" ? T.SKODA_GREEN + "33" : kw.sentiment === "neg" ? T.ALERT_RED + "33" : T.BORDER}`,
+              background: kw.sentiment === "pos" ? T.SKODA_ACCENT + "15" : kw.sentiment === "neg" ? T.ALERT_RED + "15" : T.SURFACE_3,
+              border: `1px solid ${kw.sentiment === "pos" ? T.SKODA_ACCENT + "33" : kw.sentiment === "neg" ? T.ALERT_RED + "33" : T.BORDER}`,
               fontSize: 12, display: "flex", alignItems: "center", gap: 6,
             }}>
-              <span style={{ color: kw.sentiment === "pos" ? T.SKODA_GREEN : kw.sentiment === "neg" ? T.ALERT_RED : T.TEXT_DIM }}>{kw.word}</span>
+              <span style={{ color: kw.sentiment === "pos" ? T.SKODA_ACCENT : kw.sentiment === "neg" ? T.ALERT_RED : T.TEXT_DIM }}>{kw.word}</span>
               <span style={{ fontSize: 10, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{kw.count}</span>
             </div>
           ))}
@@ -3320,10 +3320,10 @@ function SentimentPanel({ dealers }) {
 
       {/* AI Insight */}
       <div style={{
-        background: `linear-gradient(135deg, ${T.SKODA_GREEN}11, ${T.SKODA_GREEN}05)`,
-        borderRadius: 10, padding: 16, border: `1px solid ${T.SKODA_GREEN}33`,
+        background: `linear-gradient(135deg, ${T.SKODA_ACCENT}11, ${T.SKODA_ACCENT}05)`,
+        borderRadius: 10, padding: 16, border: `1px solid ${T.SKODA_ACCENT}33`,
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 8 }}>{t("section.aiInsight")}</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 8 }}>{t("section.aiInsight")}</div>
         <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.7 }}>
           Across {dealers.length} dealers in {new Set(dealers.map(d=>d.country)).size} countries, the primary positive drivers
           are <strong>professional staff</strong> and <strong>helpful service</strong>. The most common complaints involve <strong>waiting
@@ -3886,7 +3886,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                   <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 4 }}>{flag} {dealer.address || `${dealer.city}, ${dealer.countryName}`}</div>
                   {dealer.isMultibrand && <Badge color={T.ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
                   <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                    <a href={`tel:${dealer.phone}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SKODA_GREEN, color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.call")}</a>
+                    <a href={`tel:${dealer.phone}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SKODA_ACCENT, color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.call")}</a>
                     <a href={`mailto:info@${dealer.website?.replace("https://www.","")}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: "#2563EB", color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.email")}</a>
                     <a href={dealer.website} target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SURFACE, border: `1px solid ${T.BORDER}`, color: T.TEXT, fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.website")}</a>
                     <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dealer.name + " " + dealer.city)}&query_place_id=${dealer.placeId}`} target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SURFACE, border: `1px solid ${T.BORDER}`, color: T.TEXT, fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.googleMaps")}</a>
@@ -3900,7 +3900,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, paddingTop: 12, borderTop: `1px solid ${T.BORDER}33` }}>
-                <Badge color={T.SKODA_GREEN}>{t("label.networkAvg")}: {avgNetwork}★</Badge>
+                <Badge color={T.SKODA_ACCENT}>{t("label.networkAvg")}: {avgNetwork}★</Badge>
                 <Badge color={T.TEXT_DIM}>{t("label.countryAvg")}: {avgCountry}★</Badge>
                 <Badge color={T.TEXT_DIM}>📞 {dealer.phone}</Badge>
                 {pq && <Badge color={gradeColor}>{t("label.profile")}: {pq.totalScore}%</Badge>}
@@ -3938,9 +3938,9 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                       <YAxis yAxisId="rating" domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
                       <YAxis yAxisId="count" orientation="right" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={{ stroke: T.BORDER }} />
                       <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                      <Bar yAxisId="count" dataKey="reviews" fill={T.SKODA_GREEN + "33"} radius={[4,4,0,0]} name={t("chart.reviews")} />
+                      <Bar yAxisId="count" dataKey="reviews" fill={T.SKODA_ACCENT + "33"} radius={[4,4,0,0]} name={t("chart.reviews")} />
                       <Bar yAxisId="count" dataKey="negative" fill={T.ALERT_RED + "44"} radius={[4,4,0,0]} name={t("chart.negative")} />
-                      <Line yAxisId="rating" type="monotone" dataKey="avgRating" stroke={T.SKODA_GREEN} strokeWidth={2.5} dot={{ fill: T.SKODA_GREEN, r: 4 }} name={t("chart.avgRating")} />
+                      <Line yAxisId="rating" type="monotone" dataKey="avgRating" stroke={T.SKODA_ACCENT} strokeWidth={2.5} dot={{ fill: T.SKODA_ACCENT, r: 4 }} name={t("chart.avgRating")} />
                       <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
                     </ComposedChart>
                   </ResponsiveContainer>
@@ -3954,7 +3954,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                       <PolarGrid stroke={T.BORDER} />
                       <PolarAngleAxis dataKey="category" tick={{ fill: T.TEXT, fontSize: 11 }} />
                       <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: T.TEXT_DIM, fontSize: 9 }} />
-                      <Radar name={t("chart.thisDealer")} dataKey="dealer" stroke={T.SKODA_GREEN} fill={T.SKODA_GREEN} fillOpacity={0.3} />
+                      <Radar name={t("chart.thisDealer")} dataKey="dealer" stroke={T.SKODA_ACCENT} fill={T.SKODA_ACCENT} fillOpacity={0.3} />
                       <Radar name={t("chart.networkAvg")} dataKey="network" stroke="#888" fill="#888" fillOpacity={0.1} />
                       <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
                     </RadarChart>
@@ -3991,7 +3991,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.reviewHighlights")}</div>
               <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                {[{ label: t("bench.bestReview"), review: bestReview, accent: T.SKODA_GREEN },
+                {[{ label: t("bench.bestReview"), review: bestReview, accent: T.SKODA_ACCENT },
                   { label: t("bench.needsAttention"), review: worstReview, accent: T.ALERT_RED },
                   { label: t("bench.mostTypical"), review: typicalReview, accent: T.ALERT_YELLOW }
                 ].map((h, i) => h.review && (
@@ -4018,12 +4018,12 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             {/* ── Top / Bottom 5 ── */}
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_GREEN, marginBottom: 12 }}>{t("section.top5in")} {flag} {dealer.countryName}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 12 }}>{t("section.top5in")} {flag} {dealer.countryName}</div>
                 {topDealers.map((d, i) => (
                   <div key={d.id} onClick={() => onSelect(d)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 4 ? `1px solid ${T.BORDER}22` : "none", cursor: "pointer", opacity: d.id === dealer.id ? 1 : 0.7 }}>
                     <span style={{ fontWeight: 700, fontSize: 14, width: 24, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : T.TEXT_DIM }}>{i+1}.</span>
                     <div style={{ flex: 1, fontSize: 12 }}>{d.name} <span style={{ color: T.TEXT_DIM }}>({d.city})</span></div>
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: T.SKODA_GREEN }}>{d.rating}★</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: T.SKODA_ACCENT }}>{d.rating}★</span>
                   </div>
                 ))}
               </div>
