@@ -1127,6 +1127,7 @@ function LoginPage({ onLogin }) {
 
 function SkodaDealerDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
   const [lang, setLang] = useState("en");
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -1422,6 +1423,33 @@ function SkodaDealerDashboard() {
         {activeTab === "benchmark" && <BenchmarkPanel dealers={allDealers} selected={selectedDealer} onSelect={setSelectedDealer} />}
         {activeTab === "profile" && <ProfileQualityPanel dealers={allDealers} onSelectDealer={setSelectedDealer} setActiveTab={(t) => { setActiveTab(t); }} />}
       </div>
+
+      {/* Welcome popup */}
+      {showWelcome && activeTab === "admin" && !importedCountryCodes.size && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 200,
+          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          animation: "fadeIn 0.3s ease",
+        }} onClick={() => setShowWelcome(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: T.SURFACE_2, borderRadius: T.RADIUS_LG,
+            border: `1px solid ${T.BORDER}`, padding: "36px 32px",
+            maxWidth: 440, width: "90%", textAlign: "center",
+            boxShadow: T.SHADOW_LG, animation: "scaleIn 0.3s ease",
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 16 }}>🌍</div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: T.TEXT, lineHeight: 1.5, marginBottom: 20 }}>
+              Vyber trhy, na kterých chceš sledovat Google Reviews a klikni na <span style={{ color: T.SKODA_ACCENT, fontWeight: 800 }}>IMPORT</span>
+            </div>
+            <button onClick={() => setShowWelcome(false)} style={{
+              padding: "10px 32px", borderRadius: T.RADIUS_MD, fontSize: 14, fontWeight: 700,
+              background: T.SKODA_ACCENT, color: "#fff", border: "none",
+              cursor: "pointer", fontFamily: "inherit",
+            }}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
     </LangContext.Provider>
     </ThemeContext.Provider>
