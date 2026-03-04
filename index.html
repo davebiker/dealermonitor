@@ -1010,7 +1010,123 @@ const ReviewItem = ({ review, compact }) => {
 
 function useTheme() { return React.useContext(ThemeContext); }
 
+function LoginPage({ onLogin }) {
+  const T = THEMES.dark;
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (password === "skodax") {
+      onLogin();
+    } else {
+      setError(true);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      setTimeout(() => setError(false), 3000);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: "100vh", background: T.SKODA_DARK,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
+        @keyframes loginFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes loginShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes loginPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+        .login-input:focus { border-color: ${T.SKODA_ACCENT} !important; box-shadow: 0 0 0 3px ${T.SKODA_GREEN}33 !important; }
+        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px ${T.SKODA_GREEN}44 !important; }
+      `}</style>
+
+      {/* Background decorations */}
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 500, height: 500, borderRadius: "50%", background: `radial-gradient(circle, ${T.SKODA_GREEN}08, transparent 70%)` }} />
+        <div style={{ position: "absolute", bottom: "-15%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: `radial-gradient(circle, ${T.SKODA_ACCENT}06, transparent 70%)` }} />
+      </div>
+
+      <div style={{ animation: "loginFadeIn 0.6s ease", width: "100%", maxWidth: 420, padding: "0 24px", position: "relative", zIndex: 1 }}>
+        {/* Card */}
+        <form onSubmit={handleSubmit} style={{
+          background: T.SURFACE_GLASS, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+          borderRadius: T.RADIUS_LG, border: `1px solid ${T.BORDER}`,
+          padding: "48px 40px", boxShadow: T.SHADOW_LG,
+          animation: shake ? "loginShake 0.5s ease" : "none",
+        }}>
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: 16, margin: "0 auto 20px",
+              background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 36, fontWeight: 800, color: "#fff",
+              boxShadow: `0 4px 20px ${T.SKODA_GREEN}33`,
+            }}>S</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: T.TEXT, letterSpacing: "-0.02em" }}>
+              DealerMonitor
+            </div>
+            <div style={{ fontSize: 13, color: T.TEXT_DIM, marginTop: 6 }}>
+              ŠKODA Auto Dealer Reviews Dashboard
+            </div>
+          </div>
+
+          {/* Password field */}
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: T.TEXT_DIM, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Password
+            </label>
+            <input
+              className="login-input"
+              type="password"
+              value={password}
+              onChange={e => { setPassword(e.target.value); setError(false); }}
+              placeholder="Enter access password"
+              autoFocus
+              style={{
+                width: "100%", padding: "14px 16px", borderRadius: T.RADIUS_MD,
+                background: T.SURFACE, color: T.TEXT, fontSize: 15,
+                border: `1px solid ${error ? T.ALERT_RED : T.BORDER}`,
+                outline: "none", fontFamily: "inherit",
+                transition: "border-color 0.2s, box-shadow 0.2s",
+                boxSizing: "border-box",
+              }}
+            />
+            {error && (
+              <div style={{ fontSize: 12, color: T.ALERT_RED, marginTop: 8, animation: "loginFadeIn 0.3s ease" }}>
+                Incorrect password
+              </div>
+            )}
+          </div>
+
+          {/* Submit button */}
+          <button className="login-btn" type="submit" style={{
+            width: "100%", padding: "14px 24px", borderRadius: T.RADIUS_MD,
+            background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
+            color: "#fff", fontSize: 15, fontWeight: 700, border: "none",
+            cursor: "pointer", fontFamily: "inherit",
+            boxShadow: `0 4px 16px ${T.SKODA_GREEN}33`,
+            transition: "transform 0.2s, box-shadow 0.2s",
+          }}>
+            Sign In
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: T.TEXT_DIM }}>
+          Proof of Concept · Internal Use Only
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SkodaDealerDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [lang, setLang] = useState("en");
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -1118,6 +1234,8 @@ function SkodaDealerDashboard() {
     { id: "benchmark", label: t("tab.benchmark"), sub: t("tab.benchmark.sub") },
     { id: "profile", label: t("tab.profile"), sub: t("tab.profile.sub") },
   ];
+
+  if (!isAuthenticated) return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
 
   return (
     <ThemeContext.Provider value={T}>
