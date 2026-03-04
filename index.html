@@ -1314,16 +1314,27 @@ function SkodaDealerDashboard() {
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         boxShadow: T.SHADOW_SM, transition: "background 0.3s",
       }}>
-        <div onClick={() => setActiveTab("summary")} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-          <div className="app-header-logo" style={{
-            width: 36, height: 36, borderRadius: 8,
-            background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 800, fontSize: 16, color: "#fff",
-          }}>Š</div>
-          <div>
-            <div className="app-header-title" style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>{t("app.title")}</div>
-            <div className="app-header-subtitle" style={{ fontSize: 11, color: T.TEXT_DIM }}>{t("app.subtitle")}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div onClick={() => setActiveTab("summary")} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+            <div className="app-header-logo" style={{
+              width: 36, height: 36, borderRadius: 8,
+              background: `linear-gradient(135deg, ${T.SKODA_GREEN}, ${T.SKODA_ACCENT})`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 800, fontSize: 16, color: "#fff",
+            }}>Š</div>
+            <div>
+              <div className="app-header-title" style={{ fontWeight: 700, fontSize: 16, letterSpacing: 0.5 }}>{t("app.title")}</div>
+              <div className="app-header-subtitle" style={{ fontSize: 11, color: T.TEXT_DIM }}>{t("app.subtitle")}</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: `1px solid ${T.BORDER}`, flexShrink: 0 }}>
+            {[{c:"en",l:"EN"},{c:"cs",l:"CZ"},{c:"de",l:"DE"},{c:"pl",l:"PL"}].map(x => (
+              <button key={x.c} onClick={() => setLang(x.c)} style={{
+                padding: "4px 8px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer",
+                background: lang === x.c ? T.SKODA_ACCENT : T.SURFACE_2, color: lang === x.c ? "#fff" : T.TEXT_DIM,
+                transition: "background 0.2s, color 0.2s",
+              }}>{x.l}</button>
+            ))}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1335,15 +1346,6 @@ function SkodaDealerDashboard() {
               <Stat label={t("stat.alerts")} value={stats.alerts} alert={stats.alerts > 5} />
             </div>
           )}
-          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: `1px solid ${T.BORDER}`, flexShrink: 0 }}>
-            {[{c:"en",l:"EN"},{c:"cs",l:"CZ"},{c:"de",l:"DE"},{c:"pl",l:"PL"}].map(x => (
-              <button key={x.c} onClick={() => setLang(x.c)} style={{
-                padding: "4px 8px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer",
-                background: lang === x.c ? T.SKODA_ACCENT : T.SURFACE_2, color: lang === x.c ? "#fff" : T.TEXT_DIM,
-                transition: "background 0.2s, color 0.2s",
-              }}>{x.l}</button>
-            ))}
-          </div>
           <button className="app-header-theme-btn" onClick={() => setDarkMode(!darkMode)} style={{
             width: 40, height: 40, borderRadius: 8, border: `1px solid ${T.BORDER}`,
             background: T.SURFACE_2, color: T.TEXT, fontSize: 18,
