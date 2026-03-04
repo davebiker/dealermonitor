@@ -1131,7 +1131,7 @@ function SkodaDealerDashboard() {
   const [lang, setLang] = useState("en");
   const t = (key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en[key] || key;
   const T = darkMode ? THEMES.dark : THEMES.light;
-  const [activeTab, setActiveTab] = useState("summary");
+  const [activeTab, setActiveTab] = useState("admin");
   const [selectedCountries, setSelectedCountries] = useState(new Set(["CZ"]));
   const [importedData, setImportedData] = useState({});
   const [importing, setImporting] = useState(false);
@@ -1225,8 +1225,8 @@ function SkodaDealerDashboard() {
   };
 
   const tabs = [
-    { id: "summary", label: t("tab.summary"), sub: t("tab.summary.sub") },
     { id: "admin", label: t("tab.admin"), sub: t("tab.admin.sub") },
+    { id: "summary", label: t("tab.summary"), sub: t("tab.summary.sub") },
     { id: "alerts", label: t("tab.alerts"), sub: `${stats.alerts} ${t("tab.alerts.sub")}`, alert: stats.alerts > 0 },
     { id: "overview", label: t("tab.overview"), sub: `${stats.dealers} ${t("tab.overview.sub")}` },
     { id: "reviews", label: t("tab.reviews"), sub: t("tab.reviews.sub") },
