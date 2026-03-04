@@ -96,7 +96,7 @@ const TRANSLATIONS = {
     "label.table": "☰ Table", "label.cards": "⊞ Cards",
     "label.all": "All", "label.critical": "Critical", "label.high": "High", "label.medium": "Medium",
     "label.warning": "Warning", "label.good": "Good", "label.clean": "Clean",
-    "label.region": "Region:", "label.photos": "photos", "label.dealers": "dealers", "label.reviews": "reviews",
+    "label.region": "Region:", "label.photos": "photos", "label.dealers": "dealers", "label.reviews": "reviews", "label.searchDealer": "Search dealer...",
     "label.dAgo": "d ago", "label.today": "Today", "label.target": "target:",
     "btn.call": "📞 Call", "btn.email": "✉ Email", "btn.website": "🌐 Website", "btn.googleMaps": "📍 Google Maps",
     "btn.respond": "Respond", "btn.escalate": "Escalate", "btn.resume": "▶ Resume", "btn.pause": "⏸ Pause",
@@ -213,7 +213,7 @@ const TRANSLATIONS = {
     "label.table": "☰ Tabulka", "label.cards": "⊞ Karty",
     "label.all": "Vše", "label.critical": "Kritické", "label.high": "Vysoké", "label.medium": "Střední",
     "label.warning": "Varování", "label.good": "Dobré", "label.clean": "OK",
-    "label.region": "Region:", "label.photos": "fotek", "label.dealers": "dealerů", "label.reviews": "recenzí",
+    "label.region": "Region:", "label.photos": "fotek", "label.dealers": "dealerů", "label.reviews": "recenzí", "label.searchDealer": "Hledat dealera...",
     "label.dAgo": "d zpět", "label.today": "Dnes", "label.target": "cíl:",
     "btn.call": "📞 Volat", "btn.email": "✉ E-mail", "btn.website": "🌐 Web", "btn.googleMaps": "📍 Google Maps",
     "btn.respond": "Odpovědět", "btn.escalate": "Eskalovat", "btn.resume": "▶ Pokračovat", "btn.pause": "⏸ Pozastavit",
@@ -330,7 +330,7 @@ const TRANSLATIONS = {
     "label.table": "☰ Tabelle", "label.cards": "⊞ Karten",
     "label.all": "Alle", "label.critical": "Kritisch", "label.high": "Hoch", "label.medium": "Mittel",
     "label.warning": "Warnung", "label.good": "Gut", "label.clean": "Sauber",
-    "label.region": "Region:", "label.photos": "Fotos", "label.dealers": "Händler", "label.reviews": "Rezensionen",
+    "label.region": "Region:", "label.photos": "Fotos", "label.dealers": "Händler", "label.reviews": "Rezensionen", "label.searchDealer": "Händler suchen...",
     "label.dAgo": "T her", "label.today": "Heute", "label.target": "Ziel:",
     "btn.call": "📞 Anrufen", "btn.email": "✉ E-Mail", "btn.website": "🌐 Website", "btn.googleMaps": "📍 Google Maps",
     "btn.respond": "Antworten", "btn.escalate": "Eskalieren", "btn.resume": "▶ Fortsetzen", "btn.pause": "⏸ Pausieren",
@@ -447,7 +447,7 @@ const TRANSLATIONS = {
     "label.table": "☰ Tabela", "label.cards": "⊞ Karty",
     "label.all": "Wszystko", "label.critical": "Krytyczne", "label.high": "Wysokie", "label.medium": "Średnie",
     "label.warning": "Ostrzeżenie", "label.good": "Dobre", "label.clean": "OK",
-    "label.region": "Region:", "label.photos": "zdjęć", "label.dealers": "dealerów", "label.reviews": "opinii",
+    "label.region": "Region:", "label.photos": "zdjęć", "label.dealers": "dealerów", "label.reviews": "opinii", "label.searchDealer": "Szukaj dealera...",
     "label.dAgo": "d temu", "label.today": "Dziś", "label.target": "cel:",
     "btn.call": "📞 Zadzwoń", "btn.email": "✉ E-mail", "btn.website": "🌐 Strona", "btn.googleMaps": "📍 Google Maps",
     "btn.respond": "Odpowiedz", "btn.escalate": "Eskaluj", "btn.resume": "▶ Wznów", "btn.pause": "⏸ Wstrzymaj",
@@ -3240,6 +3240,9 @@ function LiveReviewsPanel({ dealers }) {
 function SentimentPanel({ dealers }) {
   const T = useTheme();
   const t = useLang();
+  const [countryFilter, setCountryFilter] = useState("all");
+  const [dealerSearch, setDealerSearch] = useState("");
+
   if (!dealers.length) return (
     <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>📡</div>
@@ -3247,10 +3250,26 @@ function SentimentPanel({ dealers }) {
     </div>
   );
 
+  const countries = useMemo(() =>
+    [...new Map(dealers.map(d => [d.country, { code: d.country, name: d.countryName, flag: d.flag }])).values()].sort((a,b) => a.name.localeCompare(b.name)),
+  [dealers]);
+
+  const filtered = useMemo(() => {
+    let d = dealers;
+    if (countryFilter !== "all") d = d.filter(x => x.country === countryFilter);
+    if (dealerSearch) {
+      const q = dealerSearch.toLowerCase();
+      d = d.filter(x => x.name.toLowerCase().includes(q) || x.city.toLowerCase().includes(q));
+    }
+    return d;
+  }, [dealers, countryFilter, dealerSearch]);
+
+  const active = filtered.length ? filtered : dealers;
+
   const categories = ["service", "sales", "parts", "communication", "value"];
   const aggregated = categories.map(cat => {
     const totals = { pos: 0, neu: 0, neg: 0 };
-    dealers.forEach(d => {
+    active.forEach(d => {
       totals.pos += d.sentiments[cat].pos;
       totals.neu += d.sentiments[cat].neu;
       totals.neg += d.sentiments[cat].neg;
@@ -3288,6 +3307,30 @@ function SentimentPanel({ dealers }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Filters */}
+      <div className="resp-flex-wrap" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)} style={{
+          padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.BORDER}`, background: T.SURFACE, color: T.TEXT, fontSize: 13, minWidth: 180,
+        }}>
+          <option value="all">{t("label.allCountries")}</option>
+          {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
+        </select>
+        <input
+          type="text" value={dealerSearch} onChange={e => setDealerSearch(e.target.value)}
+          placeholder={t("label.searchDealer") || "Search dealer..."}
+          style={{ padding: "8px 12px", borderRadius: 8, border: `1px solid ${T.BORDER}`, background: T.SURFACE, color: T.TEXT, fontSize: 13, minWidth: 200 }}
+        />
+        {(countryFilter !== "all" || dealerSearch) && (
+          <button onClick={() => { setCountryFilter("all"); setDealerSearch(""); }} style={{
+            padding: "8px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+            background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`, cursor: "pointer", fontFamily: "inherit",
+          }}>{t("btn.clearSelection") || "Clear"}</button>
+        )}
+        <span style={{ fontSize: 12, color: T.TEXT_DIM, marginLeft: "auto" }}>
+          {active.length} / {dealers.length} {t("label.dealers") || "dealers"}
+        </span>
+      </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16 }}>
         {/* Category breakdown */}
         <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
@@ -3355,7 +3398,7 @@ function SentimentPanel({ dealers }) {
       }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: T.SKODA_ACCENT, marginBottom: 8 }}>{t("section.aiInsight")}</div>
         <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.7 }}>
-          Across {dealers.length} dealers in {new Set(dealers.map(d=>d.country)).size} countries, the primary positive drivers
+          Across {active.length} dealers in {new Set(active.map(d=>d.country)).size} countries, the primary positive drivers
           are <strong>professional staff</strong> and <strong>helpful service</strong>. The most common complaints involve <strong>waiting
           times</strong> for service appointments and <strong>pricing transparency</strong>. Language barriers (particularly lack
           of English) appear frequently in international markets (DE, PL, FR). Multibrand dealers show slightly lower
