@@ -1858,7 +1858,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
   const totalAlerts = dealers.reduce((s,d) => s + d.alerts.length, 0);
   const criticalAlerts = dealers.filter(d => d.alerts.some(a => a.severity === "critical")).length;
   const avgTrend = parseFloat((dealers.reduce((s,d) => s + d.trend, 0) / totalDealers).toFixed(3));
-  const avgProfileScore = Math.round(dealers.reduce((s,d) => s + d.profileQuality.totalScore, 0) / totalDealers);
+  const avgProfileScore = Math.round(dealers.reduce((s,d) => s + (d.profileQuality?.totalScore ?? 0), 0) / totalDealers);
 
   // NPS calculation (5★ = promoter, 3-4★ = passive, 1-2★ = detractor)
   const promoters = dealers.filter(d => d.rating >= 4.5).length;
@@ -1866,7 +1866,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
   const nps = Math.round((promoters / totalDealers - detractors / totalDealers) * 100);
 
   // Response rate avg
-  const avgResponseRate = Math.round(dealers.reduce((s,d) => s + d.profileQuality.categories.online.responseRate, 0) / totalDealers);
+  const avgResponseRate = Math.round(dealers.reduce((s,d) => s + (d.profileQuality?.categories?.online?.responseRate ?? 0), 0) / totalDealers);
 
   // ── Monthly trend ──
   const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
@@ -3470,51 +3470,51 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
   const countryStats = countries.map(c => {
     const ds = dealers.filter(d => d.country === c.code);
-    const avgScore = Math.round(ds.reduce((s,d) => s + d.profileQuality.totalScore, 0) / ds.length);
-    const belowMin = ds.filter(d => d.profileQuality.totalScore < 60).length;
-    const alertCount = ds.reduce((s,d) => s + d.profileQuality.alerts.length, 0);
+    const avgScore = Math.round(ds.reduce((s,d) => s + (d.profileQuality?.totalScore ?? 0), 0) / ds.length);
+    const belowMin = ds.filter(d => (d.profileQuality?.totalScore ?? 0) < 60).length;
+    const alertCount = ds.reduce((s,d) => s + (d.profileQuality?.alerts?.length ?? 0), 0);
     return { ...c, avgScore, dealerCount: ds.length, belowMin, alertCount };
   }).sort((a,b) => a.avgScore - b.avgScore);
 
   // Filtered dealers
   let filtered = [...dealers];
   if (countryFilter !== "all") filtered = filtered.filter(d => d.country === countryFilter);
-  if (alertFilter === "critical") filtered = filtered.filter(d => d.profileQuality.totalScore < 50);
-  else if (alertFilter === "warning") filtered = filtered.filter(d => d.profileQuality.totalScore < 70);
-  else if (alertFilter === "good") filtered = filtered.filter(d => d.profileQuality.totalScore >= 80);
+  if (alertFilter === "critical") filtered = filtered.filter(d => (d.profileQuality?.totalScore ?? 0) < 50);
+  else if (alertFilter === "warning") filtered = filtered.filter(d => (d.profileQuality?.totalScore ?? 0) < 70);
+  else if (alertFilter === "good") filtered = filtered.filter(d => (d.profileQuality?.totalScore ?? 0) >= 80);
 
   const sortKey = sortBy;
   filtered.sort((a,b) => {
     let va, vb;
-    if (sortKey === "score") { va = a.profileQuality.totalScore; vb = b.profileQuality.totalScore; }
+    if (sortKey === "score") { va = (a.profileQuality?.totalScore ?? 0); vb = (b.profileQuality?.totalScore ?? 0); }
     else if (sortKey === "name") { va = a.name; vb = b.name; }
     else if (sortKey === "country") { va = a.countryName; vb = b.countryName; }
-    else if (sortKey === "freshness") { va = a.profileQuality.categories.activity.lastUpdateDays; vb = b.profileQuality.categories.activity.lastUpdateDays; }
-    else if (sortKey === "responseRate") { va = a.profileQuality.categories.online.responseRate; vb = b.profileQuality.categories.online.responseRate; }
-    else { va = a.profileQuality.totalScore; vb = b.profileQuality.totalScore; }
+    else if (sortKey === "freshness") { va = (a.profileQuality?.categories?.activity?.lastUpdateDays ?? 0); vb = (b.profileQuality?.categories?.activity?.lastUpdateDays ?? 0); }
+    else if (sortKey === "responseRate") { va = (a.profileQuality?.categories?.online?.responseRate ?? 0); vb = (b.profileQuality?.categories?.online?.responseRate ?? 0); }
+    else { va = (a.profileQuality?.totalScore ?? 0); vb = (b.profileQuality?.totalScore ?? 0); }
     if (typeof va === "string") return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
     return sortDir === "asc" ? va - vb : vb - va;
   });
 
   // Network stats
-  const avgScore = Math.round(dealers.reduce((s,d) => s + d.profileQuality.totalScore, 0) / dealers.length);
-  const criticalCount = dealers.filter(d => d.profileQuality.totalScore < 50).length;
-  const warningCount = dealers.filter(d => d.profileQuality.totalScore >= 50 && d.profileQuality.totalScore < 70).length;
-  const goodCount = dealers.filter(d => d.profileQuality.totalScore >= 80).length;
-  const totalAlerts = dealers.reduce((s,d) => s + d.profileQuality.alerts.length, 0);
+  const avgScore = Math.round(dealers.reduce((s,d) => s + (d.profileQuality?.totalScore ?? 0), 0) / dealers.length);
+  const criticalCount = dealers.filter(d => (d.profileQuality?.totalScore ?? 0) < 50).length;
+  const warningCount = dealers.filter(d => (d.profileQuality?.totalScore ?? 0) >= 50 && (d.profileQuality?.totalScore ?? 0) < 70).length;
+  const goodCount = dealers.filter(d => (d.profileQuality?.totalScore ?? 0) >= 80).length;
+  const totalAlerts = dealers.reduce((s,d) => s + (d.profileQuality?.alerts?.length ?? 0), 0);
 
   // Distribution for pie chart
   const distData = [
     { name: t("pq.excellent"), value: goodCount, color: T.SKODA_ACCENT },
-    { name: t("pq.good"), value: dealers.filter(d => d.profileQuality.totalScore >= 70 && d.profileQuality.totalScore < 80).length, color: "#4ADE80" },
-    { name: t("pq.average"), value: dealers.filter(d => d.profileQuality.totalScore >= 60 && d.profileQuality.totalScore < 70).length, color: T.ALERT_YELLOW },
-    { name: t("pq.poor"), value: dealers.filter(d => d.profileQuality.totalScore >= 50 && d.profileQuality.totalScore < 60).length, color: T.ALERT_ORANGE },
+    { name: t("pq.good"), value: dealers.filter(d => (d.profileQuality?.totalScore ?? 0) >= 70 && (d.profileQuality?.totalScore ?? 0) < 80).length, color: "#4ADE80" },
+    { name: t("pq.average"), value: dealers.filter(d => (d.profileQuality?.totalScore ?? 0) >= 60 && (d.profileQuality?.totalScore ?? 0) < 70).length, color: T.ALERT_YELLOW },
+    { name: t("pq.poor"), value: dealers.filter(d => (d.profileQuality?.totalScore ?? 0) >= 50 && (d.profileQuality?.totalScore ?? 0) < 60).length, color: T.ALERT_ORANGE },
     { name: t("pq.criticalLow"), value: criticalCount, color: T.ALERT_RED },
   ].filter(d => d.value > 0);
 
   // Category avg bar data
   const catAvg = ["basic","online","activity"].map(cat => {
-    const scores = dealers.map(d => d.profileQuality.categories[cat].score);
+    const scores = dealers.map(d => (d.profileQuality?.categories?.[cat]?.score ?? 0));
     return { category: cat === "basic" ? "Basic Info" : cat === "online" ? "Online Presence" : "Activity", avg: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) };
   });
 
@@ -3637,8 +3637,8 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
                 const countryDealers = dealers.filter(dd => dd.country === d.country);
                 return ["basic","online","activity"].map(cat => {
                   const catName = cat === "basic" ? t("pq.basicInfo") : cat === "online" ? t("pq.online") : t("pq.activity");
-                  const countryAvg = Math.round(countryDealers.reduce((s,dd) => s + dd.profileQuality.categories[cat].score, 0) / countryDealers.length);
-                  return { category: catName, dealer: d.profileQuality.categories[cat].score, country: countryAvg };
+                  const countryAvg = Math.round(countryDealers.reduce((s,dd) => s + (dd.profileQuality?.categories?.[cat]?.score ?? 0), 0) / countryDealers.length);
+                  return { category: catName, dealer: (d.profileQuality?.categories?.[cat]?.score ?? 0), country: countryAvg };
                 });
               })()}>
                 <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
