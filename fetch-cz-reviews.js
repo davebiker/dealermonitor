@@ -184,7 +184,7 @@ async function main() {
         sentiments: calculateSentiments(reviews),
         alerts: buildAlerts(rating, negPct, reviewCount),
         recentReviews: reviews,
-        monthlyData: generateMonthlyData(rating),
+        monthlyData: [], // will be populated from snapshots over time
         profileQuality: null,
         hasRealData: true,
         photoCount: details.photos?.length || 0,

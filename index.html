@@ -1922,21 +1922,24 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
   // ── Monthly trend ──
   const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
-  const monthlyTrend = months.map((m, i) => {
-    const mData = dealers.map(d => d.monthlyData[i]);
-    const mAvg = parseFloat((mData.reduce((s,md) => s + parseFloat(md.avgRating), 0) / mData.length).toFixed(2));
-    const mReviews = mData.reduce((s,md) => s + md.reviews, 0);
-    const mNeg = mData.reduce((s,md) => s + md.negative, 0);
-    const mNegPct = parseFloat((mNeg / mReviews * 100).toFixed(1));
+  const dealersWithMonthlyData = dealers.filter(d => d.monthlyData && d.monthlyData.length > 0);
+  const hasMonthlyData = dealersWithMonthlyData.length > 0;
+  const monthlyTrend = hasMonthlyData ? months.map((m, i) => {
+    const mData = dealersWithMonthlyData.map(d => d.monthlyData[i]).filter(Boolean);
+    if (!mData.length) return { month: m, avgRating: 0, reviews: 0, negative: 0, negPct: 0 };
+    const mAvg = parseFloat((mData.reduce((s,md) => s + parseFloat(md.avgRating || 0), 0) / mData.length).toFixed(2));
+    const mReviews = mData.reduce((s,md) => s + (md.reviews || 0), 0);
+    const mNeg = mData.reduce((s,md) => s + (md.negative || 0), 0);
+    const mNegPct = parseFloat((mNeg / (mReviews || 1) * 100).toFixed(1));
     return { month: m, avgRating: mAvg, reviews: mReviews, negative: mNeg, negPct: mNegPct };
-  });
+  }) : [];
 
-  // Week-over-week (simulate from last 2 months)
-  const lastMonth = monthlyTrend[monthlyTrend.length - 1];
-  const prevMonth = monthlyTrend[monthlyTrend.length - 2];
-  const wowRating = parseFloat((lastMonth.avgRating - prevMonth.avgRating).toFixed(2));
-  const wowReviews = lastMonth.reviews - prevMonth.reviews;
-  const wowNeg = parseFloat((lastMonth.negPct - prevMonth.negPct).toFixed(1));
+  // Week-over-week (from last 2 months if available)
+  const lastMonth = monthlyTrend.length > 0 ? monthlyTrend[monthlyTrend.length - 1] : null;
+  const prevMonth = monthlyTrend.length > 1 ? monthlyTrend[monthlyTrend.length - 2] : null;
+  const wowRating = lastMonth && prevMonth ? parseFloat((lastMonth.avgRating - prevMonth.avgRating).toFixed(2)) : null;
+  const wowReviews = lastMonth && prevMonth ? lastMonth.reviews - prevMonth.reviews : null;
+  const wowNeg = lastMonth && prevMonth ? parseFloat((lastMonth.negPct - prevMonth.negPct).toFixed(1)) : null;
 
   // ── Country data ──
   const byCountry = {};
@@ -2092,55 +2095,61 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       </div>
 
       {/* ── Row 2: Sparkline metrics ── */}
-      <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-        {/* Rating trend sparkline */}
-        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend (6 months)</div>
-          <div style={{ height: 160 }}>
-            <ResponsiveContainer>
-              <LineChart data={monthlyTrend}>
-                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Line type="monotone" dataKey="avgRating" stroke={T.SKODA_ACCENT} strokeWidth={2.5} dot={{ fill: T.SKODA_ACCENT, r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
+      {hasMonthlyData ? (
+        <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+          {/* Rating trend */}
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Rating Trend (6 months)</div>
+            <div style={{ height: 160 }}>
+              <ResponsiveContainer>
+                <LineChart data={monthlyTrend}>
+                  <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[3, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                  <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                  <Line type="monotone" dataKey="avgRating" stroke={T.SKODA_ACCENT} strokeWidth={2.5} dot={{ fill: T.SKODA_ACCENT, r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          {/* Review volume */}
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Review Volume</div>
+            <div style={{ height: 160 }}>
+              <ResponsiveContainer>
+                <BarChart data={monthlyTrend}>
+                  <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
+                  <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                  <Bar dataKey="reviews" fill={T.SKODA_ACCENT + "88"} radius={[4,4,0,0]} name={t("chart.reviews")} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          {/* Negative % */}
+          <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Negative % Trend</div>
+            <div style={{ height: 160 }}>
+              <ResponsiveContainer>
+                <LineChart data={monthlyTrend}>
+                  <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 20]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                  <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} formatter={(v) => [`${v}%`, "Negative"]} />
+                  <Line type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} dot={{ fill: T.ALERT_RED, r: 4 }} strokeDasharray="6 3" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
-
-        {/* Review volume trend */}
-        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Review Volume</div>
-          <div style={{ height: 160 }}>
-            <ResponsiveContainer>
-              <BarChart data={monthlyTrend}>
-                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
-                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                <Bar dataKey="reviews" fill={T.SKODA_ACCENT + "88"} radius={[4,4,0,0]} name={t("chart.reviews")} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      ) : (
+        <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 32, border: `1px solid ${T.BORDER}`, textAlign: "center" }}>
+          <div style={{ fontSize: 28, marginBottom: 12 }}>📈</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>Historical trend data not yet available</div>
+          <div style={{ fontSize: 12, color: T.TEXT_DIM }}>Charts will populate automatically as daily snapshots are collected.</div>
         </div>
-
-        {/* Negative % trend */}
-        <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Negative % Trend</div>
-          <div style={{ height: 160 }}>
-            <ResponsiveContainer>
-              <LineChart data={monthlyTrend}>
-                <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 20]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} formatter={(v) => [`${v}%`, "Negative"]} />
-                <Line type="monotone" dataKey="negPct" stroke={T.ALERT_RED} strokeWidth={2} dot={{ fill: T.ALERT_RED, r: 4 }} strokeDasharray="6 3" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* ── Row 3: Country Heatmap + Top Alerts ── */}
       <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
