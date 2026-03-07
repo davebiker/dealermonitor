@@ -1145,6 +1145,22 @@ function SkodaDealerDashboard() {
   const [alertFilter, setAlertFilter] = useState("all");
   const [countryFilter, setCountryFilter] = useState("all");
 
+  const [realDataStatus, setRealDataStatus] = useState(null);
+
+  useEffect(() => {
+    setRealDataStatus("loading");
+    fetch("cz-real-data.json")
+      .then(r => { if (!r.ok) throw new Error("not found"); return r.json(); })
+      .then(data => {
+        setImportedData(prev => ({ ...prev, ...data }));
+        setSelectedCountries(prev => { const s = new Set(prev); Object.keys(data).forEach(k => s.add(k)); return s; });
+        setRealDataStatus("loaded");
+        setShowWelcome(false);
+        setActiveTab("summary");
+      })
+      .catch(() => setRealDataStatus("unavailable"));
+  }, []);
+
   // All imported dealers flat
   const allDealers = useMemo(() => {
     return Object.values(importedData).flat();
@@ -1487,6 +1503,9 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
                   <span>{c?.flag}</span>
                   <span style={{ fontWeight: 600 }}>{c?.name}</span>
                   <span style={{ color: T.TEXT_DIM }}>{dealers.length} dealers</span>
+                  {dealers.some(d => d.hasRealData) && (
+                    <span style={{ background: "#78FAAE22", color: "#78FAAE", fontSize: 10, fontWeight: 700, borderRadius: 4, padding: "1px 5px" }}>REAL DATA</span>
+                  )}
                   <button onClick={() => onRemove(code)} style={{
                     background: "transparent", border: "none", color: T.ALERT_RED,
                     cursor: "pointer", fontSize: 14, padding: "0 4px", lineHeight: 1,
