@@ -2054,7 +2054,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
       </div>
 
       {/* ── Row 1: Hero KPI cards ── */}
-      <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
+      <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
         {/* Network Rating */}
         <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SKODA_ACCENT}22, ${T.SKODA_ACCENT}08)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.SKODA_ACCENT}44`, boxShadow: `0 0 20px ${T.SKODA_ACCENT}15, ${T.SHADOW_SM}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.networkRating")}</div>
@@ -2062,28 +2062,14 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
             <span style={{ fontSize: 36, fontWeight: 800, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{avgRating}</span>
             <span style={{ fontSize: 14, color: T.TEXT_DIM }}>/ 5</span>
           </div>
-          <div style={{ marginTop: 6 }}><WowBadge value={wowRating} suffix=" MoM" /></div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>{totalDealers} dealers · {totalReviews.toLocaleString()} reviews</div>
         </div>
 
-        {/* NPS */}
-        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SURFACE_2}, ${T.SURFACE_3}66)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>NPS Score</div>
-          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: nps >= 50 ? T.SKODA_ACCENT : nps >= 0 ? T.ALERT_YELLOW : T.ALERT_RED }}>{nps > 0 ? "+" : ""}{nps}</div>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>{promoters} promoters · {detractors} detractors</div>
-        </div>
-
-        {/* Response Rate */}
-        <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SURFACE_2}, ${T.SURFACE_3}66)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>{t("summary.responseRate")}</div>
-          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: avgResponseRate >= 70 ? T.SKODA_ACCENT : avgResponseRate >= 40 ? T.ALERT_YELLOW : T.ALERT_RED }}>{avgResponseRate}%</div>
-          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>avg review response</div>
-        </div>
-
-        {/* Negative trend */}
+        {/* Negative Reviews */}
         <div className="card-hover" style={{ background: `linear-gradient(135deg, ${T.SURFACE_2}, ${T.SURFACE_3}66)`, borderRadius: 12, padding: "18px 16px", border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 10, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Negative Reviews</div>
           <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: negAvg > 15 ? T.ALERT_RED : negAvg > 10 ? T.ALERT_ORANGE : T.TEXT }}>{negAvg}%</div>
-          <div style={{ marginTop: 6 }}><WowBadge value={wowNeg} suffix="% MoM" invert /></div>
+          <div style={{ fontSize: 10, color: T.TEXT_DIM, marginTop: 6 }}>avg across network</div>
         </div>
 
         {/* Alerts */}
@@ -2215,8 +2201,6 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
               {[
                 { label: "Avg Rating", value: avgRating, target: 4.2, unit: "★" },
                 { label: "Negative %", value: negAvg, target: 10, unit: "%", invert: true },
-                { label: "Profile Score", value: avgProfileScore, target: 75, unit: "%" },
-                { label: "Response Rate", value: avgResponseRate, target: 70, unit: "%" },
               ].map(m => {
                 const hit = m.invert ? m.value <= m.target : m.value >= m.target;
                 return (
