@@ -1765,6 +1765,17 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
   const toImport = countries ? [...(selectedCountries || new Set())].filter(c => !(importedCountryCodes || new Set()).has(c)) : [];
   const filtered = countries ? (regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter)) : [];
   const imported = importedCountryCodes || new Set();
+  const [periodDays, setPeriodDays] = useState(90);
+
+  // Filter reviews by period
+  const dealersInPeriod = useMemo(() => dealers.map(d => ({
+    ...d,
+    recentReviews: (d.recentReviews || []).filter(r => r.daysAgo <= periodDays),
+  })), [dealers, periodDays]);
+
+  const periodReviewCount = dealersInPeriod.reduce((s,d) => s + d.recentReviews.length, 0);
+  const periodNegCount = dealersInPeriod.reduce((s,d) => s + d.recentReviews.filter(r => r.stars <= 2).length, 0);
+  const periodNegPct = periodReviewCount > 0 ? ((periodNegCount / periodReviewCount) * 100).toFixed(1) : 0;
 
   if (!dealers.length && countries) return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, animation: "slideIn 0.4s ease" }}>
@@ -1946,6 +1957,27 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {/* ── Period filter ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 12, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1 }}>Reviews period:</span>
+        {[
+          { label: "7 days", value: 7 },
+          { label: "30 days", value: 30 },
+          { label: "90 days", value: 90 },
+          { label: "All time", value: 9999 },
+        ].map(p => (
+          <button key={p.value} onClick={() => setPeriodDays(p.value)} style={{
+            padding: "5px 14px", borderRadius: 20, border: `1px solid ${periodDays === p.value ? T.SKODA_ACCENT : T.BORDER}`,
+            background: periodDays === p.value ? `${T.SKODA_ACCENT}22` : "transparent",
+            color: periodDays === p.value ? T.SKODA_ACCENT : T.TEXT_DIM,
+            fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+          }}>{p.label}</button>
+        ))}
+        <span style={{ marginLeft: "auto", fontSize: 12, color: T.TEXT_DIM }}>
+          {periodReviewCount} reviews · {periodNegPct}% negative
+        </span>
+      </div>
 
       {/* ── Row 1: Hero KPI cards ── */}
       <div className="resp-grid-5" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
