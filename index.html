@@ -1146,6 +1146,8 @@ function SkodaDealerDashboard() {
   const [countryFilter, setCountryFilter] = useState("all");
 
   const [realDataStatus, setRealDataStatus] = useState(null);
+  const [snapshots, setSnapshots] = useState({}); // { "2026-03-07": {CZ: [...]} }
+  const [snapshotDates, setSnapshotDates] = useState([]); // sorted desc
 
   useEffect(() => {
     setRealDataStatus("loading");
@@ -1159,6 +1161,34 @@ function SkodaDealerDashboard() {
         setActiveTab("summary");
       })
       .catch(() => setRealDataStatus("unavailable"));
+  }, []);
+
+  // Load available snapshots index
+  useEffect(() => {
+    // Fetch last 30 snapshots by trying dates going back from today
+    const today = new Date();
+    const datesToTry = Array.from({ length: 30 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      return d.toISOString().split("T")[0];
+    });
+
+    const loadSnapshot = async (date) => {
+      try {
+        const r = await fetch(`snapshots/${date}.json`);
+        if (!r.ok) return null;
+        const data = await r.json();
+        return { date, data };
+      } catch { return null; }
+    };
+
+    Promise.all(datesToTry.map(loadSnapshot)).then(results => {
+      const found = results.filter(Boolean);
+      const snapshotMap = {};
+      found.forEach(({ date, data }) => { snapshotMap[date] = data; });
+      setSnapshots(snapshotMap);
+      setSnapshotDates(found.map(f => f.date).sort((a,b) => b.localeCompare(a)));
+    });
   }, []);
 
   // All imported dealers flat
@@ -1401,7 +1431,7 @@ function SkodaDealerDashboard() {
 
       {/* ── CONTENT ── */}
       <div style={{ padding: "16px 12px", maxWidth: 1400, margin: "0 auto" }}>
-        {activeTab === "summary" && <ExecutiveSummaryPanel dealers={allDealers} importedData={importedData} onSelectDealer={setSelectedDealer} setActiveTab={setActiveTab} countries={EUROPEAN_COUNTRIES} selectedCountries={selectedCountries} toggleCountry={toggleCountry} selectRegion={selectRegion} onImport={handleImport} importing={importing} importProgress={importProgress} importedCountryCodes={importedCountryCodes} regionFilter={regionFilter} setRegionFilter={setRegionFilter} setSelected={setSelectedCountries} />}
+        {activeTab === "summary" && <ExecutiveSummaryPanel dealers={allDealers} importedData={importedData} onSelectDealer={setSelectedDealer} setActiveTab={setActiveTab} countries={EUROPEAN_COUNTRIES} selectedCountries={selectedCountries} toggleCountry={toggleCountry} selectRegion={selectRegion} onImport={handleImport} importing={importing} importProgress={importProgress} importedCountryCodes={importedCountryCodes} regionFilter={regionFilter} setRegionFilter={setRegionFilter} setSelected={setSelectedCountries} snapshots={snapshots} snapshotDates={snapshotDates} />}
         {activeTab === "admin" && <AdminPanel
           countries={EUROPEAN_COUNTRIES}
           selected={selectedCountries}
@@ -1758,7 +1788,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
 // EXECUTIVE SUMMARY PANEL
 // ═══════════════════════════════════════════════════════════════
 
-function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiveTab, countries, selectedCountries, toggleCountry, selectRegion, onImport, importing, importProgress, importedCountryCodes, regionFilter, setRegionFilter, setSelected }) {
+function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiveTab, countries, selectedCountries, toggleCountry, selectRegion, onImport, importing, importProgress, importedCountryCodes, regionFilter, setRegionFilter, setSelected, snapshots = {}, snapshotDates = [] }) {
   const T = useTheme();
   const t = useLang();
 
@@ -1766,6 +1796,17 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
   const filtered = countries ? (regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter)) : [];
   const imported = importedCountryCodes || new Set();
   const [periodDays, setPeriodDays] = useState(90);
+  const [compareDate, setCompareDate] = useState(null);
+
+  // Comparison snapshot dealers
+  const compareDealers = useMemo(() => {
+    if (!compareDate || !snapshots[compareDate]) return null;
+    return Object.values(snapshots[compareDate]).flat();
+  }, [compareDate, snapshots]);
+
+  const compareAvgRating = compareDealers
+    ? parseFloat((compareDealers.reduce((s,d) => s + d.rating, 0) / compareDealers.length).toFixed(2))
+    : null;
 
   // Filter reviews by period
   const dealersInPeriod = useMemo(() => dealers.map(d => ({
@@ -1958,7 +1999,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-      {/* ── Period filter ── */}
+      {/* ── Period filter + Compare ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontSize: 12, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1 }}>Reviews period:</span>
         {[
@@ -1974,6 +2015,36 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
             fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
           }}>{p.label}</button>
         ))}
+
+        {snapshotDates.length > 0 && (
+          <Fragment>
+            <span style={{ fontSize: 12, color: T.BORDER }}>|</span>
+            <span style={{ fontSize: 12, color: T.TEXT_DIM, textTransform: "uppercase", letterSpacing: 1 }}>Compare with:</span>
+            <select
+              value={compareDate || ""}
+              onChange={e => setCompareDate(e.target.value || null)}
+              style={{
+                background: T.SURFACE_3, border: `1px solid ${T.BORDER}`, borderRadius: 8,
+                color: T.TEXT, fontSize: 12, padding: "4px 10px", cursor: "pointer",
+              }}
+            >
+              <option value="">— none —</option>
+              {snapshotDates.map(d => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+            {compareDate && compareAvgRating !== null && (
+              <span style={{ fontSize: 12, color: T.TEXT_DIM }}>
+                Avg rating then: <span style={{ color: T.SKODA_ACCENT, fontWeight: 700 }}>{compareAvgRating}★</span>
+                {" "}
+                <span style={{ color: avgRating >= compareAvgRating ? "#78FAAE" : "#FF4D4D", fontWeight: 700 }}>
+                  ({avgRating >= compareAvgRating ? "+" : ""}{(avgRating - compareAvgRating).toFixed(2)})
+                </span>
+              </span>
+            )}
+          </Fragment>
+        )}
+
         <span style={{ marginLeft: "auto", fontSize: 12, color: T.TEXT_DIM }}>
           {periodReviewCount} reviews · {periodNegPct}% negative
         </span>

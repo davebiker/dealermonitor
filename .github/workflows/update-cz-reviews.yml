@@ -2,8 +2,8 @@ name: Update CZ Reviews
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Daily at 6:00 UTC
-  workflow_dispatch:       # Manual trigger
+    - cron: '0 6 * * *'  # Každý den v 6:00 UTC (7:00 CET / 8:00 CEST)
+  workflow_dispatch:       # Možnost spustit ručně z GitHubu
 
 permissions:
   contents: write
@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -24,9 +26,17 @@ jobs:
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
         run: node fetch-cz-reviews.js
 
-      - name: Commit and push if changed
+      - name: Save dated snapshot
+        run: |
+          mkdir -p snapshots
+          DATE=$(date -u '+%Y-%m-%d')
+          cp cz-real-data.json snapshots/${DATE}.json
+          echo "Snapshot saved: snapshots/${DATE}.json"
+
+      - name: Commit and push updated data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cz-real-data.json
-          git diff --staged --quiet || (git commit -m "chore: daily CZ reviews update" && git push)
+          git add cz-real-data.json snapshots/
+          git diff --staged --quiet || git commit -m "chore: update CZ reviews data [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git push
