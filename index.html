@@ -3574,8 +3574,8 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
     return { ...c, avgScore, dealerCount: ds.length, belowMin, alertCount };
   }).sort((a,b) => a.avgScore - b.avgScore);
 
-  // Filtered dealers
-  let filtered = [...dealers];
+  // Filtered dealers – only those with profileQuality data
+  let filtered = dealers.filter(d => d.profileQuality);
   if (countryFilter !== "all") filtered = filtered.filter(d => d.country === countryFilter);
   if (alertFilter === "critical") filtered = filtered.filter(d => (d.profileQuality?.totalScore ?? 0) < 50);
   else if (alertFilter === "warning") filtered = filtered.filter(d => (d.profileQuality?.totalScore ?? 0) < 70);
@@ -3636,6 +3636,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
   const renderDetail = () => {
     const d = selectedDealer;
     const pq = d.profileQuality;
+    if (!pq) return <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>{t("alerts.noData")}</div>;
     const cats = pq.categories;
 
     const CategorySection = ({ title, icon, data, items }) => (
