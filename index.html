@@ -1431,7 +1431,7 @@ function SkodaDealerDashboard() {
 
       {/* ── CONTENT ── */}
       <div style={{ padding: "16px 12px", maxWidth: 1400, margin: "0 auto" }}>
-        {activeTab === "summary" && <ExecutiveSummaryPanel dealers={allDealers} importedData={importedData} onSelectDealer={setSelectedDealer} setActiveTab={setActiveTab} countries={EUROPEAN_COUNTRIES} selectedCountries={selectedCountries} toggleCountry={toggleCountry} selectRegion={selectRegion} onImport={handleImport} importing={importing} importProgress={importProgress} importedCountryCodes={importedCountryCodes} regionFilter={regionFilter} setRegionFilter={setRegionFilter} setSelected={setSelectedCountries} snapshots={snapshots} snapshotDates={snapshotDates} />}
+        {activeTab === "summary" && <ExecutiveSummaryPanel dealers={allDealers} importedData={importedData} onSelectDealer={setSelectedDealer} setActiveTab={setActiveTab} countries={EUROPEAN_COUNTRIES} selectedCountries={selectedCountries} toggleCountry={toggleCountry} selectRegion={selectRegion} onImport={handleImport} onRemove={handleRemoveCountry} importing={importing} importProgress={importProgress} importedCountryCodes={importedCountryCodes} regionFilter={regionFilter} setRegionFilter={setRegionFilter} setSelected={setSelectedCountries} snapshots={snapshots} snapshotDates={snapshotDates} />}
         {activeTab === "admin" && <AdminPanel
           countries={EUROPEAN_COUNTRIES}
           selected={selectedCountries}
@@ -1565,7 +1565,16 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
           background: T.SURFACE_2, color: T.SKODA_ACCENT, border: `1px solid ${T.BORDER}`,
           cursor: "pointer",
         }}>{t("btn.selectAll")} {regionFilter}</button>
-        <button onClick={() => setSelected(new Set())} style={{
+        <button onClick={() => {
+          // Keep only countries with real data, remove mock selections and imports
+          const realCodes = Object.entries(importedData).filter(([_, dealers]) => dealers.some(d => d.hasRealData)).map(([code]) => code);
+          setSelected(new Set(realCodes));
+          // Remove mock imported countries
+          Object.keys(importedData).forEach(code => {
+            const dealers = importedData[code] || [];
+            if (!dealers.some(d => d.hasRealData)) onRemove(code);
+          });
+        }} style={{
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
           background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`,
           cursor: "pointer",
@@ -1788,7 +1797,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
 // EXECUTIVE SUMMARY PANEL
 // ═══════════════════════════════════════════════════════════════
 
-function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiveTab, countries, selectedCountries, toggleCountry, selectRegion, onImport, importing, importProgress, importedCountryCodes, regionFilter, setRegionFilter, setSelected, snapshots = {}, snapshotDates = [] }) {
+function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiveTab, countries, selectedCountries, toggleCountry, selectRegion, onImport, onRemove, importing, importProgress, importedCountryCodes, regionFilter, setRegionFilter, setSelected, snapshots = {}, snapshotDates = [] }) {
   const T = useTheme();
   const t = useLang();
 
@@ -1842,7 +1851,14 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
           background: T.SURFACE_2, color: T.SKODA_ACCENT, border: `1px solid ${T.BORDER}`, cursor: "pointer",
         }}>{t("btn.selectAll")} {regionFilter}</button>
-        <button onClick={() => setSelected(new Set())} style={{
+        <button onClick={() => {
+          const realCodes = Object.entries(importedData).filter(([_, dealers]) => dealers.some(d => d.hasRealData)).map(([code]) => code);
+          setSelected(new Set(realCodes));
+          Object.keys(importedData).forEach(code => {
+            const dealers = importedData[code] || [];
+            if (!dealers.some(d => d.hasRealData)) onRemove(code);
+          });
+        }} style={{
           padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
           background: T.SURFACE_2, color: T.TEXT_DIM, border: `1px solid ${T.BORDER}`, cursor: "pointer",
         }}>{t("btn.clearSelection")}</button>
