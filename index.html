@@ -929,6 +929,17 @@ const Badge = ({ children, color, style = {} }) => {
   );
 };
 
+const FlagImg = ({ code, size = 20 }) => {
+  if (!code) return null;
+  const w = Math.round(size * 1.5);
+  return React.createElement("img", {
+    src: `https://flagcdn.com/w${w > 20 ? w : 20}/${code.toLowerCase()}.png`,
+    srcSet: `https://flagcdn.com/w${(w > 20 ? w : 20) * 2}/${code.toLowerCase()}.png 2x`,
+    alt: code,
+    style: { width: size, height: Math.round(size * 0.75), borderRadius: 2, objectFit: "cover", verticalAlign: "middle", display: "inline-block" },
+  });
+};
+
 const Stat = ({ label, value, sub, alert }) => {
   const T = useTheme();
   const t = useLang();
@@ -1529,7 +1540,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
                   border: `1px solid ${T.SKODA_ACCENT}44`, display: "flex", alignItems: "center", gap: 8,
                   fontSize: 12,
                 }}>
-                  <span>{c?.flag}</span>
+                  <FlagImg code={c?.code} size={16} />
                   <span style={{ fontWeight: 600 }}>{c?.name}</span>
                   <span style={{ color: T.TEXT_DIM }}>{dealers.length} dealers</span>
                   {dealers.some(d => d.hasRealData) && (
@@ -1601,7 +1612,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
               color: T.TEXT,
               fontFamily: "inherit",
             }}>
-              <span style={{ fontSize: 22 }}>{c.flag}</span>
+              <FlagImg code={c.code} size={22} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
                 <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} dealers · {c.region}</div>
@@ -1744,7 +1755,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <StarRating rating={r.stars} size={12} />
                     <span style={{ fontWeight: 600, fontSize: 12 }}>{r.dealer.name}</span>
-                    <Badge color={T.TEXT_DIM}>{r.dealer.flag} {r.dealer.countryName}</Badge>
+                    <Badge color={T.TEXT_DIM}><FlagImg code={r.dealer.country} size={12} /> {r.dealer.countryName}</Badge>
                     {r.review?.langCode && r.review.langCode !== "en" && <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 4, background: T.SURFACE_3, color: T.TEXT_DIM, fontWeight: 600, textTransform: "uppercase" }}>{r.review.langName || r.review.langCode}</span>}
                   </div>
                   <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.daysAgo === 0 ? t("label.today") : `${r.daysAgo}${t("label.dAgo")}`}</span>
@@ -1775,7 +1786,7 @@ function AlertsPanel({ dealers, onSelectDealer, setActiveTab }) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city}, {d.countryName} · {d.reviewCount} reviews</div>
+                <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={14} /> {d.city}, {d.countryName} · {d.reviewCount} reviews</div>
               </div>
               <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
                 {d.alerts.map((a, j) => (
@@ -1877,7 +1888,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
               display: "flex", alignItems: "center", gap: 10,
               transition: "background 0.15s, border-color 0.15s, color 0.15s", textAlign: "left", color: T.TEXT, fontFamily: "inherit",
             }}>
-              <span style={{ fontSize: 22 }}>{c.flag}</span>
+              <FlagImg code={c.code} size={22} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
                 <div style={{ fontSize: 11, color: T.TEXT_DIM }}>~{c.dealers} {t("label.dealers")} · {c.region}</div>
@@ -2168,7 +2179,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 border: `1px solid ${heatColor(c.avgRating)}44`,
                 cursor: "pointer", textAlign: "center", transition: "transform 0.15s",
               }}>
-                <div style={{ fontSize: 22, marginBottom: 4 }}>{c.flag}</div>
+                <div style={{ marginBottom: 4 }}><FlagImg code={c.code} size={22} /></div>
                 <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 2 }}>{c.name}</div>
                 <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", color: heatColor(c.avgRating) }}>{c.avgRating}</div>
                 <div style={{ fontSize: 11, color: T.TEXT_DIM, marginTop: 2 }}>{c.dealers}d · {c.negAvg}% neg</div>
@@ -2203,7 +2214,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 }}>{a.severity}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{a.text}</div>
-                  <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{a.dealer.flag} {a.dealer.name} · {a.dealer.city}</div>
+                  <div style={{ fontSize: 10, color: T.TEXT_DIM }}><FlagImg code={a.dealer.country} size={12} /> {a.dealer.name} · {a.dealer.city}</div>
                 </div>
               </div>
             ))}
@@ -2259,7 +2270,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: i === 0 ? "#FFD700" : i === 1 ? "#C0C0C0" : i === 2 ? "#CD7F32" : T.TEXT_DIM }}>{i+1}.</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={14} /> {d.city}</div>
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 700, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{d.rating}★</span>
               </div>
@@ -2277,7 +2288,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: T.ALERT_RED }}>{i+1}.</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={14} /> {d.city}</div>
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 700, color: T.ALERT_RED, fontFamily: "'JetBrains Mono', monospace" }}>{d.rating}★</span>
               </div>
@@ -2297,7 +2308,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: "#4ADE80" }}>{i+1}.</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={14} /> {d.city}</div>
                 </div>
                 <span style={{ fontSize: 11, fontWeight: 700, color: "#4ADE80", fontFamily: "'JetBrains Mono', monospace" }}>+{d.trend}</span>
               </div>
@@ -2315,7 +2326,7 @@ function ExecutiveSummaryPanel({ dealers, importedData, onSelectDealer, setActiv
                 <span style={{ fontWeight: 700, fontSize: 12, width: 18, color: T.ALERT_ORANGE }}>{i+1}.</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city}</div>
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={14} /> {d.city}</div>
                 </div>
                 <span style={{ fontSize: 11, fontWeight: 700, color: T.ALERT_RED, fontFamily: "'JetBrains Mono', monospace" }}>{d.trend}</span>
               </div>
@@ -2513,7 +2524,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
             cursor: "pointer", fontFamily: "inherit",
             display: "flex", alignItems: "center", gap: 5,
           }}>
-            <span>{c.flag}</span>
+            <FlagImg code={c.code} size={16} />
             <span>{c.name}</span>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>({c.dealers})</span>
             {c.alertCount > 0 && <span style={{ width: 6, height: 6, borderRadius: 3, background: T.ALERT_RED, display: "inline-block" }} />}
@@ -2703,7 +2714,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                         <td style={{ padding: "12px 10px", fontSize: 11, color: T.TEXT_DIM, fontFamily: "'JetBrains Mono', monospace" }}>{i+1}</td>
                         <td style={{ padding: "12px 10px" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontSize: 16 }}>{flag}</span>
+                            <FlagImg code={d.country} size={16} />
                             <div style={{ minWidth: 0 }}>
                               <div style={{ fontWeight: 600, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 260, display: "flex", alignItems: "center", gap: 6 }}>
                                 {d.name}
@@ -2820,7 +2831,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                    <span style={{ fontSize: 20 }}>{flag}</span>
+                    <FlagImg code={d.country} size={20} />
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontWeight: 700, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
                         {d.name}
@@ -2873,7 +2884,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
                 cursor: "pointer", display: "flex", alignItems: "center", gap: 10,
                 transition: "background 0.15s, border-color 0.15s, color 0.15s",
               }}>
-                <span style={{ fontSize: 22 }}>{c.flag}</span>
+                <FlagImg code={c.code} size={22} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 12 }}>{c.name}</div>
                   <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{c.dealers} dealers · {c.totalReviews.toLocaleString()} reviews</div>
@@ -3230,7 +3241,7 @@ function LiveReviewsPanel({ dealers }) {
                 animation: paused ? "none" : "pulse 1.5s infinite",
               }} />
               <span style={{ fontSize: 13, fontWeight: 600 }}>{paused ? t("section.feedPaused") : t("section.liveReviewFeed")}</span>
-              {feedCountry !== "all" && <Badge color={T.SKODA_ACCENT}>{countries.find(c=>c.code===feedCountry)?.flag} {countries.find(c=>c.code===feedCountry)?.name}</Badge>}
+              {feedCountry !== "all" && <Badge color={T.SKODA_ACCENT}><FlagImg code={feedCountry} size={12} /> {countries.find(c=>c.code===feedCountry)?.name}</Badge>}
             </div>
             <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{displayReviews.length} in feed</span>
           </div>
@@ -3259,7 +3270,7 @@ function LiveReviewsPanel({ dealers }) {
                   </div>
                   <div style={{ fontSize: 12, color: T.TEXT_DIM, lineHeight: 1.6, marginBottom: 8 }}>{r.text}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 14 }}>{r.dealer.flag}</span>
+                    <FlagImg code={r.dealer.country} size={14} />
                     <span style={{ fontSize: 11, color: T.TEXT_DIM }}>
                       <span style={{ fontWeight: 600, color: T.TEXT }}>{r.dealer.name}</span> · {r.dealer.city}
                     </span>
@@ -3289,7 +3300,7 @@ function LiveReviewsPanel({ dealers }) {
                     border: isSelected ? `1px solid ${T.SKODA_ACCENT}44` : "1px solid transparent",
                     transition: "background 0.5s",
                   }}>
-                    <span style={{ fontSize: 16 }}>{c.flag}</span>
+                    <FlagImg code={c.code} size={16} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</div>
                       <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{c.dealers}d · {c.reviews.toLocaleString()}r</div>
@@ -3318,7 +3329,7 @@ function LiveReviewsPanel({ dealers }) {
                 <span style={{ fontSize: 12, width: 18, color: i === 0 ? "#FFD700" : T.TEXT_DIM, fontWeight: 700 }}>{i+1}.</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city} · {d.count} reviews</div>
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={12} /> {d.city} · {d.count} reviews</div>
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 700, color: T.SKODA_ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{d.avg}★</span>
               </div>
@@ -3335,7 +3346,7 @@ function LiveReviewsPanel({ dealers }) {
                 <span style={{ fontSize: 12, width: 18, color: T.ALERT_RED, fontWeight: 700 }}>{i+1}.</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{d.flag} {d.city} · {d.count} reviews</div>
+                  <div style={{ fontSize: 11, color: T.TEXT_DIM }}><FlagImg code={d.country} size={12} /> {d.city} · {d.count} reviews</div>
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 700, color: d.avg < 2.5 ? T.ALERT_RED : T.ALERT_ORANGE, fontFamily: "'JetBrains Mono', monospace" }}>{d.avg}★</span>
               </div>
@@ -3685,7 +3696,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
         <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 20, border: `1px solid ${T.BORDER}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700 }}>{d.name}</div>
-            <div style={{ fontSize: 13, color: T.TEXT_DIM, marginTop: 4 }}>{d.flag} {d.city}, {d.countryName}</div>
+            <div style={{ fontSize: 13, color: T.TEXT_DIM, marginTop: 4 }}><FlagImg code={d.country} size={14} /> {d.city}, {d.countryName}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{ textAlign: "center" }}>
@@ -3744,7 +3755,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
 
         {/* Comparison with country avg */}
         <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("pq.vsCountryAvg")} ({d.flag} {d.countryName})</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("pq.vsCountryAvg")} (<FlagImg code={d.country} size={14} /> {d.countryName})</div>
           <div style={{ height: 250 }}>
             <ResponsiveContainer>
               <BarChart data={(() => {
@@ -3826,7 +3837,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
                 background: countryFilter === c.code ? T.SURFACE_3 : "transparent",
                 borderBottom: `1px solid ${T.BORDER}22`,
               }}>
-                <span style={{ fontSize: 16 }}>{c.flag}</span>
+                <FlagImg code={c.code} size={16} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 600 }}>{c.name}</div>
                   <div style={{ fontSize: 10, color: T.TEXT_DIM }}>{c.dealerCount} dealers · {c.belowMin} below min</div>
@@ -3879,7 +3890,7 @@ function ProfileQualityPanel({ dealers, onSelectDealer, setActiveTab }) {
                 return (
                   <tr key={d.id} className="dealer-row" onClick={() => setSelectedDealer(d)} style={{ cursor: "pointer", borderBottom: `1px solid ${T.BORDER}22` }}>
                     <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 600 }}>{d.name}</td>
-                    <td style={{ padding: "10px 12px", fontSize: 12 }}>{d.flag} {d.countryName}</td>
+                    <td style={{ padding: "10px 12px", fontSize: 12 }}><FlagImg code={d.country} size={14} /> {d.countryName}</td>
                     <td style={{ padding: "10px 12px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 13, fontWeight: 700, color: getScoreColor(pq.totalScore), minWidth: 32 }}>{pq.totalScore}</span>
@@ -4089,7 +4100,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                     <div style={{ fontSize: 22, fontWeight: 700 }}>{dealer.name}</div>
                     <div style={{ background: gradeColor + "22", color: gradeColor, padding: "2px 10px", borderRadius: 6, fontWeight: 800, fontSize: 14, border: `1px solid ${gradeColor}44` }}>{profileGrade}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 4 }}>{flag} {dealer.address || `${dealer.city}, ${dealer.countryName}`}</div>
+                  <div style={{ fontSize: 12, color: T.TEXT_DIM, marginTop: 4 }}><FlagImg code={dealer?.country} size={14} /> {dealer.address || `${dealer.city}, ${dealer.countryName}`}</div>
                   {dealer.isMultibrand && <Badge color={T.ALERT_YELLOW} style={{ marginTop: 6 }}>Multibrand: {dealer.brands.join(", ")}</Badge>}
                   <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                     <a href={`tel:${dealer.phone}`} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: T.SKODA_ACCENT, color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", cursor: "pointer" }}>{t("btn.call")}</a>
@@ -4303,13 +4314,13 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             {/* Country headers */}
             <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "center" }}>
               <div style={{ background: COLOR_A + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_A}44`, textAlign: "center" }}>
-                <div style={{ fontSize: 28 }}>{aggA.flag}</div>
+                <div><FlagImg code={aggA.code} size={28} /></div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: COLOR_A }}>{aggA.name}</div>
                 <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{aggA.dealerCount} {t("label.dealers")}</div>
               </div>
               <div style={{ fontSize: 20, fontWeight: 700, color: T.TEXT_DIM }}>VS</div>
               <div style={{ background: COLOR_B + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_B}44`, textAlign: "center" }}>
-                <div style={{ fontSize: 28 }}>{aggB.flag}</div>
+                <div><FlagImg code={aggB.code} size={28} /></div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: COLOR_B }}>{aggB.name}</div>
                 <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{aggB.dealerCount} {t("label.dealers")}</div>
               </div>
@@ -4393,7 +4404,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                       <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{label}</div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: COLOR_A, marginBottom: 8 }}>{aggA.flag} {aggA.name}</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: COLOR_A, marginBottom: 8 }}><FlagImg code={aggA.code} size={14} /> {aggA.name}</div>
                           {dsA.map(d => (
                             <div key={d.id} style={{ fontSize: 12, padding: "4px 0", borderBottom: `1px solid ${T.BORDER}22`, display: "flex", justifyContent: "space-between" }}>
                               <span style={{ color: T.TEXT }}>{d.name}</span>
@@ -4402,7 +4413,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                           ))}
                         </div>
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: COLOR_B, marginBottom: 8 }}>{aggB.flag} {aggB.name}</div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: COLOR_B, marginBottom: 8 }}><FlagImg code={aggB.code} size={14} /> {aggB.name}</div>
                           {dsB.map(d => (
                             <div key={d.id} style={{ fontSize: 12, padding: "4px 0", borderBottom: `1px solid ${T.BORDER}22`, display: "flex", justifyContent: "space-between" }}>
                               <span style={{ color: T.TEXT }}>{d.name}</span>
@@ -4468,7 +4479,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             <div className="resp-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "center" }}>
               <div style={{ background: COLOR_A + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_A}44` }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: COLOR_A }}>{dealerA.name}</div>
-                <div style={{ fontSize: 12, color: T.TEXT_DIM }}>{dealerA.flag} {dealerA.city}</div>
+                <div style={{ fontSize: 12, color: T.TEXT_DIM }}><FlagImg code={dealerA.country} size={14} /> {dealerA.city}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                   <Badge color={COLOR_A}>{dealerA.rating}★</Badge>
                   <Badge color={T.TEXT_DIM}>{dealerA.reviewCount} reviews</Badge>
@@ -4477,7 +4488,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               <div style={{ fontSize: 20, fontWeight: 700, color: T.TEXT_DIM }}>VS</div>
               <div style={{ background: COLOR_B + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_B}44` }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: COLOR_B }}>{dealerB.name}</div>
-                <div style={{ fontSize: 12, color: T.TEXT_DIM }}>{dealerB.flag} {dealerB.city}</div>
+                <div style={{ fontSize: 12, color: T.TEXT_DIM }}><FlagImg code={dealerB.country} size={14} /> {dealerB.city}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                   <Badge color={COLOR_B}>{dealerB.rating}★</Badge>
                   <Badge color={T.TEXT_DIM}>{dealerB.reviewCount} reviews</Badge>
