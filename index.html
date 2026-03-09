@@ -1509,7 +1509,7 @@ function AdminPanel({ countries, selected, imported, importedData, toggle, selec
   const T = useTheme();
   const t = useLang();
   const toImport = [...selected].filter(c => !imported.has(c));
-  const filtered = regionFilter === "All" ? countries : countries.filter(c => c.region === regionFilter);
+  const filtered = (regionFilter === "All" ? [...countries].sort((a, b) => a.name.localeCompare(b.name)) : countries.filter(c => c.region === regionFilter));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
