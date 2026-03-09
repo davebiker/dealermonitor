@@ -1158,7 +1158,6 @@ function SkodaDealerDashboard() {
         setSelectedCountries(prev => { const s = new Set(prev); Object.keys(data).forEach(k => s.add(k)); return s; });
         setRealDataStatus("loaded");
         setShowWelcome(false);
-        setActiveTab("summary");
       })
       .catch(() => setRealDataStatus("unavailable"));
   }, []);
