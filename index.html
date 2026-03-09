@@ -4253,6 +4253,14 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
 
   // ── Country vs Country ──
   const renderCountryVsCountry = () => {
+    if (countries.length < 2) return (
+      <div style={{ textAlign: "center", padding: 60, color: T.TEXT_DIM }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>🌍</div>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>{t("bench.needTwoCountries") || "Import at least 2 countries to compare"}</div>
+        <div style={{ fontSize: 13, marginTop: 8 }}>{t("bench.goToAdmin") || "Go to Select Country tab and import more countries"}</div>
+      </div>
+    );
+
     const aggA = countryA ? getCountryAgg(countryA) : null;
     const aggB = countryB ? getCountryAgg(countryB) : null;
 
@@ -4261,13 +4269,20 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
       A: aggA.sentiments[cat], B: aggB.sentiments[cat],
     })) : [];
 
-    const trendData = aggA && aggB ? aggA.monthly.map((m, i) => ({
+    const hasMonthly = aggA && aggB && aggA.monthly.length > 0 && aggB.monthly.length > 0;
+    const trendData = hasMonthly ? aggA.monthly.map((m, i) => ({
       month: m.month, A: parseFloat(m.avgRating), B: parseFloat(aggB.monthly[i]?.avgRating) || parseFloat(m.avgRating),
     })) : [];
 
-    const volumeData = aggA && aggB ? aggA.monthly.map((m, i) => ({
+    const volumeData = hasMonthly ? aggA.monthly.map((m, i) => ({
       month: m.month, A: m.reviews, B: aggB.monthly[i]?.reviews || 0,
     })) : [];
+
+    // Top/bottom dealers from each country for direct comparison
+    const topBottom = (code, n) => {
+      const ds = dealers.filter(d => d.country === code).sort((a,b) => b.rating - a.rating);
+      return { top: ds.slice(0, n), bottom: ds.slice(-n).reverse() };
+    };
 
     return (
       <>
@@ -4281,7 +4296,7 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
             <option value="">{t("bench.selectCountryB")}</option>
             {countries.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
           </select>
-          <PeriodPicker />
+          {hasMonthly && <PeriodPicker />}
         </div>
 
         {aggA && aggB && (
@@ -4291,13 +4306,13 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               <div style={{ background: COLOR_A + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_A}44`, textAlign: "center" }}>
                 <div style={{ fontSize: 28 }}>{aggA.flag}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: COLOR_A }}>{aggA.name}</div>
-                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{aggA.dealerCount} dealers</div>
+                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{aggA.dealerCount} {t("label.dealers")}</div>
               </div>
               <div style={{ fontSize: 20, fontWeight: 700, color: T.TEXT_DIM }}>VS</div>
               <div style={{ background: COLOR_B + "15", borderRadius: 10, padding: 14, border: `1px solid ${COLOR_B}44`, textAlign: "center" }}>
                 <div style={{ fontSize: 28 }}>{aggB.flag}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: COLOR_B }}>{aggB.name}</div>
-                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{aggB.dealerCount} dealers</div>
+                <div style={{ fontSize: 11, color: T.TEXT_DIM }}>{aggB.dealerCount} {t("label.dealers")}</div>
               </div>
             </div>
 
@@ -4306,29 +4321,11 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               <CompareVal label={t("stat.avgRating")} valA={aggA.avgRating} valB={aggB.avgRating} suffix="★" />
               <CompareVal label={t("stat.totalReviews")} valA={aggA.totalReviews} valB={aggB.totalReviews} suffix="" />
               <CompareVal label={t("stat.negative") + " %"} valA={aggA.negPercent} valB={aggB.negPercent} suffix="%" lower />
-              <CompareVal label="Trend" valA={aggA.avgTrend > 0 ? "+"+aggA.avgTrend : aggA.avgTrend} valB={aggB.avgTrend > 0 ? "+"+aggB.avgTrend : aggB.avgTrend} suffix="" />
+              <CompareVal label={t("label.dealers")} valA={aggA.dealerCount} valB={aggB.dealerCount} suffix="" />
             </div>
 
-            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              {/* Rating trend */}
-              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
-                <div style={{ height: 280 }}>
-                  <ResponsiveContainer>
-                    <LineChart data={trendData}>
-                      <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
-                      <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
-                      <YAxis domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
-                      <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                      <Line type="monotone" dataKey="A" stroke={COLOR_A} strokeWidth={2} name={aggA.name} dot={{ fill: COLOR_A }} />
-                      <Line type="monotone" dataKey="B" stroke={COLOR_B} strokeWidth={2} name={aggB.name} dot={{ fill: COLOR_B }} />
-                      <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Radar sentiment */}
+            {/* Radar sentiment – always works */}
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: hasMonthly ? "1fr 1fr" : "1fr", gap: 16 }}>
               <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentComparison")}</div>
                 <div style={{ height: 280 }}>
@@ -4344,25 +4341,82 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                   </ResponsiveContainer>
                 </div>
               </div>
+
+              {/* Rating trend – only if monthly data available */}
+              {hasMonthly && (
+                <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
+                  <div style={{ height: 280 }}>
+                    <ResponsiveContainer>
+                      <LineChart data={trendData}>
+                        <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
+                        <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
+                        <YAxis domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
+                        <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                        <Line type="monotone" dataKey="A" stroke={COLOR_A} strokeWidth={2} name={aggA.name} dot={{ fill: COLOR_A }} />
+                        <Line type="monotone" dataKey="B" stroke={COLOR_B} strokeWidth={2} name={aggB.name} dot={{ fill: COLOR_B }} />
+                        <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Volume bar chart */}
-            <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
-              <div style={{ height: 250 }}>
-                <ResponsiveContainer>
-                  <BarChart data={volumeData}>
-                    <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
-                    <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
-                    <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
-                    <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                    <Bar dataKey="A" fill={COLOR_A} name={aggA.name} radius={[4,4,0,0]} />
-                    <Bar dataKey="B" fill={COLOR_B} name={aggB.name} radius={[4,4,0,0]} />
-                    <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Volume bar chart – only if monthly data available */}
+            {hasMonthly && (
+              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
+                <div style={{ height: 250 }}>
+                  <ResponsiveContainer>
+                    <BarChart data={volumeData}>
+                      <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
+                      <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
+                      <YAxis tick={{ fill: T.TEXT_DIM, fontSize: 10 }} />
+                      <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                      <Bar dataKey="A" fill={COLOR_A} name={aggA.name} radius={[4,4,0,0]} />
+                      <Bar dataKey="B" fill={COLOR_B} name={aggB.name} radius={[4,4,0,0]} />
+                      <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Top & Bottom dealers side by side */}
+            {(() => {
+              const tbA = topBottom(aggA.code, 3);
+              const tbB = topBottom(aggB.code, 3);
+              return (
+                <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  {[{ label: "🏆 Top 3", dealers: [tbA.top, tbB.top] }, { label: "⚠ Bottom 3", dealers: [tbA.bottom, tbB.bottom] }].map(({ label, dealers: [dsA, dsB] }) => (
+                    <div key={label} className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{label}</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: COLOR_A, marginBottom: 8 }}>{aggA.flag} {aggA.name}</div>
+                          {dsA.map(d => (
+                            <div key={d.id} style={{ fontSize: 12, padding: "4px 0", borderBottom: `1px solid ${T.BORDER}22`, display: "flex", justifyContent: "space-between" }}>
+                              <span style={{ color: T.TEXT }}>{d.name}</span>
+                              <span style={{ fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.rating >= 4.5 ? T.SKODA_ACCENT : d.rating < 3.5 ? T.ALERT_RED : T.TEXT }}>{d.rating}★</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: COLOR_B, marginBottom: 8 }}>{aggB.flag} {aggB.name}</div>
+                          {dsB.map(d => (
+                            <div key={d.id} style={{ fontSize: 12, padding: "4px 0", borderBottom: `1px solid ${T.BORDER}22`, display: "flex", justifyContent: "space-between" }}>
+                              <span style={{ color: T.TEXT }}>{d.name}</span>
+                              <span style={{ fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: d.rating >= 4.5 ? T.SKODA_ACCENT : d.rating < 3.5 ? T.ALERT_RED : T.TEXT }}>{d.rating}★</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </>
         )}
       </>
