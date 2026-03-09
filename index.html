@@ -931,10 +931,8 @@ const Badge = ({ children, color, style = {} }) => {
 
 const FlagImg = ({ code, size = 20 }) => {
   if (!code) return null;
-  const w = Math.round(size * 1.5);
   return React.createElement("img", {
-    src: `https://flagcdn.com/w${w > 20 ? w : 20}/${code.toLowerCase()}.png`,
-    srcSet: `https://flagcdn.com/w${(w > 20 ? w : 20) * 2}/${code.toLowerCase()}.png 2x`,
+    src: `https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/${code.toLowerCase()}.svg`,
     alt: code,
     style: { width: size, height: Math.round(size * 0.75), borderRadius: 2, objectFit: "cover", verticalAlign: "middle", display: "inline-block" },
   });
