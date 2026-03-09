@@ -4436,7 +4436,8 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
       return { category: cat.charAt(0).toUpperCase() + cat.slice(1), A: Math.round(sA.pos/tA*100), B: Math.round(sB.pos/tB*100) };
     }) : [];
 
-    const trendData = dealerA && dealerB ? dealerA.monthlyData.slice(-months).map((m, i) => ({
+    const hasMonthlyAB = dealerA && dealerB && dealerA.monthlyData?.length > 0 && dealerB.monthlyData?.length > 0;
+    const trendData = hasMonthlyAB ? dealerA.monthlyData.slice(-months).map((m, i) => ({
       month: m.month, A: parseFloat(m.avgRating), B: parseFloat(dealerB.monthlyData.slice(-months)[i]?.avgRating) || parseFloat(m.avgRating),
     })) : [];
 
@@ -4458,7 +4459,6 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 <option value="">— Dealer B —</option>
                 {countryDealers.map(d => <option key={d.id} value={d.id}>{d.name} ({d.city}) – {d.rating}★</option>)}
               </select>
-              <PeriodPicker />
             </>
           )}
         </div>
@@ -4491,10 +4491,10 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
               <CompareVal label={t("stat.rating")} valA={dealerA.rating} valB={dealerB.rating} suffix="★" />
               <CompareVal label={t("stat.reviews")} valA={dealerA.reviewCount} valB={dealerB.reviewCount} suffix="" />
               <CompareVal label={t("stat.negative") + " %"} valA={dealerA.negativePercent} valB={dealerB.negativePercent} suffix="%" lower />
-              <CompareVal label="Trend" valA={dealerA.trend > 0 ? "+"+dealerA.trend : dealerA.trend} valB={dealerB.trend > 0 ? "+"+dealerB.trend : dealerB.trend} suffix="" />
+              <CompareVal label={t("stat.alerts")} valA={dealerA.alerts.length} valB={dealerB.alerts.length} suffix="" lower />
             </div>
 
-            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: hasMonthlyAB ? "1fr 1fr" : "1fr", gap: 16 }}>
               {/* Radar */}
               <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.sentimentComparison")}</div>
@@ -4512,37 +4512,39 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
                 </div>
               </div>
 
-              {/* Trend */}
-              <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
-                <div style={{ height: 280 }}>
-                  <ResponsiveContainer>
-                    <LineChart data={trendData}>
-                      <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
-                      <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 11 }} />
-                      <YAxis domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 11 }} />
-                      <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
-                      <Line type="monotone" dataKey="A" stroke={COLOR_A} strokeWidth={2} name={dealerA.name} dot={{ fill: COLOR_A }} />
-                      <Line type="monotone" dataKey="B" stroke={COLOR_B} strokeWidth={2} name={dealerB.name} dot={{ fill: COLOR_B }} />
-                      <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
-                    </LineChart>
-                  </ResponsiveContainer>
+              {/* Trend – only if monthly data available */}
+              {hasMonthlyAB && (
+                <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.ratingTrendChart")}</div>
+                  <div style={{ height: 280 }}>
+                    <ResponsiveContainer>
+                      <LineChart data={trendData}>
+                        <CartesianGrid stroke={T.BORDER} strokeDasharray="3 3" />
+                        <XAxis dataKey="month" tick={{ fill: T.TEXT_DIM, fontSize: 11 }} />
+                        <YAxis domain={[2.5, 5]} tick={{ fill: T.TEXT_DIM, fontSize: 11 }} />
+                        <Tooltip contentStyle={{ background: T.SURFACE, border: `1px solid ${T.BORDER}`, borderRadius: 6, fontSize: 12, color: T.TEXT }} />
+                        <Line type="monotone" dataKey="A" stroke={COLOR_A} strokeWidth={2} name={dealerA.name} dot={{ fill: COLOR_A }} />
+                        <Line type="monotone" dataKey="B" stroke={COLOR_B} strokeWidth={2} name={dealerB.name} dot={{ fill: COLOR_B }} />
+                        <Legend wrapperStyle={{ fontSize: 11, color: T.TEXT_DIM }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Side-by-side reviews */}
             <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               {[{ d: dealerA, color: COLOR_A }, { d: dealerB, color: COLOR_B }].map(({ d, color }) => (
                 <div key={d.id} style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color }}>Latest from {d.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color }}>{t("bench.latestFrom") || "Latest from"} {d.name}</div>
                   {d.recentReviews.slice(0, 3).map(r => (
                     <div key={r.id} style={{ background: T.SURFACE, borderRadius: 6, padding: "8px 12px", marginBottom: 8, borderLeft: `3px solid ${color}` }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                         <StarRating rating={r.stars} size={11} />
-                        <span style={{ fontSize: 10, color: T.TEXT_DIM }}>{r.date}</span>
+                        <span style={{ fontSize: 11, color: T.TEXT_DIM }}>{r.date}</span>
                       </div>
-                      <div style={{ fontSize: 11, color: T.TEXT_DIM, lineHeight: 1.5 }}>{r.text}</div>
+                      <div style={{ fontSize: 12, color: T.TEXT, lineHeight: 1.5 }}>{r.text}</div>
                     </div>
                   ))}
                 </div>
