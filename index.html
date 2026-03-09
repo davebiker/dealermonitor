@@ -3981,9 +3981,9 @@ function BenchmarkPanel({ dealers, selected, onSelect }) {
       <div style={{ background: T.SURFACE_2, borderRadius: 10, padding: 14, border: `1px solid ${T.BORDER}`, flex: 1, minWidth: 140 }}>
         <div style={{ fontSize: 11, color: T.TEXT_DIM, marginBottom: 8, textAlign: "center" }}>{label}</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 20, fontWeight: 700, color: aWins ? COLOR_A : T.TEXT }}>{valA}{suffix}</span>
+          <span style={{ fontSize: 20, fontWeight: 700, color: COLOR_A, opacity: aWins ? 1 : 0.5 }}>{valA}{suffix}</span>
           <span style={{ fontSize: 11, color: T.TEXT_DIM }}>vs</span>
-          <span style={{ fontSize: 20, fontWeight: 700, color: bWins ? COLOR_B : T.TEXT }}>{valB}{suffix}</span>
+          <span style={{ fontSize: 20, fontWeight: 700, color: COLOR_B, opacity: bWins ? 1 : 0.5 }}>{valB}{suffix}</span>
         </div>
       </div>
     );
