@@ -2439,14 +2439,16 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
   }));
 
   // ── Monthly aggregated trend ──
-  const months = ["Sep","Oct","Nov","Dec","Jan","Feb"];
-  const monthlyTrend = months.map((m, i) => {
-    const monthData = allDealers.map(d => d.monthlyData[i]);
+  const monthLabels = ["Sep","Oct","Nov","Dec","Jan","Feb"];
+  const dealersWithMonthly = allDealers.filter(d => d.monthlyData && d.monthlyData.length > 0);
+  const monthlyTrend = dealersWithMonthly.length > 0 ? monthLabels.map((m, i) => {
+    const monthData = dealersWithMonthly.map(d => d.monthlyData[i]).filter(Boolean);
+    if (!monthData.length) return { month: m, avgRating: 0, reviews: 0, negative: 0, negPct: 0 };
     const avgRating = parseFloat((monthData.reduce((s,md) => s + parseFloat(md.avgRating), 0) / monthData.length).toFixed(2));
     const totalReviews = monthData.reduce((s,md) => s + md.reviews, 0);
     const totalNeg = monthData.reduce((s,md) => s + md.negative, 0);
-    return { month: m, avgRating, reviews: totalReviews, negative: totalNeg, negPct: parseFloat((totalNeg / totalReviews * 100).toFixed(1)) };
-  });
+    return { month: m, avgRating, reviews: totalReviews, negative: totalNeg, negPct: totalReviews ? parseFloat((totalNeg / totalReviews * 100).toFixed(1)) : 0 };
+  }) : [];
 
   // ── Filtered stats ──
   const fStats = {
@@ -2588,7 +2590,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
       </div>
 
       {/* ── Charts Row 2: Monthly Trend + Negative % ── */}
-      <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      {monthlyTrend.length > 0 && <div className="resp-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div className="panel-card" style={{ background: T.SURFACE_2, borderRadius: 10, padding: 16, border: `1px solid ${T.BORDER}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t("section.monthlyVolume")}</div>
           <div style={{ height: 180 }}>
@@ -2622,7 +2624,7 @@ function OverviewPanel({ dealers, allDealers, importedData, search, setSearch, s
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* ── Filters bar ── */}
       <div style={{
